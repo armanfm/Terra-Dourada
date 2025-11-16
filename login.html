@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Terra Dourada</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, sans-serif;
+        }
+        
+        body {
+            background: #050703;
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: #111;
+            border-radius: 15px;
+            border: 1px solid rgba(212,175,55,0.3);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .login-header {
+            background: linear-gradient(to right, rgba(212,175,55,0.1), rgba(212,175,55,0.05));
+            color: #d4af37;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(212,175,55,0.3);
+        }
+        
+        .login-header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .login-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .login-options {
+            padding: 25px;
+        }
+        
+        .login-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #1a1a1a;
+        }
+        
+        .login-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212,175,55,0.1);
+            border-color: rgba(212,175,55,0.5);
+            background: rgba(212,175,55,0.05);
+        }
+        
+        .option-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            width: 40px;
+            text-align: center;
+        }
+        
+        .option-text {
+            flex: 1;
+        }
+        
+        .option-text h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #f5f5f5;
+        }
+        
+        .option-text p {
+            font-size: 13px;
+            color: #aaa;
+        }
+        
+        .option-arrow {
+            color: #d4af37;
+            font-size: 18px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid rgba(212,175,55,0.1);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .logo span {
+            font-size: 32px;
+        }
+        
+        .info-text {
+            text-align: center;
+            color: #aaa;
+            font-size: 14px;
+            margin-top: 10px;
+            padding: 0 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <span>🌍</span>
+            </div>
+            <h1>Terra Dourada</h1>
+            <p>Escolha seu método de autenticação</p>
+        </div>
+        
+        <div class="login-options">
+            <div class="login-option" data-option="google">
+                <div class="option-icon">🔵</div>
+                <div class="option-text">
+                    <h3>Google Workspace</h3>
+                    <p>Login com conta Google corporativa</p>
+                </div>
+                <div class="option-arrow">→</div>
+            </div>
+            
+            <div class="login-option" data-option="microsoft">
+                <div class="option-icon">🔷</div>
+                <div class="option-text">
+                    <h3>Microsoft 365</h3>
+                    <p>Login com conta Microsoft empresarial</p>
+                </div>
+                <div class="option-arrow">→</div>
+            </div>
+            
+            <div class="login-option" data-option="github">
+                <div class="option-icon">💻</div>
+                <div class="option-text">
+                    <h3>GitHub Enterprise</h3>
+                    <p>Para equipes de desenvolvimento</p>
+                </div>
+                <div class="option-arrow">→</div>
+            </div>
+            
+            <div class="login-option" data-option="sso">
+                <div class="option-icon">🏛️</div>
+                <div class="option-text">
+                    <h3>SSO Corporativo</h3>
+                    <p>Login único (SAML/OAuth2)</p>
+                </div>
+                <div class="option-arrow">→</div>
+            </div>
+        </div>
+        
+        <div class="info-text">
+            <p>Utilize sua conta corporativa para acessar a plataforma</p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 Terra Dourada. Todos os direitos reservados.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginOptions = document.querySelectorAll('.login-option');
+            
+            loginOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const optionType = this.getAttribute('data-option');
+                    
+                    // Simulação de redirecionamento para provedor
+                    const providerNames = {
+                        'google': 'Google Workspace',
+                        'microsoft': 'Microsoft 365',
+                        'github': 'GitHub Enterprise',
+                        'sso': 'SSO Corporativo'
+                    };
+                    
+                    alert(`Redirecionando para ${providerNames[optionType]}...`);
+                    
+                    // Em um cenário real, aqui você redirecionaria para o provedor de autenticação
+                    // window.location.href = `/auth/${optionType}`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
