@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Conectando ao GitHub…</title>
+<script>
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code");
+
+  if (code) {
+
+    // salva o código (não é token)
+    localStorage.setItem("github_oauth_code", code);
+
+    // marca usuário como logado
+    localStorage.setItem("usuario_logado", "github");
+    localStorage.setItem("usuario_login_time", new Date().toISOString());
+
+    // redireciona para o painel
+    window.location.href = "../../autoridade.html";
+
+  } else {
+    document.body.innerHTML = "<h3>Erro ao autenticar com GitHub</h3>";
+  }
+</script>
+</head>
+<body>
+Conectando com GitHub…
+</body>
+</html>
