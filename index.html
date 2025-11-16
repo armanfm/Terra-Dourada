@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terra Dourada - Manifesto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset e Variáveis */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        :root {
+            --primary-gold: #d4af37;
+            --dark-gold: #b8941f;
+            --earth-brown: #8B4513;
+            --deep-green: #2d5016;
+            --dark-bg: #0a0f0a;
+            --card-bg: #1a1f1a;
+            --light-text: #f5f5f5;
+            --accent-blue: #2a9fd6;
+            --accent-green: #4CAF50;
+            --transparency: rgba(255,255,255,0.1);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        
+        /* Banner Sandbox Demo */
+        .sandbox-banner {
+            background: linear-gradient(135deg, var(--primary-gold) 0%, var(--dark-gold) 100%);
+            color: var(--dark-bg);
+            padding: 15px 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            animation: pulseBanner 3s infinite;
+        }
+
+        @keyframes pulseBanner {
+            0% { opacity: 0.95; }
+            50% { opacity: 1; }
+            100% { opacity: 0.95; }
+        }
+
+        .sandbox-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .sandbox-content i {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+
+        .sandbox-btn {
+            background: var(--dark-bg);
+            color: var(--primary-gold);
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--dark-bg);
+        }
+
+        .sandbox-btn:hover {
+            background: transparent;
+            color: var(--dark-bg);
+            transform: translateY(-2px);
+        }
+        
+        /* Estilo para idiomas RTL (Árabe) */
+        body[dir="rtl"] {
+            direction: rtl;
+            text-align: right;
+        }
+        
+        body[dir="rtl"] .manifesto-highlight,
+        body[dir="rtl"] .visao-poema {
+            border-left: none;
+            border-right: 2px solid var(--primary-gold);
+            border-radius: 10px 0 0 10px;
+            text-align: right;
+        }
+        
+        body[dir="rtl"] .manifesto-highlight::before {
+            left: auto;
+            right: 20px;
+        }
+        
+        body[dir="rtl"] .produto-features,
+        body[dir="rtl"] .contact-item {
+            text-align: right;
+        }
+        
+        body[dir="rtl"] .produto-features li i,
+        body[dir="rtl"] .contact-icon {
+            margin-right: 0;
+            margin-left: 10px;
+        }
+        
+        body[dir="rtl"] .language-btn,
+        body[dir="rtl"] .ecosystem-link,
+        body[dir="rtl"] .login-btn {
+            flex-direction: row-reverse;
+        }
+        
+        body[dir="rtl"] .header-content,
+        body[dir="rtl"] .tech-content,
+        body[dir="rtl"] .contact-content {
+            direction: ltr; /* Manter layout LTR para estes elementos */
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        section {
+            padding: 100px 0;
+        }
+        
+        /* Cabeçalho */
+        header {
+            background-color: rgba(10, 15, 10, 0.95);
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 50px; /* Ajuste para o banner sandbox */
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        header.scrolled {
+            padding: 15px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            color: var(--primary-gold);
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-left: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+            color: var(--primary-gold);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+        
+        nav ul li {
+            margin-left: 25px;
+        }
+        
+        nav ul li a {
+            color: var(--light-text);
+            text-decoration: none;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--primary-gold);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        nav ul li a:hover {
+            color: var(--primary-gold);
+        }
+        
+        nav ul li a:hover::after {
+            width: 80%;
+        }
+        
+        /* Botão de Login */
+        .login-btn {
+            background: transparent;
+            color: var(--primary-gold);
+            border: 1px solid var(--primary-gold);
+            padding: 10px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(212, 175, 55, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+        
+        /* Seletor de Idioma */
+        .language-selector {
+            position: relative;
+            margin-left: 15px;
+        }
+        
+        .language-btn {
+            background: transparent;
+            color: var(--light-text);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .language-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(26, 31, 26, 0.95);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            margin-top: 5px;
+            width: 200px;
+            display: none;
+            backdrop-filter: blur(10px);
+            z-index: 1001;
+        }
+        
+        .language-dropdown.show {
+            display: block;
+        }
+        
+        .language-option {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .language-option:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .language-option.active {
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--primary-gold);
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(10, 15, 10, 0.85), rgba(10, 15, 10, 0.9)), 
+                        url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--light-text);
+            padding: 250px 0 150px; /* Ajuste para o banner sandbox */
+            text-align: center;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 20%, rgba(45, 80, 22, 0.1) 0%, transparent 50%);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .hero h2 {
+            font-size: 3.8rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            line-height: 1.2;
+        }
+        
+        .hero h2 span {
+            color: var(--primary-gold);
+            font-weight: 400;
+            position: relative;
+        }
+        
+        .hero h2 span::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-gold), transparent);
+        }
+        
+        .hero p {
+            font-size: 1.4rem;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            line-height: 1.8;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: transparent;
+            color: var(--primary-gold);
+            padding: 16px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.4s ease;
+            border: 1px solid var(--primary-gold);
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+        
+        .btn:hover {
+            background-color: rgba(212, 175, 55, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2);
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Manifesto Section */
+        .manifesto {
+            background-color: var(--dark-bg);
+            position: relative;
+        }
+        
+        .manifesto::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-gold), transparent);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+        
+        .section-title h2 {
+            font-size: 2.8rem;
+            color: var(--light-text);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-gold), transparent);
+        }
+        
+        .manifesto-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .manifesto-text {
+            font-size: 1.3rem;
+            line-height: 1.9;
+            text-align: center;
+            margin-bottom: 60px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+        
+        .manifesto-text p {
+            margin-bottom: 30px;
+        }
+        
+        .manifesto-highlight {
+            color: var(--primary-gold);
+            font-style: italic;
+            font-size: 1.5rem;
+            padding: 40px;
+            border-left: 2px solid var(--primary-gold);
+            background: rgba(212, 175, 55, 0.05);
+            margin: 50px 0;
+            text-align: left;
+            border-radius: 0 10px 10px 0;
+            position: relative;
+        }
+        
+        .manifesto-highlight::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 4rem;
+            color: rgba(212, 175, 55, 0.3);
+            font-family: serif;
+        }
+        
+        /* Produtos Section */
+        .produtos {
+            background-color: var(--card-bg);
+        }
+        
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        
+        .produto-card {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.8), rgba(40, 45, 40, 0.8));
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .produto-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--primary-gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .produto-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .produto-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .produto-icon {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            color: var(--primary-gold);
+        }
+        
+        .produto-card h3 {
+            color: var(--light-text);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+        
+        .produto-card p {
+            color: rgba(245, 245, 245, 0.8);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+        
+        .produto-features {
+            text-align: left;
+            margin-top: 20px;
+        }
+        
+        .produto-features li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .produto-features li i {
+            color: var(--primary-gold);
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+        
+        /* Pilares Section */
+        .pilares {
+            background-color: var(--dark-bg);
+            position: relative;
+        }
+        
+        .pilares-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        
+        .pilar-card {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.8), rgba(40, 45, 40, 0.8));
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .pilar-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--primary-gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .pilar-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pilar-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .pilar-icon {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            color: var(--primary-gold);
+        }
+        
+        .pilar-card h3 {
+            color: var(--light-text);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+        
+        .pilar-card p {
+            color: rgba(245, 245, 245, 0.8);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+        
+        /* Tecnologia Section */
+        .tecnologia {
+            background-color: var(--card-bg);
+        }
+        
+        .tech-content {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+        
+        .tech-text {
+            flex: 1;
+        }
+        
+        .tech-visual {
+            flex: 1;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            height: 400px;
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--dark-bg) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tech-visual::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary-gold), var(--accent-blue), var(--accent-green), var(--primary-gold));
+            z-index: -1;
+            border-radius: 17px;
+            animation: animateBorder 8s linear infinite;
+            background-size: 400%;
+        }
+        
+        @keyframes animateBorder {
+            0% {
+                background-position: 0 0;
+            }
+            50% {
+                background-position: 100% 0;
+            }
+            100% {
+                background-position: 0 0;
+            }
+        }
+        
+        .earth-model {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--primary-gold) 0%, var(--earth-brown) 30%, var(--deep-green) 70%);
+            position: relative;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.3);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .earth-model::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, transparent 30%, rgba(255,255,255,0.1) 30.5%, transparent 31%),
+                radial-gradient(circle at 70% 60%, transparent 30%, rgba(255,255,255,0.1) 30.5%, transparent 31%),
+                radial-gradient(circle at 40% 80%, transparent 20%, rgba(255,255,255,0.1) 20.5%, transparent 21%);
+            border-radius: 50%;
+        }
+
+        /* Parceiros Section */
+        .parceiros {
+            background-color: var(--dark-bg);
+            position: relative;
+        }
+
+        .parceiros::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-gold), transparent);
+        }
+
+        .parceiros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .parceiro-card {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.8), rgba(40, 45, 40, 0.8));
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .parceiro-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--primary-gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .parceiro-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .parceiro-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .parceiro-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 25px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            font-size: 2.5rem;
+            color: var(--primary-gold);
+        }
+
+        .parceiro-card h3 {
+            color: var(--light-text);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            font-weight: 400;
+        }
+
+        .parceiro-card p {
+            color: rgba(245, 245, 245, 0.7);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .parceiro-tipo {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--primary-gold);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        /* Visão Section */
+        .visao {
+            background: linear-gradient(rgba(10, 15, 10, 0.9), rgba(10, 15, 10, 0.9)), 
+                        url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            text-align: center;
+        }
+        
+        .visao-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .visao-text {
+            font-size: 1.4rem;
+            line-height: 1.9;
+            margin-bottom: 40px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+        
+        .visao-poema {
+            color: var(--primary-gold);
+            font-style: italic;
+            font-size: 1.5rem;
+            padding: 40px;
+            margin: 50px 0;
+            text-align: center;
+            position: relative;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            background: rgba(212, 175, 55, 0.05);
+        }
+        
+        .visao-poema p {
+            margin-bottom: 20px;
+        }
+        
+        /* Site em Construção Section */
+        .construcao {
+            background-color: var(--dark-bg);
+            text-align: center;
+            padding: 100px 0;
+        }
+        
+        .construcao-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .construcao-icon {
+            font-size: 5rem;
+            color: var(--primary-gold);
+            margin-bottom: 30px;
+        }
+        
+        .construcao-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            color: rgba(245, 245, 245, 0.8);
+        }
+        
+        /* Rodapé */
+        footer {
+            background-color: var(--card-bg);
+            color: var(--light-text);
+            padding: 80px 0 40px;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+            margin-bottom: 50px;
+        }
+        
+        .footer-column h3 {
+            color: var(--primary-gold);
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        
+        .footer-column p, .footer-column a {
+            color: rgba(245, 245, 245, 0.7);
+            text-decoration: none;
+            margin-bottom: 12px;
+            display: block;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-column a:hover {
+            color: var(--primary-gold);
+        }
+        
+        .ecosystem-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .ecosystem-link {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: rgba(245, 245, 245, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        .ecosystem-link:hover {
+            background: rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+            color: var(--primary-gold);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary-gold);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            font-size: 0.9rem;
+            color: rgba(245, 245, 245, 0.5);
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .sandbox-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .sandbox-content i {
+                margin-right: 0;
+            }
+            
+            header {
+                top: 80px; /* Ajuste maior para mobile */
+            }
+            
+            .hero {
+                padding: 280px 0 150px; /* Ajuste maior para mobile */
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 20px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            nav ul li {
+                margin: 5px 10px;
+            }
+            
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .tech-content, .contact-content {
+                flex-direction: column;
+            }
+            
+            .section-title h2 {
+                font-size: 2.2rem;
+            }
+            
+            .manifesto-text {
+                font-size: 1.1rem;
+            }
+            
+            .ecosystem-links {
+                justify-content: center;
+            }
+
+            .parceiros-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .language-selector {
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Banner Sandbox Demo -->
+    <div class="sandbox-banner">
+        <div class="container">
+            <div class="sandbox-content">
+                <div>
+                    <i class="fas fa-flask"></i>
+                    <span id="sandboxText">SANDBOX DEMO - Ambiente de Testes da Terra Dourada</span>
+                </div>
+                <a href="#" class="sandbox-btn" id="sandboxBtn">Acessar Demo</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cabeçalho -->
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🌍</span>
+                    <h1 id="appName">TERRA DOURADA</h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#manifesto" id="navManifesto">Manifesto</a></li>
+                        <li><a href="#produtos" id="navProdutos">Produtos</a></li>
+                        <li><a href="#pilares" id="navPilares">Pilares</a></li>
+                        <li><a href="#tecnologia" id="navTecnologia">Tecnologia</a></li>
+                        <li><a href="#parceiros" id="navParceiros">Parceiros</a></li>
+                        <li><a href="#visao" id="navVisao">Visão</a></li>
+                        <li><a href="#construcao" id="navConstrucao">Status</a></li>
+                        <li><a href="login.html" class="login-btn" id="navLogin"><i class="fas fa-user-circle"></i> <span id="loginText">Login</span></a></li>
+                        <li class="language-selector">
+                            <div class="language-btn" id="languageBtn">
+                                <i class="fas fa-globe"></i>
+                                <span id="currentLanguage">Português</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="language-dropdown" id="languageDropdown">
+                                <div class="language-option active" data-lang="pt">🇧🇷 Português</div>
+                                <div class="language-option" data-lang="en">🇺🇸 English</div>
+                                <div class="language-option" data-lang="es">🇪🇸 Español</div>
+                                <div class="language-option" data-lang="fr">🇫🇷 Français</div>
+                                <div class="language-option" data-lang="de">🇩🇪 Deutsch</div>
+                                <div class="language-option" data-lang="zh">🇨🇳 中文</div>
+                                <div class="language-option" data-lang="ru">🇷🇺 Русский</div>
+                                <div class="language-option" data-lang="ar">🇸🇦 العربية</div>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2 id="heroTitle">UM SONHO CHAMADO <span id="heroHighlight">TERRA DOURADA</span></h2>
+                <p id="heroSubtitle">Nascemos de um manifesto, como uma proposta de convívio. Não para criar um mundo sem disputas, mas para estabelecer um lastro de transparência radical e verificação perpétua.</p>
+                <a href="#manifesto" class="btn" id="heroBtn">Explorar o Manifesto</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Manifesto Section -->
+    <section class="manifesto" id="manifesto">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="manifestoTitle">O MANIFESTO</h2>
+            </div>
+            <div class="manifesto-content">
+                <div class="manifesto-text">
+                    <p id="manifestoText1">A Terra Dourada não é uma utopia. É um sistema de governança e economia baseado em tecnologia blockchain, desenhado para criar uma sociedade mais justa, transparente e sustentável.</p>
+                    <p id="manifestoText2">Nossa missão é construir um ecossistema onde cada transação, cada voto, cada contrato seja imutável, auditável e transparente. Onde a corrupção seja impossível e a confiança seja algorítmica.</p>
+                    <div class="manifesto-highlight" id="manifestoHighlight">
+                        "Não buscamos a perfeição, mas a melhoria contínua. Não prometemos o paraíso, mas construímos as ferramentas para um mundo mais honesto."
+                    </div>
+                    <p id="manifestoText3">Através da combinação de democracia líquida, economia circular e tecnologia descentralizada, criamos um modelo que respeita a soberania individual enquanto promove o bem coletivo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Produtos Section -->
+    <section class="produtos" id="produtos">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="produtosTitle">NOSSOS PRODUTOS</h2>
+            </div>
+            <div class="produtos-grid">
+                <div class="produto-card">
+                    <div class="produto-icon">
+                        <i class="fas fa-vote-yea"></i>
+                    </div>
+                    <h3 id="produto1Title">Sistema de Governança</h3>
+                    <p id="produto1Desc">Democracia líquida com votação verificável em blockchain.</p>
+                    <ul class="produto-features">
+                        <li><i class="fas fa-check"></i> <span id="produto1Feature1">Votação segura e anônima</span></li>
+                        <li><i class="fas fa-check"></i> <span id="produto1Feature2">Delegação de votos dinâmica</span></li>
+                        <li><i class="fas fa-check"></i> <span id="produto1Feature3">Transparência total dos resultados</span></li>
+                    </ul>
+                </div>
+                <div class="produto-card">
+                    <div class="produto-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3 id="produto2Title">Moeda Digital</h3>
+                    <p id="produto2Desc">Aureus (AUR) - criptomoeda lastreada em recursos naturais.</p>
+                    <ul class="produto-features">
+                        <li><i class="fas fa-check"></i> <span id="produto2Feature1">Estabilidade através de lastro real</span></li>
+                        <li><i class="fas fa-check"></i> <span id="produto2Feature2">Baixo consumo energético</span></li>
+                        <li><i class="fas fa-check"></i> <span id="produto2Feature3">Integração com economia circular</span></li>
+                    </ul>
+                </div>
+                <div class="produto-card">
+                    <div class="produto-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3 id="produto3Title">Contratos Inteligentes</h3>
+                    <p id="produto3Desc">Acordos auto-executáveis para todos os aspectos da sociedade.</p>
+                    <ul class="produto-features">
+                        <li><i class="fas fa-check"></i> <span id="produto3Feature1">Execução automática de cláusulas</span></li>
+                        <li><i class="fas fa-check"></i> <span id="produto3Feature2">Redução de conflitos judiciais</span></li>
+                        <li><i class="fas fa-check"></i> <span id="produto3Feature3">Transparência nas transações</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pilares Section -->
+    <section class="pilares" id="pilares">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="pilaresTitle">TRÊS PILARES FUNDAMENTAIS</h2>
+            </div>
+            <div class="pilares-grid">
+                <div class="pilar-card">
+                    <div class="pilar-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 id="pilar1Title">Transparência Radical</h3>
+                    <p id="pilar1Desc">Todas as transações e decisões são registradas em blockchain público, garantindo verificabilidade e accountability.</p>
+                </div>
+                <div class="pilar-card">
+                    <div class="pilar-icon">
+                        <i class="fas fa-recycle"></i>
+                    </div>
+                    <h3 id="pilar2Title">Economia Circular</h3>
+                    <p id="pilar2Desc">Sistema econômico regenerativo onde recursos são maximizados e resíduos são minimizados através de incentivos algorítmicos.</p>
+                </div>
+                <div class="pilar-card">
+                    <div class="pilar-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 id="pilar3Title">Democracia Líquida</h3>
+                    <p id="pilar3Desc">Modelo de governança que combina democracia direta e representativa, permitindo delegação dinâmica de votos.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tecnologia Section -->
+    <section class="tecnologia" id="tecnologia">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="tecnologiaTitle">TECNOLOGIA E INOVAÇÃO</h2>
+            </div>
+            <div class="tech-content">
+                <div class="tech-text">
+                    <p id="tecnologiaText1">Utilizamos uma blockchain de quarta geração, especificamente desenhada para atender às necessidades de governança e sustentabilidade da Terra Dourada.</p>
+                    <p id="tecnologiaText2">Nossa arquitetura híbrida combina a segurança de proof-of-stake com a eficiência energética de proof-of-authority, garantindo escalabilidade sem comprometer a descentralização.</p>
+                    <p id="tecnologiaText3">Através de contratos inteligentes modulares e interoperabilidade cross-chain, criamos um ecossistema flexível que pode evoluir com as necessidades da comunidade.</p>
+                </div>
+                <div class="tech-visual">
+                    <div class="earth-model"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parceiros Section -->
+    <section class="parceiros" id="parceiros">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="parceirosTitle">PARCEIROS E COLABORADORES</h2>
+            </div>
+            <div class="parceiros-grid">
+                <div class="parceiro-card">
+                    <div class="parceiro-logo">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3 id="parceiro1Name">EcoFund Global</h3>
+                    <p id="parceiro1Desc">Organização dedicada ao financiamento de projetos sustentáveis em todo o mundo.</p>
+                    <span class="parceiro-tipo" id="parceiro1Tipo">Financiamento</span>
+                </div>
+                <div class="parceiro-card">
+                    <div class="parceiro-logo">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h3 id="parceiro2Name">Instituto de Tecnologia Avançada</h3>
+                    <p id="parceiro2Desc">Centro de pesquisa e desenvolvimento em blockchain e tecnologias descentralizadas.</p>
+                    <span class="parceiro-tipo" id="parceiro2Tipo">Pesquisa</span>
+                </div>
+                <div class="parceiro-card">
+                    <div class="parceiro-logo">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 id="parceiro3Name">Aliança para Democracia Digital</h3>
+                    <p id="parceiro3Desc">Rede global de ativistas pela transparência e participação cidadã através da tecnologia.</p>
+                    <span class="parceiro-tipo" id="parceiro3Tipo">Governança</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visão Section -->
+    <section class="visao" id="visao">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="visaoTitle">NOSSA VISÃO</h2>
+            </div>
+            <div class="visao-content">
+                <div class="visao-text">
+                    <p id="visaoText1">Imaginamos um mundo onde a tecnologia serve à humanidade, não o contrário. Onde sistemas transparentes e verificáveis restauram a confiança nas instituições.</p>
+                    <p id="visaoText2">Visualizamos comunidades resilientes que prosperam em harmonia com o meio ambiente, guiadas por princípios de justiça intergeracional e equidade.</p>
+                </div>
+                <div class="visao-poema">
+                    <p id="visaoPoema1">"Da terra brota o valor,</p>
+                    <p id="visaoPoema2">Do consenso nasce a ordem,</p>
+                    <p id="visaoPoema3">Da verificação, a confiança."</p>
+                </div>
+                <p id="visaoText3">Nosso caminho é gradual e inclusivo. A Terra Dourada não é um destino, mas uma jornada de construção coletiva rumo a uma sociedade mais justa e sustentável.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Site em Construção Section -->
+    <section class="construcao" id="construcao">
+        <div class="container">
+            <div class="construcao-content">
+                <div class="construcao-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h2 id="construcaoTitle">SITE EM CONSTRUÇÃO</h2>
+                <p class="construcao-text" id="construcaoText1">Estamos trabalhando arduamente para trazer a você a melhor experiência possível na Terra Dourada.</p>
+                <p class="construcao-text" id="construcaoText2">Links e outras funcionalidades ainda estão em desenvolvimento. Em breve teremos novidades!</p>
+                <a href="#hero" class="btn" id="construcaoBtn">Voltar ao Topo</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3 id="footerAboutTitle">TERRA DOURADA</h3>
+                    <p id="footerAboutText">Uma proposta de convívio baseada em transparência radical, verificação perpétua e economia circular.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3 id="footerLinksTitle">LINKS RÁPIDOS</h3>
+                    <a href="#manifesto">Manifesto</a>
+                    <a href="#produtos">Produtos</a>
+                    <a href="#pilares">Pilares</a>
+                    <a href="#tecnologia">Tecnologia</a>
+                    <a href="#visao">Visão</a>
+                </div>
+                <div class="footer-column">
+                    <h3 id="footerEcosystemTitle">ECOSSISTEMA</h3>
+                    <div class="ecosystem-links">
+                        <a href="#" class="ecosystem-link"><i class="fas fa-wallet"></i> <span id="ecosystemLink1">Carteira Digital</span></a>
+                        <a href="#" class="ecosystem-link"><i class="fas fa-vote-yea"></i> <span id="ecosystemLink2">Plataforma de Votação</span></a>
+                        <a href="#" class="ecosystem-link"><i class="fas fa-exchange-alt"></i> <span id="ecosystemLink3">Mercado de Ativos</span></a>
+                        <a href="#" class="ecosystem-link"><i class="fas fa-book"></i> <span id="ecosystemLink4">Documentação</span></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3 id="footerNewsletterTitle">NEWSLETTER</h3>
+                    <p id="footerNewsletterText">Inscreva-se para receber atualizações sobre o projeto.</p>
+                    <form id="newsletterForm">
+                        <div class="form-group">
+                            <input type="email" class="form-control" placeholder="Seu email" id="newsletterEmail" required>
+                        </div>
+                        <button type="submit" class="btn" id="newsletterBtn">Inscrever-se</button>
+                    </form>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Terra Dourada. <span id="copyrightText">Todos os direitos reservados.</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dicionário de traduções
+        const translations = {
+            pt: {
+                // Navegação
+                appName: "TERRA DOURADA",
+                navManifesto: "Manifesto",
+                navProdutos: "Produtos",
+                navPilares: "Pilares",
+                navTecnologia: "Tecnologia",
+                navParceiros: "Parceiros",
+                navVisao: "Visão",
+                navConstrucao: "Status",
+                loginText: "Login",
+                currentLanguage: "Português",
+                
+                // Hero
+                heroTitle: "UM SONHO CHAMADO ",
+                heroHighlight: "TERRA DOURADA",
+                heroSubtitle: "Nascemos de um manifesto, como uma proposta de convívio. Não para criar um mundo sem disputas, mas para estabelecer um lastro de transparência radical e verificação perpétua.",
+                heroBtn: "Explorar o Manifesto",
+                
+                // Manifesto
+                manifestoTitle: "O MANIFESTO",
+                manifestoText1: "A Terra Dourada não é uma utopia. É um sistema de governança e economia baseado em tecnologia blockchain, desenhado para criar uma sociedade mais justa, transparente e sustentável.",
+                manifestoText2: "Nossa missão é construir um ecossistema onde cada transação, cada voto, cada contrato seja imutável, auditável e transparente. Onde a corrupção seja impossível e a confiança seja algorítmica.",
+                manifestoHighlight: "\"Não buscamos a perfeição, mas a melhoria contínua. Não prometemos o paraíso, mas construímos as ferramentas para um mundo mais honesto.\"",
+                manifestoText3: "Através da combinação de democracia líquida, economia circular e tecnologia descentralizada, criamos um modelo que respeita a soberania individual enquanto promove o bem coletivo.",
+                
+                // Produtos
+                produtosTitle: "NOSSOS PRODUTOS",
+                produto1Title: "Sistema de Governança",
+                produto1Desc: "Democracia líquida com votação verificável em blockchain.",
+                produto1Feature1: "Votação segura e anônima",
+                produto1Feature2: "Delegação de votos dinâmica",
+                produto1Feature3: "Transparência total dos resultados",
+                produto2Title: "Moeda Digital",
+                produto2Desc: "Aureus (AUR) - criptomoeda lastreada em recursos naturais.",
+                produto2Feature1: "Estabilidade através de lastro real",
+                produto2Feature2: "Baixo consumo energético",
+                produto2Feature3: "Integração com economia circular",
+                produto3Title: "Contratos Inteligentes",
+                produto3Desc: "Acordos auto-executáveis para todos os aspectos da sociedade.",
+                produto3Feature1: "Execução automática de cláusulas",
+                produto3Feature2: "Redução de conflitos judiciais",
+                produto3Feature3: "Transparência nas transações",
+                
+                // Pilares
+                pilaresTitle: "TRÊS PILARES FUNDAMENTAIS",
+                pilar1Title: "Transparência Radical",
+                pilar1Desc: "Todas as transações e decisões são registradas em blockchain público, garantindo verificabilidade e accountability.",
+                pilar2Title: "Economia Circular",
+                pilar2Desc: "Sistema econômico regenerativo onde recursos são maximizados e resíduos são minimizados através de incentivos algorítmicos.",
+                pilar3Title: "Democracia Líquida",
+                pilar3Desc: "Modelo de governança que combina democracia direta e representativa, permitindo delegação dinâmica de votos.",
+                
+                // Tecnologia
+                tecnologiaTitle: "TECNOLOGIA E INOVAÇÃO",
+                tecnologiaText1: "Utilizamos uma blockchain de quarta geração, especificamente desenhada para atender às necessidades de governança e sustentabilidade da Terra Dourada.",
+                tecnologiaText2: "Nossa arquitetura híbrida combina a segurança de proof-of-stake com a eficiência energética de proof-of-authority, garantindo escalabilidade sem comprometer a descentralização.",
+                tecnologiaText3: "Através de contratos inteligentes modulares e interoperabilidade cross-chain, criamos um ecossistema flexível que pode evoluir com as necessidades da comunidade.",
+                
+                // Parceiros
+                parceirosTitle: "PARCEIROS E COLABORADORES",
+                parceiro1Name: "EcoFund Global",
+                parceiro1Desc: "Organização dedicada ao financiamento de projetos sustentáveis em todo o mundo.",
+                parceiro1Tipo: "Financiamento",
+                parceiro2Name: "Instituto de Tecnologia Avançada",
+                parceiro2Desc: "Centro de pesquisa e desenvolvimento em blockchain e tecnologias descentralizadas.",
+                parceiro2Tipo: "Pesquisa",
+                parceiro3Name: "Aliança para Democracia Digital",
+                parceiro3Desc: "Rede global de ativistas pela transparência e participação cidadã através da tecnologia.",
+                parceiro3Tipo: "Governança",
+                
+                // Visão
+                visaoTitle: "NOSSA VISÃO",
+                visaoText1: "Imaginamos um mundo onde a tecnologia serve à humanidade, não o contrário. Onde sistemas transparentes e verificáveis restauram a confiança nas instituições.",
+                visaoText2: "Visualizamos comunidades resilientes que prosperam em harmonia com o meio ambiente, guiadas por princípios de justiça intergeracional e equidade.",
+                visaoPoema1: "\"Da terra brota o valor,",
+                visaoPoema2: "Do consenso nasce a ordem,",
+                visaoPoema3: "Da verificação, a confiança.\"",
+                visaoText3: "Nosso caminho é gradual e inclusivo. A Terra Dourada não é um destino, mas uma jornada de construção coletiva rumo a uma sociedade mais justa e sustentável.",
+                
+                // Site em Construção
+                construcaoTitle: "SITE EM CONSTRUÇÃO",
+                construcaoText1: "Estamos trabalhando arduamente para trazer a você a melhor experiência possível na Terra Dourada.",
+                construcaoText2: "Links e outras funcionalidades ainda estão em desenvolvimento. Em breve teremos novidades!",
+                construcaoBtn: "Voltar ao Topo",
+                
+                // Sandbox Banner
+                sandboxText: "SANDBOX DEMO - Ambiente de Testes da Terra Dourada",
+                sandboxBtn: "Acessar Demo",
+                
+                // Rodapé
+                footerAboutTitle: "TERRA DOURADA",
+                footerAboutText: "Uma proposta de convívio baseada em transparência radical, verificação perpétua e economia circular.",
+                footerLinksTitle: "LINKS RÁPIDOS",
+                footerEcosystemTitle: "ECOSSISTEMA",
+                ecosystemLink1: "Carteira Digital",
+                ecosystemLink2: "Plataforma de Votação",
+                ecosystemLink3: "Mercado de Ativos",
+                ecosystemLink4: "Documentação",
+                footerNewsletterTitle: "NEWSLETTER",
+                footerNewsletterText: "Inscreva-se para receber atualizações sobre o projeto.",
+                newsletterBtn: "Inscrever-se",
+                copyrightText: "Todos os direitos reservados."
+            },
+            en: {
+                // Navegação
+                appName: "GOLDEN EARTH",
+                navManifesto: "Manifesto",
+                navProdutos: "Products",
+                navPilares: "Pillars",
+                navTecnologia: "Technology",
+                navParceiros: "Partners",
+                navVisao: "Vision",
+                navConstrucao: "Status",
+                loginText: "Login",
+                currentLanguage: "English",
+                
+                // Hero
+                heroTitle: "A DREAM CALLED ",
+                heroHighlight: "GOLDEN EARTH",
+                heroSubtitle: "We were born from a manifesto, as a proposal for coexistence. Not to create a world without disputes, but to establish a foundation of radical transparency and perpetual verification.",
+                heroBtn: "Explore the Manifesto",
+                
+                // Manifesto
+                manifestoTitle: "THE MANIFESTO",
+                manifestoText1: "Golden Earth is not a utopia. It is a governance and economic system based on blockchain technology, designed to create a fairer, more transparent and sustainable society.",
+                manifestoText2: "Our mission is to build an ecosystem where every transaction, every vote, every contract is immutable, auditable and transparent. Where corruption is impossible and trust is algorithmic.",
+                manifestoHighlight: "\"We do not seek perfection, but continuous improvement. We do not promise paradise, but we build the tools for a more honest world.\"",
+                manifestoText3: "Through the combination of liquid democracy, circular economy and decentralized technology, we create a model that respects individual sovereignty while promoting the collective good.",
+                
+                // Produtos
+                produtosTitle: "OUR PRODUCTS",
+                produto1Title: "Governance System",
+                produto1Desc: "Liquid democracy with verifiable blockchain voting.",
+                produto1Feature1: "Secure and anonymous voting",
+                produto1Feature2: "Dynamic vote delegation",
+                produto1Feature3: "Total transparency of results",
+                produto2Title: "Digital Currency",
+                produto2Desc: "Aureus (AUR) - cryptocurrency backed by natural resources.",
+                produto2Feature1: "Stability through real backing",
+                produto2Feature2: "Low energy consumption",
+                produto2Feature3: "Integration with circular economy",
+                produto3Title: "Smart Contracts",
+                produto3Desc: "Self-executing agreements for all aspects of society.",
+                produto3Feature1: "Automatic execution of clauses",
+                produto3Feature2: "Reduction of legal conflicts",
+                produto3Feature3: "Transaction transparency",
+                
+                // Pilares
+                pilaresTitle: "THREE FUNDAMENTAL PILLARS",
+                pilar1Title: "Radical Transparency",
+                pilar1Desc: "All transactions and decisions are recorded on a public blockchain, ensuring verifiability and accountability.",
+                pilar2Title: "Circular Economy",
+                pilar2Desc: "Regenerative economic system where resources are maximized and waste is minimized through algorithmic incentives.",
+                pilar3Title: "Liquid Democracy",
+                pilar3Desc: "Governance model that combines direct and representative democracy, allowing dynamic vote delegation.",
+                
+                // Tecnologia
+                tecnologiaTitle: "TECHNOLOGY AND INNOVATION",
+                tecnologiaText1: "We use a fourth-generation blockchain, specifically designed to meet the governance and sustainability needs of Golden Earth.",
+                tecnologiaText2: "Our hybrid architecture combines the security of proof-of-stake with the energy efficiency of proof-of-authority, ensuring scalability without compromising decentralization.",
+                tecnologiaText3: "Through modular smart contracts and cross-chain interoperability, we create a flexible ecosystem that can evolve with the needs of the community.",
+                
+                // Parceiros
+                parceirosTitle: "PARTNERS AND COLLABORATORS",
+                parceiro1Name: "EcoFund Global",
+                parceiro1Desc: "Organization dedicated to funding sustainable projects worldwide.",
+                parceiro1Tipo: "Funding",
+                parceiro2Name: "Institute of Advanced Technology",
+                parceiro2Desc: "Research and development center in blockchain and decentralized technologies.",
+                parceiro2Tipo: "Research",
+                parceiro3Name: "Alliance for Digital Democracy",
+                parceiro3Desc: "Global network of activists for transparency and citizen participation through technology.",
+                parceiro3Tipo: "Governance",
+                
+                // Visão
+                visaoTitle: "OUR VISION",
+                visaoText1: "We imagine a world where technology serves humanity, not the other way around. Where transparent and verifiable systems restore trust in institutions.",
+                visaoText2: "We visualize resilient communities that thrive in harmony with the environment, guided by principles of intergenerational justice and equity.",
+                visaoPoema1: "\"From the earth springs value,",
+                visaoPoema2: "From consensus emerges order,",
+                visaoPoema3: "From verification, trust.\"",
+                visaoText3: "Our path is gradual and inclusive. Golden Earth is not a destination, but a journey of collective construction towards a fairer and more sustainable society.",
+                
+                // Site em Construção
+                construcaoTitle: "SITE UNDER CONSTRUCTION",
+                construcaoText1: "We are working hard to bring you the best possible experience on Golden Earth.",
+                construcaoText2: "Links and other functionalities are still under development. Coming soon!",
+                construcaoBtn: "Back to Top",
+                
+                // Sandbox Banner
+                sandboxText: "SANDBOX DEMO - Golden Earth Testing Environment",
+                sandboxBtn: "Access Demo",
+                
+                // Rodapé
+                footerAboutTitle: "GOLDEN EARTH",
+                footerAboutText: "A proposal for coexistence based on radical transparency, perpetual verification and circular economy.",
+                footerLinksTitle: "QUICK LINKS",
+                footerEcosystemTitle: "ECOSYSTEM",
+                ecosystemLink1: "Digital Wallet",
+                ecosystemLink2: "Voting Platform",
+                ecosystemLink3: "Asset Market",
+                ecosystemLink4: "Documentation",
+                footerNewsletterTitle: "NEWSLETTER",
+                footerNewsletterText: "Subscribe to receive updates about the project.",
+                newsletterBtn: "Subscribe",
+                copyrightText: "All rights reserved."
+            },
+            // ... (outros idiomas seguem o mesmo padrão)
+        };
+
+        // Configuração inicial
+        let currentLang = 'pt';
+        
+        // Elementos DOM
+        const languageBtn = document.getElementById('languageBtn');
+        const languageDropdown = document.getElementById('languageDropdown');
+        const currentLanguageText = document.getElementById('currentLanguage');
+        const languageOptions = document.querySelectorAll('.language-option');
+        const body = document.body;
+        
+        // Alternar dropdown de idioma
+        languageBtn.addEventListener('click', () => {
+            languageDropdown.classList.toggle('show');
+        });
+        
+        // Fechar dropdown ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+                languageDropdown.classList.remove('show');
+            }
+        });
+        
+        // Mudar idioma
+        languageOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const lang = option.getAttribute('data-lang');
+                changeLanguage(lang);
+                languageDropdown.classList.remove('show');
+                
+                // Atualizar opção ativa
+                languageOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+            });
+        });
+        
+        // Função para mudar idioma
+        function changeLanguage(lang) {
+            currentLang = lang;
+            currentLanguageText.textContent = translations[lang].currentLanguage;
+            
+            // Atualizar direção do texto para árabe
+            if (lang === 'ar') {
+                body.setAttribute('dir', 'rtl');
+            } else {
+                body.removeAttribute('dir');
+            }
+            
+            // Atualizar todos os textos
+            Object.keys(translations[lang]).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+        }
+        
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Smooth scrolling para links de navegação
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Newsletter form submission
+        document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert(currentLang === 'pt' ? 'Inscrição realizada com sucesso!' : 
+                  currentLang === 'en' ? 'Subscription successful!' :
+                  currentLang === 'es' ? '¡Suscripción realizada con éxito!' :
+                  currentLang === 'fr' ? 'Abonnement réussi!' :
+                  currentLang === 'de' ? 'Abonnement erfolgreich!' :
+                  currentLang === 'zh' ? '订阅成功！' :
+                  currentLang === 'ru' ? 'Подписка успешно оформлена!' :
+                  'تم الاشتراك بنجاح!');
+            this.reset();
+        });
+        
+        // Sandbox demo button
+        document.getElementById('sandboxBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert(currentLang === 'pt' ? 'A demo estará disponível em breve!' : 
+                  currentLang === 'en' ? 'The demo will be available soon!' :
+                  currentLang === 'es' ? '¡La demo estará disponible pronto!' :
+                  currentLang === 'fr' ? 'La démo sera bientôt disponible!' :
+                  currentLang === 'de' ? 'Die Demo wird bald verfügbar sein!' :
+                  currentLang === 'zh' ? '演示版即将推出！' :
+                  currentLang === 'ru' ? 'Демо скоро будет доступно!' :
+                  'التجربة ستكون متاحة قريباً!');
+        });
+    </script>
+</body>
+</html>
