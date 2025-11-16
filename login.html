@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Terra Dourada — Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    background:#0a0f0a;
+    color:#f5f5f5;
+    font-family:system-ui, sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    text-align:center;
+    padding:20px;
+  }
+  .box {
+    background:#111;
+    padding:40px;
+    border-radius:20px;
+    border:1px solid #d4af37;
+    width:380px;
+    box-shadow:0 0 20px rgba(212,175,55,0.35);
+    animation: fadeIn 0.6s ease-out;
+  }
+  @keyframes fadeIn {
+    from {opacity:0; transform:scale(0.95);}
+    to {opacity:1; transform:scale(1);}
+  }
+  h1 {
+    color:#d4af37;
+    margin-bottom:25px;
+  }
+  input {
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    background:#1a1a1a;
+    border:1px solid #333;
+    border-radius:8px;
+    color:#fff;
+    font-size:1rem;
+    box-sizing:border-box;
+  }
+  input:focus {
+    border-color:#d4af37;
+    outline:none;
+  }
+  button {
+    margin-top:20px;
+    padding:12px 30px;
+    background:#d4af37;
+    border:none;
+    border-radius:25px;
+    color:#000;
+    cursor:pointer;
+    font-size:1rem;
+    font-weight:bold;
+    width:100%;
+  }
+  button:hover {
+    background:#b9962c;
+  }
+  .links {
+    margin-top:20px;
+    font-size:0.9rem;
+  }
+  .links a {
+    color:#d4af37;
+    text-decoration:none;
+  }
+  .links a:hover {
+    text-decoration:underline;
+  }
+</style>
+</head>
+
+<body>
+<div class="box">
+  <h1>🔐 Login da Eleição</h1>
+
+  <input type="email" id="email" placeholder="Seu e-mail" required>
+  <input type="password" id="senha" placeholder="Sua senha" required>
+  
+  <button onclick="fazerLogin()">Entrar</button>
+
+  <div class="links">
+    <a href="cadastro.html">📝 Não tenho cadastro</a>
+  </div>
+</div>
+
+<script>
+function fazerLogin() {
+  const email = document.getElementById('email').value;
+  const senha = document.getElementById('senha').value;
+
+  if (!email || !senha) {
+    alert('Por favor, preencha todos os campos');
+    return;
+  }
+
+  // Simulação de verificação de login
+  // Na prática, isso viria de um backend
+  const usuarioSalvo = localStorage.getItem('user_email');
+  const senhaSalva = localStorage.getItem('user_senha'); // Em produção usar hash!
+
+  if (email === usuarioSalvo && senha === senhaSalva) {
+    // Login bem-sucedido - redireciona para autorização
+    window.location.href = 'autorizacao.html';
+  } else {
+    alert('E-mail ou senha incorretos');
+  }
+}
+
+// Enter para submeter
+document.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    fazerLogin();
+  }
+});
+</script>
+
+</body>
+</html>
