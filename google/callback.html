@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Conectando…</title>
+<script>
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code");
+
+  if (code) {
+      localStorage.setItem("google_oauth_code", code);
+  }
+
+  window.location.href = "../../login.html";
+</script>
+</head>
+<body>
+Conectando ao Google…
+</body>
+</html>
