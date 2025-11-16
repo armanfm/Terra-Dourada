@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SSO Corporativo</title>
+<script>
+const params = new URLSearchParams(location.search);
+const code = params.get("code");
+
+if (code) {
+    localStorage.setItem("sso_oauth_code", code);
+    localStorage.setItem("usuario_logado", "true");
+    localStorage.setItem("usuario_provider", "sso");
+    localStorage.setItem("usuario_login_time", new Date().toISOString());
+
+    window.location.href = "../../autoridade.html";
+} else {
+    document.body.innerHTML =
+      "<h2 style='color:red;'>Erro: o provedor SSO não retornou código OAuth.</h2>";
+}
+</script>
+</head>
+<body style="background:#111; color:#d4af37;">
+Conectando ao SSO corporativo…
+</body>
+</html>
