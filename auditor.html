@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Terra Dourada — Painel Completo</title>
+
+<script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+<style>
+body {
+  background: #0a0f0a;
+  color: #d4af37;
+  font-family: system-ui;
+  padding: 20px;
+  margin: 0;
+}
+
+h1 {
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  opacity: 0.8;
+  margin-bottom: 30px;
+}
+
+/* Abas */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: transparent;
+  border: 1px solid #d4af37;
+  padding: 12px 20px;
+  color: #d4af37;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 14px;
+}
+
+.tab-btn.active {
+  background: rgba(212,175,55,0.2);
+  border-color: #ffd700;
+}
+
+.tab-btn:hover {
+  background: rgba(212,175,55,0.15);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Dashboard */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+button {
+  background: transparent;
+  border: 1px solid #d4af37;
+  padding: 12px 20px;
+  color: #d4af37;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+button:hover {
+  background: rgba(212,175,55,0.15);
+  transform: translateY(-2px);
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: #1a1f1a;
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 15px;
+  padding: 25px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.stat-pendente { color: #ffa500; }
+.stat-enviado { color: #00ff00; }
+
+.stat-label {
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+.votos-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.votos-list {
+  background: #1a1f1a;
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 15px;
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.votos-list h3 {
+  margin-top: 0;
+  color: #ffd700;
+  border-bottom: 1px solid rgba(212,175,55,0.3);
+  padding-bottom: 10px;
+}
+
+.voto-item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-left: 4px solid;
+}
+
+.voto-pendente {
+  border-left-color: #ffa500;
+  background: rgba(255,165,0,0.1);
+}
+
+.voto-enviado {
+  border-left-color: #00ff00;
+  background: rgba(0,255,0,0.1);
+}
+
+.voto-candidato {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.voto-eleitor {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+
+.voto-cid {
+  font-family: monospace;
+  font-size: 0.8rem;
+  background: rgba(0,0,0,0.3);
+  padding: 4px 8px;
+  border-radius: 5px;
+  word-break: break-all;
+}
+
+.voto-timestamp {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-top: 8px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  opacity: 0.6;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  display: block;
+}
+
+/* Logs */
+#log {
+  white-space: pre-wrap;
+  background: #111;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #d4af37;
+  margin-top: 25px;
+  height: 200px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.log-success { color: #00ff00; }
+.log-error { color: #ff4444; }
+.log-warning { color: #ffa500; }
+.log-info { color: #d4af37; }
+
+/* Auditoria */
+.audit-card {
+  background: #1a1f1a;
+  padding: 25px;
+  border-radius: 15px;
+  border: 1px solid rgba(212,175,55,0.3);
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 15px;
+  border-radius: 10px;
+  background: #222;
+  margin-top: 15px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  transition: 0.25s;
+  background: linear-gradient(90deg, #2a9fd6, #4CAF50, #d4af37);
+}
+
+.valid { color: #4CAF50; }
+.invalid { color: #ff5c5c; }
+.audit-item {
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<h1>🎛️ Painel Completo — Terra Dourada</h1>
+<div class="subtitle">Sincronização, Auditoria e Controle Total da Urna</div>
+
+<!-- Abas -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="abrirTab('dashboard')">📊 Dashboard</button>
+  <button class="tab-btn" onclick="abrirTab('auditoria-local')">🛡️ Auditoria Local</button>
+  <button class="tab-btn" onclick="abrirTab('auditoria-ipfs')">🌐 Auditoria IPFS</button>
+</div>
+
+<!-- Tab: Dashboard -->
+<div id="dashboard" class="tab-content active">
+  <div class="controls">
+    <button onclick="atualizarDashboard()">📊 Atualizar Dashboard</button>
+    <button onclick="reenviarPendentes()">🔄 Sincronizar Pendentes</button>
+    <button onclick="exportarDados()">💾 Exportar Dados</button>
+    <button onclick="limparEnviados()">🗑️ Limpar Enviados</button>
+  </div>
+
+  <div class="dashboard">
+    <div class="stat-card">
+      <div class="stat-label">Votos Pendentes</div>
+      <div class="stat-number stat-pendente" id="count-pendentes">0</div>
+      <div class="stat-label">Aguardando Sincronização</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-label">Votos Enviados</div>
+      <div class="stat-number stat-enviado" id="count-enviados">0</div>
+      <div class="stat-label">Processados com Sucesso</div>
+    </div>
+  </div>
+
+  <div class="votos-container">
+    <div class="votos-list">
+      <h3>📋 Votos Pendentes</h3>
+      <div id="lista-pendentes">
+        <div class="empty-state">
+          <i>📭</i>
+          Nenhum voto pendente
+        </div>
+      </div>
+    </div>
+    
+    <div class="votos-list">
+      <h3>📦 Votos Enviados</h3>
+      <div id="lista-enviados">
+        <div class="empty-state">
+          <i>📬</i>
+          Nenhum voto enviado
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<!-- Tab: Auditoria Local -->
+<div id="auditoria-local" class="tab-content">
+  <div class="audit-card">
+    <h2 id="statusTextLocal">Clique para iniciar a auditoria local</h2>
+
+    <div class="progress-bar">
+      <div id="progressFillLocal" class="progress-fill"></div>
+    </div>
+
+    <div id="resultadoLocal"></div>
+
+    <div class="controls">
+      <button onclick="auditarVotos()">🔍 Iniciar Auditoria Local</button>
+      <button onclick="exportarTXT()">📄 Exportar LOG (.txt)</button>
+      <button onclick="exportarPDF()">🧾 Exportar PDF Completo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tab: Auditoria IPFS -->
+<div id="auditoria-ipfs" class="tab-content">
+  <div class="audit-card">
+    <h2>🌐 Auditoria Sovereign - Verificação IPFS</h2>
+    <p>Audita votos diretamente do PouchDB local e compara com o pacote real salvo no IPFS.</p>
+
+    <div class="controls">
+      <button onclick="auditarIPFS(10)">Auditar 10 votos</button>
+      <button onclick="auditarIPFS(50)">Auditar 50 votos</button>
+      <button onclick="auditarIPFS(100)">Auditar 100 votos</button>
+    </div>
+
+    <div id="logBoxIPFS" class="votos-list" style="margin-top: 20px; height: 300px;"></div>
+  </div>
+</div>
+
+<audio id="scanSound" src="scan.mp3"></audio>
+
+<script>
+// ==============================
+// CONFIGURAÇÕES GLOBAIS
+// ==============================
+const db = new PouchDB('terra_dourada_votos_local');
+const IPFS_GATEWAY = "https://ipfs.io/ipfs/";
+let LOGS = [];
+
+// Hashes dos candidatos para auditoria local
+const candidatosHashes = {
+  joao: "099e7cc1f12662a33d1d757780b20a8bffe7a6c12651b585d34ac49ddbcab307",
+  paulo: "1c3c978eae25037d6e7383b9f9b51b84a20dc2bdb0551434c1a5388d97f1c065"
+};
+
+// ==============================
+// FUNÇÕES DE ABA
+// ==============================
+function abrirTab(tabName) {
+  // Esconde todas as tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Remove active de todos os botões
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  // Mostra a tab selecionada
+  document.getElementById(tabName).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ==============================
+// DASHBOARD PRINCIPAL
+// ==============================
+async function atualizarDashboard() {
+  try {
+    const all = await db.allDocs({ include_docs: true });
+    const pendentes = all.rows.map(r => r.doc).filter(doc => doc.erro === "sem_conexao_backend");
+    const enviados = all.rows.map(r => r.doc).filter(doc => doc.cid_pinata && !doc.erro);
+    
+    // Atualiza contadores
+    document.getElementById('count-pendentes').textContent = pendentes.length;
+    document.getElementById('count-enviados').textContent = enviados.length;
+    
+    // Atualiza lista de pendentes
+    const listaPendentes = document.getElementById('lista-pendentes');
+    if (pendentes.length === 0) {
+      listaPendentes.innerHTML = `
+        <div class="empty-state">
+          <i>📭</i>
+          Nenhum voto pendente
+        </div>
+      `;
+    } else {
+      listaPendentes.innerHTML = pendentes.map((doc, index) => `
+        <div class="voto-item voto-pendente">
+          <div class="voto-candidato">${doc.candidato === 'joao' ? '🟦 João Silva' : '🟩 Paulo Santos'}</div>
+          <div class="voto-eleitor">Eleitor: ${doc.eleitor.substring(0, 12)}...</div>
+          <div class="voto-timestamp">${new Date(doc.timestamp).toLocaleString()}</div>
+        </div>
+      `).join('');
+    }
+    
+    // Atualiza lista de enviados
+    const listaEnviados = document.getElementById('lista-enviados');
+    if (enviados.length === 0) {
+      listaEnviados.innerHTML = `
+        <div class="empty-state">
+          <i>📬</i>
+          Nenhum voto enviado
+        </div>
+      `;
+    } else {
+      listaEnviados.innerHTML = enviados.map((doc, index) => `
+        <div class="voto-item voto-enviado">
+          <div class="voto-candidato">${doc.candidato === 'joao' ? '🟦 João Silva' : '🟩 Paulo Santos'}</div>
+          <div class="voto-eleitor">Eleitor: ${doc.eleitor.substring(0, 12)}...</div>
+          <div class="voto-cid">CID: ${doc.cid_pinata.substring(0, 20)}...</div>
+          <div class="voto-timestamp">${new Date(doc.timestamp).toLocaleString()}</div>
+        </div>
+      `).join('');
+    }
+    
+    log('Dashboard atualizado com sucesso', 'success');
+    
+  } catch (err) {
+    log(`Erro ao atualizar dashboard: ${err.message}`, 'error');
+  }
+}
+
+// ==============================
+// SINCRONIZAR PENDENTES
+// ==============================
+async function reenviarPendentes() {
+  try {
+    const all = await db.allDocs({ include_docs: true });
+    const pendentes = all.rows.map(r => r.doc).filter(doc => doc.erro === "sem_conexao_backend");
+    
+    if (pendentes.length === 0) {
+      log('Nenhum voto pendente para sincronizar', 'warning');
+      return;
+    }
+
+    log(`Iniciando sincronização de ${pendentes.length} votos...`, 'info');
+
+    let sucessos = 0;
+    let erros = 0;
+
+    for (let doc of pendentes) {
+      try {
+        const payload = {
+          nome_produtor: doc.eleitor,
+          produto: doc.candidato,
+          screenshot_hash: doc.screenshot_hash || "hash_nao_disponivel",
+          tipo: "voto_presidencial"
+        };
+
+        const res = await fetch("http://127.0.0.1:8080/mel", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          const cid = data.IpfsHash || data.cid || data.hash || "CID não retornado";
+          
+          // Atualiza o documento
+          doc.cid_pinata = cid;
+          doc.resposta_backend = data;
+          delete doc.erro;
+          await db.put(doc);
+          
+          log(`✅ ${doc.candidato} sincronizado → ${cid.substring(0, 20)}...`, 'success');
+          sucessos++;
+        } else {
+          log(`❌ ${doc.candidato} → Erro: ${data.message || res.status}`, 'error');
+          erros++;
+        }
+
+      } catch (err) {
+        log(`❌ Falha: ${doc.candidato} - ${err.message}`, 'error');
+        erros++;
+      }
+    }
+
+    log(`Sincronização concluída: ${sucessos} sucessos, ${erros} erros`, 
+        erros === 0 ? 'success' : 'warning');
+    
+    // Atualiza o dashboard após sincronização
+    setTimeout(atualizarDashboard, 500);
+    
+  } catch (err) {
+    log(`Erro geral na sincronização: ${err.message}`, 'error');
+  }
+}
+
+// ==============================
+// EXPORTAR DADOS
+// ==============================
+async function exportarDados() {
+  const all = await db.allDocs({ include_docs: true });
+  
+  const dadosExportar = all.rows.map(row => {
+    const doc = row.doc;
+    return {
+      nome_produtor: doc.eleitor,
+      produto: doc.candidato,
+      screenshot_hash: doc.screenshot_hash || "N/A",
+      tipo: "voto_presidencial",
+      timestamp: doc.timestamp,
+      status: doc.erro ? "pendente" : "enviado",
+      cid: doc.cid_pinata || null
+    };
+  });
+  
+  const blob = new Blob([JSON.stringify(dadosExportar, null, 2)], {
+    type: 'application/json'
+  });
+  
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'votos_terra_dourada_local.json';
+  a.click();
+  
+  log(`Dados exportados: ${dadosExportar.length} votos`, 'success');
+}
+
+// ==============================
+// LIMPAR ENVIADOS
+// ==============================
+async function limparEnviados() {
+  if (!confirm('Tem certeza que deseja limpar os votos já enviados?')) return;
+  
+  const all = await db.allDocs({ include_docs: true });
+  const enviados = all.rows.map(r => r.doc).filter(doc => doc.cid_pinata && !doc.erro);
+  
+  for (let doc of enviados) {
+    await db.remove(doc);
+  }
+  
+  log(`${enviados.length} votos enviados foram removidos`, 'warning');
+  setTimeout(atualizarDashboard, 500);
+}
+
+// ==============================
+// AUDITORIA LOCAL
+// ==============================
+async function auditarVotos() {
+  LOGS = []; // limpa log
+  const t0 = performance.now();
+
+  const btn = document.querySelector('#auditoria-local .controls button');
+  btn.disabled = true;
+  btn.innerHTML = "⏳ Auditando...";
+
+  document.getElementById("scanSound").play().catch(()=>{});
+
+  document.getElementById("statusTextLocal").innerText = "Auditando votos...";
+
+  const progress = document.getElementById("progressFillLocal");
+  progress.style.width = "0%";
+
+  const resultHTML = [];
+  let auditoriaCompleta = true;
+  let totalVotos = 0;
+  let validos = 0;
+
+  const result = await db.allDocs({ include_docs: true });
+  const docs = result.rows;
+
+  const total = docs.length;
+
+  for (let i = 0; i < total; i++) {
+    const row = docs[i].doc;
+
+    progress.style.width = ((i / total) * 100).toFixed(1) + "%";
+
+    if (!row.screenshot_hash || !row.candidato) continue;
+
+    totalVotos++;
+
+    const candidato = row.candidato;
+    const hash = row.screenshot_hash;
+
+    if (candidatosHashes[candidato] === hash) {
+      validos++;
+      resultHTML.push(`
+        <div class="audit-item valid">
+          <b>Voto válido ✔</b><br>
+          Candidato: ${candidato}<br>
+          Hash: ${hash.substring(0,25)}...
+        </div>
+      `);
+
+      LOGS.push(`✔ OK | ${candidato} | ${hash}`);
+    } else {
+      auditoriaCompleta = false;
+      resultHTML.push(`
+        <div class="audit-item invalid">
+          <b>INVÁLIDO ❌</b><br>
+          Candidato: ${candidato}<br>
+          Encontrado: ${hash.substring(0,25)}...<br>
+          Esperado: ${candidatosHashes[candidato].substring(0,25)}...
+        </div>
+      `);
+      LOGS.push(`❌ ERRO | ${candidato} | hash mismatch`);
+    }
+  }
+
+  progress.style.width = "100%";
+
+  const t1 = performance.now();
+  const tempoTotal = ((t1 - t0) / 1000).toFixed(2);
+
+  // RESUMO FINAL
+  let resumo = "";
+  if (auditoriaCompleta) {
+    resumo = `<h2 class="valid">Todos os ${totalVotos} votos estão íntegros ✔</h2>`;
+  } else {
+    resumo = `<h2 class="invalid">${validos} de ${totalVotos} votos íntegros</h2>`;
+  }
+
+  resumo += `<p>⏱ Tempo total: ${tempoTotal}s</p>`;
+  LOGS.push("Tempo total: " + tempoTotal + "s");
+
+  document.getElementById("resultadoLocal").innerHTML = resultHTML.join("") + resumo;
+
+  btn.disabled = false;
+  btn.innerHTML = "🔍 Reauditar";
+
+  document.getElementById("statusTextLocal").innerText = "Auditoria concluída";
+}
+
+// ==============================
+// AUDITORIA IPFS
+// ==============================
+async function auditarIPFS(qtd) {
+  const logBox = document.getElementById("logBoxIPFS");
+  logBox.innerHTML = "";
+  
+  logIPFS("🔍 Carregando votos locais do PouchDB...");
+
+  const all = await db.allDocs({ include_docs: true });
+  const docs = all.rows.slice(0, qtd).map(r => r.doc);
+
+  logIPFS(`📦 Total carregado: ${docs.length} votos.`);
+
+  let okCount = 0;
+  let failCount = 0;
+
+  for (let doc of docs) {
+    try {
+      const cid = doc.cid_pinata;
+      if (!cid) {
+        logIPFS("❌ CID ausente no voto local — não é auditável.", "bad");
+        failCount++;
+        continue;
+      }
+
+      logIPFS(`🌐 Buscando pacote IPFS: ${cid}`);
+
+      const ipfsData = await fetchIPFSPackage(cid);
+
+      // Extrair dados do IPFS
+      const ipfsVote = ipfsData.vote;
+      const ipfsCandidate = ipfsVote.candidate || ipfsVote.candidato || null;
+
+      if (!ipfsCandidate) {
+        logIPFS(`❌ Pacote IPFS inválido (sem candidato): ${cid}`, "bad");
+        failCount++;
+        continue;
+      }
+
+      // Comparar candidato local vs pacote IPFS
+      if (doc.candidato !== ipfsCandidate) {
+        logIPFS(`❌ Divergência detectada:
+Local → ${doc.candidato}
+IPFS → ${ipfsCandidate}`, "bad");
+        failCount++;
+        continue;
+      }
+
+      // Verificar prova
+      if (!ipfsData.proof_bytes) {
+        logIPFS("❌ Prova ausente no pacote IPFS!", "bad");
+        failCount++;
+        continue;
+      }
+
+      logIPFS(`✔ Voto OK | Prova OK | CID OK — ${cid}`, "good");
+      okCount++;
+
+    } catch (err) {
+      logIPFS("❌ Erro ao auditar voto: " + err.message, "bad");
+      failCount++;
+    }
+  }
+
+  logIPFS("----------------------------------------------");
+  logIPFS(`🟢 CONSISTENTES: ${okCount}`, "good");
+  logIPFS(`🔴 INCONSISTENTES: ${failCount}`, "bad");
+  logIPFS("----------------------------------------------");
+}
+
+async function fetchIPFSPackage(cid) {
+  const url = IPFS_GATEWAY + cid;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Erro IPFS: " + (await res.text()));
+  return res.json();
+}
+
+function logIPFS(msg, type = null) {
+  const box = document.getElementById("logBoxIPFS");
+  const css = type === "good" ? "valid" :
+              type === "bad" ? "invalid" :
+              "info";
+  box.innerHTML += `<div class="${css}">${msg}</div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+// ==============================
+// EXPORTAÇÕES
+// ==============================
+function exportarTXT() {
+  const blob = new Blob([LOGS.join("\n")], { type: "text/plain" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "auditoria_terra_dourada.txt";
+  a.click();
+}
+
+async function exportarPDF() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+
+  pdf.setFontSize(18);
+  pdf.text("Terra Dourada - Auditoria Completa", 10, 15);
+
+  pdf.setFontSize(12);
+
+  let y = 25;
+  LOGS.forEach(l => {
+    pdf.text(l, 10, y);
+    y += 7;
+  });
+
+  pdf.save("auditoria_terra_dourada.pdf");
+}
+
+// ==============================
+// LOG GLOBAL
+// ==============================
+function log(msg, tipo = 'info') {
+  const box = document.getElementById("log");
+  const timestamp = new Date().toLocaleTimeString();
+  box.innerHTML += `<span class="log-${tipo}">[${timestamp}] ${msg}</span>\n`;
+  box.scrollTop = box.scrollHeight;
+}
+
+// ==============================
+// INICIALIZAÇÃO
+// ==============================
+atualizarDashboard();
+</script>
+
+</body>
+</html>
