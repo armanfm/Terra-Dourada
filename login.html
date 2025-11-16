@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+alert('Login com Google realizado com sucesso!');<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Terra Dourada</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * {
             margin: 0;
@@ -124,6 +125,34 @@
             margin-top: 10px;
             padding: 0 15px;
         }
+
+        /* Container do Google Button */
+        .google-button-container {
+            margin-bottom: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 15px;
+            color: #d4af37;
+            background: rgba(212,175,55,0.1);
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .error-message {
+            display: none;
+            text-align: center;
+            padding: 15px;
+            color: #ff6b6b;
+            background: rgba(255,107,107,0.1);
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid rgba(255,107,107,0.3);
+        }
     </style>
 </head>
 <body>
@@ -137,13 +166,34 @@
         </div>
         
         <div class="login-options">
-            <div class="login-option" data-option="google">
-                <div class="option-icon">🔵</div>
-                <div class="option-text">
-                    <h3>Google Workspace</h3>
-                    <p>Login com conta Google corporativa</p>
+            <!-- Mensagens de status -->
+            <div class="loading" id="loading">
+                🔄 Conectando à plataforma...
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                ❌ Erro no login. Tente novamente.
+            </div>
+
+            <!-- Botão do Google -->
+            <div class="google-button-container">
+                <div id="g_id_onload"
+                    data-client_id="183445624083-2504b5anq2srt08u2889pa2a6fobtd85.apps.googleusercontent.com"
+                    data-context="signin"
+                    data-ux_mode="popup"
+                    data-callback="handleGoogleLogin"
+                    data-auto_prompt="false">
                 </div>
-                <div class="option-arrow">→</div>
+
+                <div class="g_id_signin"
+                    data-type="standard"
+                    data-shape="rectangular"
+                    data-theme="filled_blue"
+                    data-text="signin_with"
+                    data-size="large"
+                    data-logo_alignment="left"
+                    data-width="100%">
+                </div>
             </div>
             
             <div class="login-option" data-option="microsoft">
@@ -184,27 +234,101 @@
     </div>
 
     <script>
+        // Verifica se já está logado
+        function checkExistingLogin() {
+            const token = localStorage.getItem("usuario_google_token");
+            const loginTime = localStorage.getItem("usuario_login_time");
+            
+            if (token && loginTime) {
+                const loginDate = new Date(loginTime);
+                const now = new Date();
+                const hoursDiff = (now - loginDate) / (1000 * 60 * 60);
+                
+                // Token válido por 24 horas
+                if (hoursDiff < 24) {
+                    console.log('Usuário já logado, redirecionando...');
+                    window.location.href = "autoridade.html";
+                    return true;
+                } else {
+                    // Token expirado
+                    localStorage.removeItem("usuario_google_token");
+                    localStorage.removeItem("usuario_login_time");
+                    localStorage.removeItem("usuario_logado");
+                }
+            }
+            return false;
+        }
+
+        // Função para lidar com o login do Google
+        function handleGoogleLogin(response) {
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            loading.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            console.log('Resposta do Google:', response);
+            
+            if (response.credential) {
+                const idToken = response.credential;
+                
+                // Salva os dados no localStorage
+                localStorage.setItem("usuario_google_token", idToken);
+                localStorage.setItem("usuario_logado", "true");
+                localStorage.setItem("usuario_login_time", new Date().toISOString());
+                
+                console.log('Login realizado com sucesso!');
+                
+                // Redireciona para o painel
+                setTimeout(() => {
+                    window.location.href = "autoridade.html";
+                }, 1500);
+                
+            } else {
+                loading.style.display = 'none';
+                errorMessage.style.display = 'block';
+                console.error('Erro: Credencial não recebida do Google');
+            }
+        }
+
+        // Função para simular login (para testes)
+        function simulateLogin() {
+            console.log('🚨 MODO DE TESTE: Simulando login...');
+            localStorage.setItem("usuario_google_token", "test_token_simulado");
+            localStorage.setItem("usuario_logado", "true");
+            localStorage.setItem("usuario_login_time", new Date().toISOString());
+            
+            setTimeout(() => {
+                window.location.href = "autoridade.html";
+            }, 1000);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Página de login carregada');
+            
+            // Verifica se já está logado
+            if (!checkExistingLogin()) {
+                console.log('Usuário não logado, aguardando autenticação...');
+            }
+            
             const loginOptions = document.querySelectorAll('.login-option');
             
             loginOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     const optionType = this.getAttribute('data-option');
                     
-                    // Simulação de redirecionamento para provedor
                     const providerNames = {
-                        'google': 'Google Workspace',
                         'microsoft': 'Microsoft 365',
-                        'github': 'GitHub Enterprise',
+                        'github': 'GitHub Enterprise', 
                         'sso': 'SSO Corporativo'
                     };
                     
-                    alert(`Redirecionando para ${providerNames[optionType]}...`);
-                    
-                    // Em um cenário real, aqui você redirecionaria para o provedor de autenticação
-                    // window.location.href = `/auth/${optionType}`;
+                    alert(`🔧 ${providerNames[optionType]} - Em desenvolvimento`);
                 });
             });
+
+            // Botão de teste (remova em produção)
+            console.log('💡 Dica: Digite simulateLogin() no console para testar sem Google');
         });
     </script>
 </body>
