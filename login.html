@@ -141,6 +141,67 @@
             border-radius: 8px;
             margin: 10px 0;
         }
+
+        /* Modal SSO */
+        .sso-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .sso-modal-content {
+            background: #111;
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .sso-input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid rgba(212,175,55,0.5);
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sso-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .sso-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .sso-btn-cancel {
+            border: 1px solid #666;
+            background: #333;
+            color: #aaa;
+        }
+
+        .sso-btn-continue {
+            border: 1px solid rgba(212,175,55,0.5);
+            background: rgba(212,175,55,0.2);
+            color: #d4af37;
+        }
     </style>
 </head>
 <body>
@@ -197,7 +258,7 @@
                 <div class="option-arrow">→</div>
             </div>
             
-            <div class="login-option" onclick="loginSSO()">
+            <div class="login-option" onclick="openSSOModal()">
                 <div class="option-icon">🏛️</div>
                 <div class="option-text">
                     <h3>SSO Corporativo</h3>
@@ -216,29 +277,119 @@
         </div>
     </div>
 
+    <!-- Modal SSO -->
+    <div class="sso-modal" id="ssoModal">
+        <div class="sso-modal-content">
+            <h3 style="color: #d4af37; margin-bottom: 15px; text-align: center;">🏛️ SSO Corporativo</h3>
+            <p style="color: #aaa; margin-bottom: 10px; text-align: center;">
+                Digite o domínio da sua empresa para iniciar o login único
+            </p>
+            <p style="color: #888; font-size: 12px; margin-bottom: 15px; text-align: center;">
+                Exemplo: empresa.com
+            </p>
+            <input 
+                type="text" 
+                id="ssoDomain" 
+                placeholder="empresa.com" 
+                class="sso-input"
+            >
+            <div class="sso-buttons">
+                <button class="sso-btn sso-btn-cancel" onclick="closeSSOModal()">Cancelar</button>
+                <button class="sso-btn sso-btn-continue" onclick="proceedSSO()">Continuar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // FUNÇÃO GITHUB SIMPLES E FUNCIONAL
+        // FUNÇÃO GITHUB REAL - OAuth
         function loginGithub() {
             showLoading('GitHub');
             
-            // Simula o processo de login
+            setTimeout(() => {
+                const clientId = "Ov23liJ8ewJBXHhryv7y";
+                const redirectUri = "https://armanfm.github.io/Terra-Dourada/auth/github/callback.html";
+                const scope = "read:user user:email";
+
+                const authUrl = 
+                    `https://github.com/login/oauth/authorize?client_id=${clientId}` +
+                    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+                    `&scope=${scope}`;
+
+                console.log('🌐 Redirecionando para GitHub OAuth...');
+                window.location.href = authUrl;
+            }, 1500);
+        }
+
+        // FUNÇÕES SSO CORPORATIVO
+        function openSSOModal() {
+            const modal = document.getElementById('ssoModal');
+            modal.style.display = 'flex';
+            
+            // Foca no input após um breve delay
+            setTimeout(() => {
+                const input = document.getElementById('ssoDomain');
+                if (input) {
+                    input.value = '';
+                    input.focus();
+                }
+            }, 100);
+            
+            // Enter para submeter
+            document.getElementById('ssoDomain').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    proceedSSO();
+                }
+            });
+        }
+
+        function closeSSOModal() {
+            const modal = document.getElementById('ssoModal');
+            modal.style.display = 'none';
+        }
+
+        function proceedSSO() {
+            const dominio = document.getElementById('ssoDomain').value.trim();
+            
+            if (!dominio) {
+                alert('Por favor, digite o domínio da sua empresa.');
+                return;
+            }
+
+            // Validação básica do domínio
+            if (!dominio.includes('.') || dominio.length < 3) {
+                alert('Por favor, digite um domínio válido (exemplo: empresa.com)');
+                return;
+            }
+
+            closeSSOModal();
+            showLoading('SSO Corporativo');
+
+            // AGORA SÓ PROCESSARÁ QUANDO O USUÁRIO CLICAR EM "CONTINUAR"
+            console.log(`🔐 Iniciando SSO para: ${dominio}`);
+            
+            // Simulação do fluxo SSO (sem redirecionamento automático)
             setTimeout(() => {
                 const userData = {
-                    provider: "github",
-                    username: "dev-enterprise",
-                    email: "dev@company.com",
-                    name: "GitHub Enterprise User",
-                    company: "Terra Dourada Corp"
+                    provider: "sso",
+                    dominio: dominio,
+                    email: `usuario@${dominio}`,
+                    name: `Usuário ${dominio}`,
+                    company: dominio.split('.')[0],
+                    sso_type: "OAuth2/SAML",
+                    status: "autenticado"
                 };
                 
-                // Salva no localStorage
                 localStorage.setItem("usuario_logado", "true");
-                localStorage.setItem("usuario_provider", "github");
+                localStorage.setItem("usuario_provider", "sso");
                 localStorage.setItem("usuario_data", JSON.stringify(userData));
                 localStorage.setItem("usuario_login_time", new Date().toISOString());
                 
-                console.log('✅ Login GitHub realizado!', userData);
-                redirectToDashboard();
+                console.log('✅ Login SSO realizado com sucesso!', userData);
+                
+                // Redireciona para o dashboard
+                setTimeout(() => {
+                    window.location.href = "autoridade.html";
+                }, 1500);
             }, 2000);
         }
 
@@ -260,36 +411,32 @@
                 localStorage.setItem("usuario_login_time", new Date().toISOString());
                 
                 console.log('✅ Login Google realizado!');
-                redirectToDashboard();
+                
+                setTimeout(() => {
+                    window.location.href = "autoridade.html";
+                }, 1000);
             }
         }
 
-        // FUNÇÕES PARA OS OUTROS (simuladas)
+        // FUNÇÃO MICROSOFT (simulada)
         function loginMicrosoft() {
             showLoading('Microsoft 365');
             setTimeout(() => {
-                alert('🔷 Microsoft 365 - Em desenvolvimento\n\nPara teste, use Google ou GitHub');
-            }, 1000);
-        }
-
-        function loginSSO() {
-            showLoading('SSO Corporativo');
-            setTimeout(() => {
-                alert('🏛️ SSO Corporativo - Em desenvolvimento\n\nPara teste, use Google ou GitHub');
+                alert('🔷 Microsoft 365 - Em desenvolvimento\n\nPara teste, use Google, GitHub ou SSO Corporativo');
+                hideLoading();
             }, 1000);
         }
 
         // FUNÇÕES AUXILIARES
         function showLoading(provider) {
             const loading = document.getElementById('loading');
-            loading.textContent = `🔄 Conectando com ${provider}...`;
+            loading.textContent = `🔄 Iniciando conexão com ${provider}...`;
             loading.style.display = 'block';
         }
 
-        function redirectToDashboard() {
-            setTimeout(() => {
-                window.location.href = "autoridade.html";
-            }, 1000);
+        function hideLoading() {
+            const loading = document.getElementById('loading');
+            loading.style.display = 'none';
         }
 
         // VERIFICA SE JÁ ESTÁ LOGADO
@@ -322,7 +469,13 @@
             console.log('🚀 Login Terra Dourada carregado');
             checkExistingLogin();
             
-            // Debug no console
+            // Fecha modal se clicar fora
+            document.getElementById('ssoModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeSSOModal();
+                }
+            });
+            
             console.log('💡 Dica: Digite testLogin() no console para teste rápido');
         });
 
@@ -341,8 +494,8 @@
                 localStorage.setItem("usuario_login_time", new Date().toISOString());
                 
                 console.log('✅ Login teste realizado!');
-                redirectToDashboard();
-            }, 500);
+                window.location.href = "autoridade.html";
+            }, 1000);
         }
     </script>
 </body>
