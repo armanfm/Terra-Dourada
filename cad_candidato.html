@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🌍 Terra Dourada - Candidato Sem Partido</title>
+  <title>🌍 Terra Dourada - Cadastro de Candidato</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -47,6 +47,11 @@
       display: block;
       margin-bottom: 8px;
       color: #d4af37;
+    }
+    .optional {
+      color: #888;
+      font-size: 0.8rem;
+      font-style: italic;
     }
     input, textarea {
       width: 100%; 
@@ -234,7 +239,7 @@
   <!-- Formulário de cadastro -->
   <div class="container" id="formContainer">
     <h1>🌍 Terra Dourada</h1>
-    <p class="subtitle">Candidato Sem Partido</p>
+    <p class="subtitle">Cadastro de Candidato</p>
     
     <div class="photo-upload">
       <div class="photo-preview" id="photoPreview">
@@ -257,7 +262,14 @@
     </div>
     
     <div class="form-group">
-      <label for="bioInput">Biografia (Opcional)</label>
+      <label for="partyInput">
+        Partido <span class="optional">(Opcional)</span>
+      </label>
+      <input type="text" id="partyInput" placeholder="Nome do partido">
+    </div>
+    
+    <div class="form-group">
+      <label for="bioInput">Biografia <span class="optional">(Opcional)</span></label>
       <textarea id="bioInput" placeholder="Fale sobre sua trajetória e propostas"></textarea>
     </div>
     
@@ -268,7 +280,7 @@
     </div>
     
     <button class="back-button" id="backButton">
-      <i class="fas fa-arrow-left"></i> Voltar ao Login
+      <i class="fas fa-arrow-left"></i> Voltar
     </button>
   </div>
 
@@ -279,7 +291,8 @@
       <h2 id="confirmationName">Confirmação de Cadastro</h2>
       <p>Você está prestes a cadastrar:</p>
       <h3 id="confirmationCandidateName" style="color: #d4af37; margin: 10px 0 20px;"></h3>
-      <p id="confirmationPosition" style="margin-bottom: 20px;"></p>
+      <p id="confirmationPosition" style="margin-bottom: 10px;"></p>
+      <p id="confirmationParty" style="margin-bottom: 20px;"></p>
       <p>Tem certeza de que deseja confirmar o cadastro?</p>
       <div class="confirmation-buttons">
         <button id="confirmCadastroButton" class="confirm-button">Sim, confirmar cadastro</button>
@@ -299,6 +312,7 @@ const photoInput = document.getElementById('photoInput');
 const photoPreview = document.getElementById('photoPreview');
 const nameInput = document.getElementById('nameInput');
 const positionInput = document.getElementById('positionInput');
+const partyInput = document.getElementById('partyInput');
 const bioInput = document.getElementById('bioInput');
 const registerButton = document.getElementById('registerButton');
 const successMessage = document.getElementById('successMessage');
@@ -353,6 +367,16 @@ function abrirTelaConfirmacao(dadosCandidato) {
   document.getElementById('confirmationCandidateName').textContent = dadosCandidato.name;
   document.getElementById('confirmationPosition').textContent = `Cargo: ${dadosCandidato.position}`;
   
+  // Mostrar partido se existir
+  const partyElement = document.getElementById('confirmationParty');
+  if (dadosCandidato.party && dadosCandidato.party.trim() !== '') {
+    partyElement.textContent = `Partido: ${dadosCandidato.party}`;
+    partyElement.style.display = 'block';
+  } else {
+    partyElement.textContent = 'Partido: Não informado';
+    partyElement.style.display = 'block';
+  }
+  
   // Configurar o botão de confirmação
   const confirmButton = document.getElementById('confirmCadastroButton');
   confirmButton.onclick = function() {
@@ -391,6 +415,7 @@ async function confirmarCadastro() {
       _id: candidateId,
       name: candidateData.name,
       position: candidateData.position,
+      party: candidateData.party || '', // ✅ PARTIDO ADICIONADO
       bio: candidateData.bio,
       photo: candidateData.photo,
       screenshot_hash: hashPrint, // ✅ HASH DO SCREENSHOT INCLUÍDO
@@ -409,6 +434,7 @@ async function confirmarCadastro() {
     // Limpar o formulário
     nameInput.value = '';
     positionInput.value = '';
+    partyInput.value = '';
     bioInput.value = '';
     photoPreview.innerHTML = '<i class="fas fa-user"></i>';
     photoBase64 = null;
@@ -434,6 +460,7 @@ async function confirmarCadastro() {
 registerButton.addEventListener('click', function() {
   const name = nameInput.value.trim();
   const position = positionInput.value.trim();
+  const party = partyInput.value.trim(); // ✅ CAPTURAR PARTIDO
   const bio = bioInput.value.trim();
   
   // Validação básica
@@ -451,6 +478,7 @@ registerButton.addEventListener('click', function() {
   const dadosCandidato = {
     name: name,
     position: position,
+    party: party, // ✅ PARTIDO INCLUÍDO
     bio: bio,
     photo: photoBase64
   };
@@ -459,9 +487,9 @@ registerButton.addEventListener('click', function() {
   abrirTelaConfirmacao(dadosCandidato);
 });
 
-// Voltar para a tela de login
+// Voltar para o painel de autoridade
 backButton.addEventListener('click', function() {
-  window.location.href = 'login.html';
+  window.location.href = 'autoridade.html';
 });
 </script>
 </body>
