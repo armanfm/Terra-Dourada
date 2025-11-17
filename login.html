@@ -420,35 +420,9 @@
             loading.style.display = 'none';
         }
 
-        // VERIFICA SE JÁ ESTÁ LOGADO
-        function checkExistingLogin() {
-            const isLogged = localStorage.getItem("usuario_logado");
-            const loginTime = localStorage.getItem("usuario_login_time");
-            
-            if (isLogged === "true" && loginTime) {
-                const loginDate = new Date(loginTime);
-                const now = new Date();
-                const hoursDiff = (now - loginDate) / (1000 * 60 * 60);
-                
-                if (hoursDiff < 24) {
-                    console.log('✅ Usuário já logado, redirecionando...');
-                    window.location.href = "autoridade.html";
-                    return true;
-                }
-            }
-            
-            // Limpa dados expirados
-            localStorage.removeItem("usuario_logado");
-            localStorage.removeItem("usuario_provider");
-            localStorage.removeItem("usuario_data");
-            localStorage.removeItem("usuario_login_time");
-            return false;
-        }
-
-        // INICIALIZAÇÃO
+        // INICIALIZAÇÃO - REMOVIDA A VERIFICAÇÃO AUTOMÁTICA
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Login Terra Dourada carregado');
-            checkExistingLogin();
             
             // Fecha modal se clicar fora
             document.getElementById('ssoModal').addEventListener('click', function(e) {
