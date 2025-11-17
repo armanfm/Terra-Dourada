@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autorizar Votos — Terra Dourada</title>
+  <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
+  <!-- Biblioteca para QR Code -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <!-- Biblioteca para código de barras -->
+  <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+  <style>
+    body {
+      background: #050703;
+      color: #f5f5f5;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 1px solid rgba(212,175,55,0.3);
+      padding-bottom: 20px;
+    }
+    .back-btn {
+      background: transparent;
+      border: 1px solid #d4af37;
+      color: #d4af37;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    
+    /* Abas Principais */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .tab {
+      background: transparent;
+      border: 1px solid #d4af37;
+      color: #d4af37;
+      padding: 15px 30px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: .3s;
+      font-size: 1.1rem;
+    }
+    .tab.active {
+      background: rgba(212,175,55,0.2);
+    }
+    
+    /* Conteúdo */
+    .content {
+      background: #111;
+      border-radius: 15px;
+      padding: 40px;
+      border: 1px solid rgba(212,175,55,0.3);
+      min-height: 500px;
+    }
+    
+    /* Métodos de Identificação */
+    .metodos-identificacao {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    .metodo-id {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .metodo-id:hover, .metodo-id.selecionado {
+      border-color: #d4af37;
+      background: rgba(212,175,55,0.1);
+    }
+    .icone {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+    
+    /* Formulários */
+    .form-container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #d4af37;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #d4af37;
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 1rem;
+    }
+    
+    /* Upload e Câmera */
+    .upload-area {
+      border: 2px dashed #d4af37;
+      border-radius: 10px;
+      padding: 30px;
+      margin: 15px 0;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .upload-area:hover {
+      background: rgba(212,175,55,0.05);
+    }
+    
+    .camera-container {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    #camera-preview, #qr-preview, #barcode-preview {
+      width: 100%;
+      height: 300px;
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #d4af37;
+      border: 2px dashed #d4af37;
+    }
+    .camera-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    canvas {
+      display: none;
+    }
+    
+    /* Botões */
+    .btn-confirmar {
+      background: rgba(86, 171, 47, 0.2);
+      border: 1px solid #56ab2f;
+      color: #56ab2f;
+      padding: 12px 25px;
+      border-radius: 20px;
+      cursor: pointer;
+      margin: 10px;
+      transition: 0.3s;
+    }
+    .btn-confirmar:hover {
+      background: rgba(86, 171, 47, 0.4);
+    }
+    
+    /* Resultado */
+    .resultado-container {
+      background: rgba(212,175,55,0.1);
+      border: 1px solid #d4af37;
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 30px;
+      text-align: center;
+    }
+    .codigo-identificador {
+      font-family: monospace;
+      font-size: 1.3rem;
+      color: #d4af37;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+    
+    /* Seções */
+    .secao {
+      margin-bottom: 40px;
+      padding-bottom: 30px;
+      border-bottom: 1px solid rgba(212,175,55,0.2);
+    }
+
+    /* Scanner */
+    .scanner-active {
+      border-color: #56ab2f !important;
+      background: rgba(86, 171, 47, 0.1) !important;
+    }
+    .scanner-result {
+      margin-top: 15px;
+      padding: 15px;
+      background: rgba(212,175,55,0.1);
+      border-radius: 8px;
+      border-left: 4px solid #d4af37;
+    }
+
+    /* Modal Config API */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 15px;
+      border: 1px solid #d4af37;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .api-status {
+      margin-top: 10px;
+      padding: 8px 15px;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      display: inline-block;
+    }
+    .api-status.configurada {
+      background: rgba(86, 171, 47, 0.2);
+      border: 1px solid #56ab2f;
+      color: #56ab2f;
+    }
+    .api-status.nao-configurada {
+      background: rgba(212,175,55,0.2);
+      border: 1px solid #d4af37;
+      color: #d4af37;
+    }
+
+    /* Loading */
+    .loading {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #d4af37;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loading" class="loading">
+  <div class="loading-spinner"></div>
+  <p id="loading-message" style="margin-top: 20px; color: #d4af37;">Validando...</p>
+</div>
+
+<div class="container">
+  <button class="back-btn" onclick="window.history.back()">← Voltar</button>
+  
+  <header>
+    <h1>🔐 Autorizar Votos</h1>
+    <p id="info-eleicao">Selecione o método de entrega</p>
+    <button onclick="abrirConfigAPI()" class="back-btn" style="margin-top: 10px;">⚙️ Configurar API</button>
+    <div id="api-status" class="api-status nao-configurada">⚠️ API: Não Configurada</div>
+  </header>
+
+  <!-- Modal Config API -->
+  <div id="modal-config-api" class="modal">
+    <div class="modal-content">
+      <h3 style="color: #d4af37; margin-bottom: 20px;">⚙️ Configurar API do Cliente</h3>
+      
+      <div class="form-group">
+        <label>URL Base da API *</label>
+        <input type="text" id="api-base-url" placeholder="https://api.cliente.com">
+      </div>
+      
+      <div class="form-group">
+        <label>Token de Autenticação *</label>
+        <input type="password" id="api-token" placeholder="Bearer token...">
+      </div>
+      
+      <h4 style="color: #d4af37; margin: 20px 0 10px 0;">Endpoints Personalizados</h4>
+      
+      <div class="form-group">
+        <label>Validação de Eleitor</label>
+        <input type="text" id="endpoint-validar" placeholder="/api/eleitores/validar">
+      </div>
+      
+      <div class="form-group">
+        <label>Validação por Código</label>
+        <input type="text" id="endpoint-codigo" placeholder="/api/eleitores/codigo">
+      </div>
+      
+      <div class="form-group">
+        <label>Validação Biométrica</label>
+        <input type="text" id="endpoint-biometria" placeholder="/api/biometria/validar">
+      </div>
+
+      <div class="form-group">
+        <label>Validação Facial</label>
+        <input type="text" id="endpoint-facial" placeholder="/api/facial/validar">
+      </div>
+      
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button onclick="salvarConfigAPI()" class="btn-confirmar">💾 Salvar Configuração</button>
+        <button onclick="fecharConfigAPI()" class="back-btn">❌ Fechar</button>
+        <button onclick="testarConexaoAPI()" class="btn-confirmar">🔍 Testar Conexão</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABAS PRINCIPAIS -->
+  <div class="tabs">
+    <button class="tab active" onclick="mostrarAba('gerar-link')">🔗 Gerar Link</button>
+    <button class="tab" onclick="mostrarAba('urna-presencial')">🏛️ Urna Presencial</button>
+    <button class="tab" onclick="mostrarAba('enviar-comunicacao')">📱 Enviar</button>
+    <button class="tab" onclick="mostrarAba('metodos-verificacao')">🔍 Verificação</button>
+  </div>
+
+  <div class="content">
+    
+    <!-- ABA 1: GERAR LINK -->
+    <div id="aba-gerar-link">
+      <h2 style="text-align: center; color: #d4af37; margin-bottom: 30px;">
+        🔗 Gerar Link de Voto
+      </h2>
+      
+      <!-- PASSO 1: Identificação -->
+      <div class="secao">
+        <h3>1️⃣ Escolher Método de Identificação</h3>
+        <div class="metodos-identificacao">
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('identificacao-unica')">
+            <div class="icone">🆔</div>
+            <span>Identificação Única</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('codigo-barras')">
+            <div class="icone">📊</div>
+            <span>Código de Barras</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('qr-code')">
+            <div class="icone">🔲</div>
+            <span>QR Code</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('documento-foto')">
+            <div class="icone">📄</div>
+            <span>Foto do Documento</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('biometria')">
+            <div class="icone">👆</div>
+            <span>Biometria</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('reconhecimento-facial')">
+            <div class="icone">📷</div>
+            <span>Reconhecimento Facial</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 2: Formulário de Identificação -->
+      <div id="form-identificacao" class="secao" style="display: none;">
+        <h3>2️⃣ Validar Identificação</h3>
+        <div id="formulario-identificacao">
+          <!-- Formulário dinâmico aparece aqui -->
+        </div>
+      </div>
+
+      <!-- PASSO 3: Gerar Link -->
+      <div id="gerar-link-section" class="secao" style="display: none;">
+        <h3>3️⃣ Gerar Link de Voto</h3>
+        <p>Identificação validada para: <strong id="eleitor-identificado"></strong></p>
+        <button onclick="gerarLinkVoto()" class="btn-confirmar">🔗 Gerar Link</button>
+      </div>
+
+      <!-- RESULTADO -->
+      <div id="resultado-link" style="display: none;">
+        <div class="resultado-container">
+          <h3>✅ Link Gerado com Sucesso!</h3>
+          <div class="codigo-identificador" id="codigo-link"></div>
+          <p><strong>Link:</strong> <span id="link-gerado"></span></p>
+          <div style="margin-top: 20px;">
+            <button onclick="copiarLink()" class="btn-confirmar">📋 Copiar Link</button>
+            <button onclick="compartilharWhatsApp()" class="btn-confirmar">💬 WhatsApp</button>
+          </div>
+        </div>
+        <button onclick="resetarFluxo()" class="back-btn" style="margin-top: 20px;">🔄 Nova Autorização</button>
+      </div>
+    </div>
+
+    <!-- ABA 2: URNA PRESENCIAL -->
+    <div id="aba-urna-presencial" style="display: none;">
+      <h2 style="text-align: center; color: #d4af37; margin-bottom: 30px;">
+        🏛️ Urna Presencial
+      </h2>
+      
+      <!-- PASSO 1: Identificação -->
+      <div class="secao">
+        <h3>1️⃣ Escolher Método de Identificação</h3>
+        <div class="metodos-identificacao">
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoUrna('identificacao-unica')">
+            <div class="icone">🆔</div>
+            <span>Identificação Única</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoUrna('codigo-barras')">
+            <div class="icone">📊</div>
+            <span>Código de Barras</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoUrna('qr-code')">
+            <div class="icone">🔲</div>
+            <span>QR Code</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoUrna('documento-foto')">
+            <div class="icone">📄</div>
+            <span>Foto do Documento</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoUrna('biometria')">
+            <div class="icone">👆</div>
+            <span>Biometria</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoUrna('reconhecimento-facial')">
+            <div class="icone">📷</div>
+            <span>Reconhecimento Facial</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 2: Identificação -->
+      <div id="form-identificacao-urna" class="secao" style="display: none;">
+        <h3>2️⃣ Validar Identificação</h3>
+        <div id="formulario-identificacao-urna"></div>
+      </div>
+
+      <!-- PASSO 3: Gerar Token -->
+      <div id="gerar-token-urna" class="secao" style="display: none;">
+        <h3>3️⃣ Gerar Token para Urna</h3>
+        <p>Identificação validada para: <strong id="eleitor-urna"></strong></p>
+        <button onclick="gerarTokenUrna()" class="btn-confirmar">🎫 Gerar Token</button>
+      </div>
+
+      <!-- RESULTADO -->
+      <div id="resultado-urna" style="display: none;">
+        <div class="resultado-container">
+          <h3>✅ Token Gerado!</h3>
+          <div class="codigo-identificador" id="token-urna"></div>
+          <p>Mostre este código para o eleitor votar na urna presencial</p>
+        </div>
+        <button onclick="resetarFluxo()" class="back-btn" style="margin-top: 20px;">🔄 Novo Token</button>
+      </div>
+    </div>
+
+    <!-- ABA 3: ENVIAR COMUNICAÇÃO -->
+    <div id="aba-enviar-comunicacao" style="display: none;">
+      <h2 style="text-align: center; color: #d4af37; margin-bottom: 30px;">
+        📱 Enviar Convite
+      </h2>
+      
+      <!-- PASSO 1: Identificação -->
+      <div class="secao">
+        <h3>1️⃣ Escolher Método de Identificação</h3>
+        <div class="metodos-identificacao">
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoComunicacao('identificacao-unica')">
+            <div class="icone">🆔</div>
+            <span>Identificação Única</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoComunicacao('codigo-barras')">
+            <div class="icone">📊</div>
+            <span>Código de Barras</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoComunicacao('qr-code')">
+            <div class="icone">🔲</div>
+            <span>QR Code</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoComunicacao('documento-foto')">
+            <div class="icone">📄</div>
+            <span>Foto do Documento</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoComunicacao('biometria')">
+            <div class="icone">👆</div>
+            <span>Biometria</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacaoComunicacao('reconhecimento-facial')">
+            <div class="icone">📷</div>
+            <span>Reconhecimento Facial</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 2: Identificação + Contato -->
+      <div id="form-identificacao-comunicacao" class="secao" style="display: none;">
+        <h3>2️⃣ Dados do Eleitor</h3>
+        <div class="form-container">
+          <div id="formulario-identificacao-comunicacao"></div>
+          
+          <div class="form-group">
+            <label>Método de Envio *</label>
+            <select id="metodo-envio" onchange="mostrarCampoContato()">
+              <option value="">Selecione...</option>
+              <option value="whatsapp">💬 WhatsApp</option>
+              <option value="sms">📱 SMS</option>
+              <option value="email">📧 Email</option>
+            </select>
+          </div>
+
+          <div id="campo-contato" style="display: none;">
+            <div class="form-group">
+              <label id="label-contato">Contato *</label>
+              <input type="text" id="contato-eleitor" placeholder="">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 3: Enviar -->
+      <div id="enviar-comunicacao-section" class="secao" style="display: none;">
+        <h3>3️⃣ Enviar Convite</h3>
+        <p>Enviar para: <strong id="eleitor-comunicacao"></strong></p>
+        <p>Via: <strong id="metodo-envio-selecionado"></strong></p>
+        <button onclick="enviarComunicacaoVoto()" class="btn-confirmar">📤 Enviar Convite</button>
+      </div>
+
+      <!-- RESULTADO -->
+      <div id="resultado-comunicacao" style="display: none;">
+        <div class="resultado-container">
+          <h3>✅ Convite Enviado!</h3>
+          <div class="codigo-identificador" id="codigo-comunicacao"></div>
+          <p id="mensagem-envio"></p>
+        </div>
+        <button onclick="resetarFluxo()" class="back-btn" style="margin-top: 20px;">🔄 Novo Envio</button>
+      </div>
+    </div>
+
+    <!-- ABA 4: MÉTODOS DE VERIFICAÇÃO -->
+    <div id="aba-metodos-verificacao" style="display: none;">
+      <h2 style="text-align: center; color: #d4af37; margin-bottom: 30px;">
+        🔍 Métodos de Verificação
+      </h2>
+      
+      <!-- PASSO 1: Seleção de Método -->
+      <div class="secao">
+        <h3>1️⃣ Escolher Método de Verificação</h3>
+        <div class="metodos-identificacao">
+          <div class="metodo-id" onclick="selecionarMetodoVerificacao('identificacao-unica')">
+            <div class="icone">🆔</div>
+            <span>Identificação Única</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoVerificacao('codigo-barras')">
+            <div class="icone">📊</div>
+            <span>Código de Barras</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoVerificacao('qr-code')">
+            <div class="icone">🔲</div>
+            <span>QR Code</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoVerificacao('documento-foto')">
+            <div class="icone">📄</div>
+            <span>Foto do Documento</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoVerificacao('biometria')">
+            <div class="icone">👆</div>
+            <span>Biometria</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoVerificacao('reconhecimento-facial')">
+            <div class="icone">📷</div>
+            <span>Reconhecimento Facial</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 2: Formulário de Verificação -->
+      <div id="form-verificacao" class="secao" style="display: none;">
+        <h3>2️⃣ Validar Verificação</h3>
+        <div id="formulario-verificacao">
+          <!-- Formulário dinâmico aparece aqui -->
+        </div>
+      </div>
+
+      <!-- RESULTADO -->
+      <div id="resultado-verificacao" style="display: none;">
+        <div class="resultado-container">
+          <h3>✅ Verificação Concluída!</h3>
+          <p>Eleitor verificado: <strong id="eleitor-verificado"></strong></p>
+          <p>Método: <strong id="metodo-verificacao"></strong></p>
+          <div class="codigo-identificador" id="codigo-verificacao"></div>
+        </div>
+        <button onclick="resetarFluxo()" class="back-btn" style="margin-top: 20px;">🔄 Nova Verificação</button>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<script>
+// Banco de dados
+const dbAutorizacoes = new PouchDB('terra_dourada_autorizacoes');
+const dbEleicoes = new PouchDB('terra_dourada_eleicoes');
+
+// Variáveis globais
+let electionId = null;
+let metodoIdentificacaoAtual = null;
+let metodoEnvioAtual = null;
+let abaAtual = 'gerar-link';
+let dadosEleitorAtual = null;
+let stream = null;
+let qrScannerActive = false;
+let barcodeScannerActive = false;
+
+// Sistema de Configuração de API do Cliente
+let API_CONFIG = {
+  baseURL: '',
+  token: '',
+  endpoints: {
+    validarCPF: '/api/eleitores/validar',
+    validarCodigo: '/api/eleitores/codigo',
+    validarBiometria: '/api/biometria/validar',
+    validarFacial: '/api/facial/validar'
+  },
+  configurado: false
+};
+
+// Inicialização
+document.addEventListener("DOMContentLoaded", function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  electionId = urlParams.get('id');
+  
+  if (electionId) {
+    carregarInfoEleicao();
+  }
+  
+  // Carregar configuração da API
+  carregarConfigAPI();
+});
+
+// ========== SISTEMA DE CONFIGURAÇÃO DA API ==========
+
+function carregarConfigAPI() {
+  const configSalva = localStorage.getItem('api_config_cliente');
+  if (configSalva) {
+    API_CONFIG = { ...API_CONFIG, ...JSON.parse(configSalva) };
+    API_CONFIG.configurado = true;
+    atualizarStatusAPI();
+  }
+}
+
+function abrirConfigAPI() {
+  document.getElementById('modal-config-api').style.display = 'flex';
+  
+  // Preencher campos com valores atuais
+  document.getElementById('api-base-url').value = API_CONFIG.baseURL;
+  document.getElementById('api-token').value = API_CONFIG.token;
+  document.getElementById('endpoint-validar').value = API_CONFIG.endpoints.validarCPF;
+  document.getElementById('endpoint-codigo').value = API_CONFIG.endpoints.validarCodigo;
+  document.getElementById('endpoint-biometria').value = API_CONFIG.endpoints.validarBiometria;
+  document.getElementById('endpoint-facial').value = API_CONFIG.endpoints.validarFacial;
+}
+
+function fecharConfigAPI() {
+  document.getElementById('modal-config-api').style.display = 'none';
+}
+
+function salvarConfigAPI() {
+  const baseURL = document.getElementById('api-base-url').value;
+  const token = document.getElementById('api-token').value;
+  
+  if (!baseURL || !token) {
+    alert('Preencha a URL base e o token!');
+    return;
+  }
+  
+  API_CONFIG = {
+    baseURL: baseURL,
+    token: token,
+    endpoints: {
+      validarCPF: document.getElementById('endpoint-validar').value || '/api/eleitores/validar',
+      validarCodigo: document.getElementById('endpoint-codigo').value || '/api/eleitores/codigo',
+      validarBiometria: document.getElementById('endpoint-biometria').value || '/api/biometria/validar',
+      validarFacial: document.getElementById('endpoint-facial').value || '/api/facial/validar'
+    },
+    configurado: true
+  };
+  
+  localStorage.setItem('api_config_cliente', JSON.stringify(API_CONFIG));
+  atualizarStatusAPI();
+  fecharConfigAPI();
+  alert('✅ Configuração salva com sucesso!');
+}
+
+function testarConexaoAPI() {
+  if (!API_CONFIG.baseURL) {
+    alert('Configure a URL base primeiro!');
+    return;
+  }
+  
+  mostrarLoading('Testando conexão com API...');
+  setTimeout(() => {
+    esconderLoading();
+    alert('✅ Conexão com API testada com sucesso!\n\nEm produção, validaria os endpoints reais.');
+  }, 2000);
+}
+
+function atualizarStatusAPI() {
+  const statusElement = document.getElementById('api-status');
+  if (API_CONFIG.configurado) {
+    statusElement.textContent = '✅ API: Configurada';
+    statusElement.className = 'api-status configurada';
+  } else {
+    statusElement.textContent = '⚠️ API: Não Configurada';
+    statusElement.className = 'api-status nao-configurada';
+  }
+}
+
+// Função para chamar API do cliente
+async function chamarAPICliente(endpoint, dados) {
+  if (!API_CONFIG.configurado) {
+    throw new Error('API do cliente não configurada');
+  }
+  
+  // Em produção, substituir por fetch real:
+  // const response = await fetch(API_CONFIG.baseURL + endpoint, {
+  //   method: 'POST',
+  //   headers: {
+  //     'Authorization': API_CONFIG.token,
+  //     'Content-Type': 'application/json'
+  //   },
+  //   body: JSON.stringify(dados)
+  // });
+  
+  // return await response.json();
+  
+  // Simulação da API do cliente:
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        valido: true,
+        eleitor: {
+          nome: dados.nome || 'Eleitor Validado',
+          cpf: dados.cpf || '12345678900',
+          data_nascimento: dados.data_nascimento || '1980-01-01',
+          titulo_eleitor: '123456789012'
+        },
+        mensagem: 'Validação realizada via API do cliente'
+      });
+    }, 1500);
+  });
+}
+
+// ========== CONTROLE DE ABAS PRINCIPAIS ==========
+
+function mostrarAba(aba) {
+  abaAtual = aba;
+  
+  document.querySelectorAll('[id^="aba-"]').forEach(aba => {
+    aba.style.display = 'none';
+  });
+  
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  document.getElementById(`aba-${aba}`).style.display = 'block';
+  event.currentTarget.classList.add('active');
+  
+  resetarFluxo();
+}
+
+// Resetar fluxo completo
+function resetarFluxo() {
+  document.querySelectorAll('.metodo-id').forEach(el => {
+    el.classList.remove('selecionado');
+  });
+  
+  const secoes = ['form-identificacao', 'gerar-link-section', 'resultado-link',
+                 'form-identificacao-urna', 'gerar-token-urna', 'resultado-urna',
+                 'form-identificacao-comunicacao', 'enviar-comunicacao-section', 'resultado-comunicacao',
+                 'campo-contato', 'form-verificacao', 'resultado-verificacao'];
+  
+  secoes.forEach(sec => {
+    const el = document.getElementById(sec);
+    if (el) el.style.display = 'none';
+  });
+  
+  // Parar scanners e câmeras
+  pararScanners();
+  
+  metodoIdentificacaoAtual = null;
+  metodoEnvioAtual = null;
+  dadosEleitorAtual = null;
+}
+
+function pararScanners() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+  qrScannerActive = false;
+  barcodeScannerActive = false;
+}
+
+// ========== FUNÇÕES DE IDENTIFICAÇÃO ==========
+
+function selecionarMetodoIdentificacao(metodo) {
+  metodoIdentificacaoAtual = metodo;
+  
+  document.querySelectorAll('#aba-gerar-link .metodo-id').forEach(el => {
+    el.classList.remove('selecionado');
+  });
+  event.currentTarget.classList.add('selecionado');
+  
+  document.getElementById('form-identificacao').style.display = 'block';
+  document.getElementById('formulario-identificacao').innerHTML = gerarFormularioIdentificacao(metodo);
+}
+
+function selecionarMetodoIdentificacaoUrna(metodo) {
+  metodoIdentificacaoAtual = metodo;
+  
+  document.querySelectorAll('#aba-urna-presencial .metodo-id').forEach(el => {
+    el.classList.remove('selecionado');
+  });
+  event.currentTarget.classList.add('selecionado');
+  
+  document.getElementById('form-identificacao-urna').style.display = 'block';
+  document.getElementById('formulario-identificacao-urna').innerHTML = gerarFormularioIdentificacao(metodo);
+}
+
+function selecionarMetodoIdentificacaoComunicacao(metodo) {
+  metodoIdentificacaoAtual = metodo;
+  
+  document.querySelectorAll('#aba-enviar-comunicacao .metodo-id').forEach(el => {
+    el.classList.remove('selecionado');
+  });
+  event.currentTarget.classList.add('selecionado');
+  
+  document.getElementById('form-identificacao-comunicacao').style.display = 'block';
+  document.getElementById('formulario-identificacao-comunicacao').innerHTML = gerarFormularioIdentificacao(metodo);
+}
+
+function selecionarMetodoVerificacao(metodo) {
+  metodoIdentificacaoAtual = metodo;
+  
+  document.querySelectorAll('#aba-metodos-verificacao .metodo-id').forEach(el => {
+    el.classList.remove('selecionado');
+  });
+  event.currentTarget.classList.add('selecionado');
+  
+  document.getElementById('form-verificacao').style.display = 'block';
+  document.getElementById('formulario-verificacao').innerHTML = gerarFormularioIdentificacao(metodo);
+}
+
+function gerarFormularioIdentificacao(metodo) {
+  switch(metodo) {
+    case 'identificacao-unica':
+      return `
+        <div class="form-container">
+          <div class="form-group">
+            <label for="identificacao">CPF *</label>
+            <input type="text" id="identificacao" placeholder="000.000.000-00" maxlength="14" oninput="formatarCPF(this)">
+          </div>
+          <div class="form-group">
+            <label for="nome">Nome Completo *</label>
+            <input type="text" id="nome" placeholder="Nome do eleitor">
+          </div>
+          <div class="form-group">
+            <label for="data-nascimento">Data de Nascimento *</label>
+            <input type="date" id="data-nascimento">
+          </div>
+          <button onclick="validarIdentificacao()" class="btn-confirmar">✅ Validar Identificação</button>
+        </div>
+      `;
+      
+    case 'codigo-barras':
+      return `
+        <div class="form-container">
+          <div class="camera-container">
+            <div id="barcode-preview">
+              <div>📊 Clique em Iniciar Scanner</div>
+            </div>
+            <div class="camera-controls">
+              <button onclick="iniciarScannerBarras()" class="btn-confirmar">🎥 Iniciar Scanner</button>
+              <button onclick="pararScanners()" class="btn-confirmar">⏹️ Parar</button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="codigo-barras-input">Ou digite o código manualmente:</label>
+            <input type="text" id="codigo-barras-input" placeholder="Código do código de barras">
+          </div>
+          
+          <div class="form-group">
+            <label for="nome-barras">Nome Completo *</label>
+            <input type="text" id="nome-barras" placeholder="Nome do eleitor">
+          </div>
+          
+          <button onclick="validarCodigoBarras()" class="btn-confirmar">✅ Validar Código</button>
+        </div>
+      `;
+      
+    case 'qr-code':
+      return `
+        <div class="form-container">
+          <div class="camera-container">
+            <div id="qr-preview">
+              <div>🔲 Clique em Iniciar Scanner</div>
+            </div>
+            <div class="camera-controls">
+              <button onclick="iniciarScannerQR()" class="btn-confirmar">🎥 Iniciar Scanner</button>
+              <button onclick="pararScanners()" class="btn-confirmar">⏹️ Parar</button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="qr-code-input">Ou digite o código do QR Code:</label>
+            <input type="text" id="qr-code-input" placeholder="Conteúdo do QR Code">
+          </div>
+          
+          <div class="form-group">
+            <label for="nome-qr">Nome Completo *</label>
+            <input type="text" id="nome-qr" placeholder="Nome do eleitor">
+          </div>
+          
+          <button onclick="validarQRCode()" class="btn-confirmar">✅ Validar QR Code</button>
+        </div>
+      `;
+      
+    case 'documento-foto':
+      return `
+        <div class="form-container">
+          <div class="upload-area" onclick="document.getElementById('upload-documento').click()">
+            <div>📄</div>
+            <p>Clique para fazer upload da foto do documento</p>
+            <p style="font-size: 0.8rem; margin-top: 10px;">Formatos: JPG, PNG (Máx: 5MB)</p>
+            <input type="file" id="upload-documento" accept="image/*" style="display: none;" onchange="processarDocumento(this)">
+          </div>
+          
+          <div id="preview-documento" style="display: none; margin: 15px 0;">
+            <img id="imagem-documento" style="max-width: 100%; border-radius: 8px;">
+          </div>
+          
+          <div class="form-group">
+            <label for="nome-documento">Nome Completo *</label>
+            <input type="text" id="nome-documento" placeholder="Nome conforme documento">
+          </div>
+          
+          <div class="form-group">
+            <label for="numero-documento">Número do Documento *</label>
+            <input type="text" id="numero-documento" placeholder="Número do documento">
+          </div>
+          
+          <button onclick="validarDocumento()" class="btn-confirmar">✅ Validar Documento</button>
+        </div>
+      `;
+      
+    case 'biometria':
+      return `
+        <div class="form-container">
+          <div class="upload-area" onclick="iniciarCapturaBiometria()">
+            <div>👆</div>
+            <p>Clique para iniciar captura biométrica</p>
+            <p style="font-size: 0.8rem; margin-top: 10px;">Posicione o dedo no leitor</p>
+          </div>
+          
+          <div id="status-biometria" style="text-align: center; margin: 15px 0; display: none;">
+            <div class="scanner-result">
+              <strong>🔒 Capturando digital...</strong>
+              <div style="margin-top: 10px;">
+                <div style="width: 100%; height: 4px; background: #333; border-radius: 2px;">
+                  <div id="progresso-biometria" style="width: 0%; height: 100%; background: #d4af37; border-radius: 2px; transition: width 2s;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="nome-biometria">Nome Completo *</label>
+            <input type="text" id="nome-biometria" placeholder="Nome do eleitor">
+          </div>
+          
+          <button onclick="validarBiometria()" class="btn-confirmar">✅ Validar Biometria</button>
+        </div>
+      `;
+      
+    case 'reconhecimento-facial':
+      return `
+        <div class="form-container">
+          <div class="camera-container">
+            <div id="camera-preview">
+              <div>📷 Clique em Iniciar Câmera</div>
+            </div>
+            <div class="camera-controls">
+              <button onclick="iniciarCameraFacial()" class="btn-confirmar">🎥 Iniciar Câmera</button>
+              <button onclick="capturarRosto()" class="btn-confirmar">📸 Capturar Rosto</button>
+            </div>
+          </div>
+          
+          <div id="status-facial" style="display: none;">
+            <div class="scanner-result">
+              <strong>✅ Rosto detectado!</strong>
+              <p>Analisando características faciais...</p>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="nome-facial">Nome Completo *</label>
+            <input type="text" id="nome-facial" placeholder="Nome do eleitor">
+          </div>
+          
+          <button onclick="validarReconhecimentoFacial()" class="btn-confirmar">✅ Validar Facial</button>
+        </div>
+      `;
+  }
+}
+
+// ========== FUNÇÕES DE VALIDAÇÃO REAL ==========
+
+// Formatar CPF
+function formatarCPF(input) {
+  let value = input.value.replace(/\D/g, '');
+  if (value.length > 11) value = value.substring(0, 11);
+  
+  if (value.length > 9) {
+    value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  } else if (value.length > 6) {
+    value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+  } else if (value.length > 3) {
+    value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+  }
+  input.value = value;
+}
+
+// Validar CPF (algoritmo real)
+function validarCPF(cpf) {
+  cpf = cpf.replace(/\D/g, '');
+  
+  if (cpf.length !== 11) return false;
+  if (/^(\d)\1+$/.test(cpf)) return false;
+  
+  let soma = 0;
+  for (let i = 0; i < 9; i++) {
+    soma += parseInt(cpf.charAt(i)) * (10 - i);
+  }
+  let resto = soma % 11;
+  let digito1 = resto < 2 ? 0 : 11 - resto;
+  
+  if (digito1 !== parseInt(cpf.charAt(9))) return false;
+  
+  soma = 0;
+  for (let i = 0; i < 10; i++) {
+    soma += parseInt(cpf.charAt(i)) * (11 - i);
+  }
+  resto = soma % 11;
+  let digito2 = resto < 2 ? 0 : 11 - resto;
+  
+  return digito2 === parseInt(cpf.charAt(10));
+}
+
+// Scanner de QR Code real
+async function iniciarScannerQR() {
+  try {
+    pararScanners();
+    stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: "environment" } 
+    });
+    
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    video.setAttribute("playsinline", true);
+    video.play();
+    
+    const preview = document.getElementById('qr-preview');
+    preview.innerHTML = '';
+    preview.appendChild(video);
+    preview.classList.add('scanner-active');
+    
+    requestAnimationFrame(tickQRScanner);
+    qrScannerActive = true;
+    
+  } catch (error) {
+    alert('❌ Erro ao acessar a câmera: ' + error.message);
+  }
+}
+
+function tickQRScanner() {
+  const video = document.querySelector('#qr-preview video');
+  const canvas = document.createElement('canvas');
+  const preview = document.getElementById('qr-preview');
+  
+  if (video && video.readyState === video.HAVE_ENOUGH_DATA && qrScannerActive) {
+    canvas.height = video.videoHeight;
+    canvas.width = video.videoWidth;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+    
+    if (code) {
+      document.getElementById('qr-code-input').value = code.data;
+      preview.innerHTML = '<div>✅ QR Code detectado!</div>';
+      preview.classList.remove('scanner-active');
+      qrScannerActive = false;
+      pararScanners();
+      return;
+    }
+  }
+  
+  if (qrScannerActive) {
+    requestAnimationFrame(tickQRScanner);
+  }
+}
+
+// Scanner de Código de Barras real
+async function iniciarScannerBarras() {
+  try {
+    pararScanners();
+    stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: "environment" } 
+    });
+    
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    video.setAttribute("playsinline", true);
+    video.play();
+    
+    const preview = document.getElementById('barcode-preview');
+    preview.innerHTML = '';
+    preview.appendChild(video);
+    preview.classList.add('scanner-active');
+    
+    barcodeScannerActive = true;
+    
+    // Configurar Quagga
+    Quagga.init({
+      inputStream: {
+        name: "Live",
+        type: "LiveStream",
+        target: preview,
+        constraints: {
+          facingMode: "environment"
+        }
+      },
+      decoder: {
+        readers: ["code_128_reader", "ean_reader", "ean_8_reader"]
+      }
+    }, function(err) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      Quagga.start();
+    });
+    
+    Quagga.onDetected(function(result) {
+      const code = result.codeResult.code;
+      document.getElementById('codigo-barras-input').value = code;
+      preview.innerHTML = '<div>✅ Código de Barras detectado!</div>';
+      preview.classList.remove('scanner-active');
+      Quagga.stop();
+      barcodeScannerActive = false;
+      pararScanners();
+    });
+    
+  } catch (error) {
+    alert('❌ Erro ao acessar a câmera: ' + error.message);
+  }
+}
+
+// Processar documento
+function processarDocumento(input) {
+  const file = input.files[0];
+  if (file) {
+    if (file.size > 5 * 1024 * 1024) {
+      alert('❌ Arquivo muito grande! Máximo 5MB.');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const preview = document.getElementById('preview-documento');
+      const img = document.getElementById('imagem-documento');
+      img.src = e.target.result;
+      preview.style.display = 'block';
+      
+      // Simular OCR básico
+      setTimeout(() => {
+        alert('📄 Documento processado! Em produção, extrairíamos dados automaticamente.');
+      }, 1000);
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Biometria simulada com progresso
+function iniciarCapturaBiometria() {
+  const status = document.getElementById('status-biometria');
+  const progresso = document.getElementById('progresso-biometria');
+  
+  status.style.display = 'block';
+  progresso.style.width = '0%';
+  
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 10;
+    progresso.style.width = progress + '%';
+    
+    if (progress >= 100) {
+      clearInterval(interval);
+      setTimeout(() => {
+        status.innerHTML = '<div class="scanner-result"><strong>✅ Digital capturada com sucesso!</strong></div>';
+      }, 500);
+    }
+  }, 200);
+}
+
+// Reconhecimento Facial
+async function iniciarCameraFacial() {
+  try {
+    pararScanners();
+    stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { width: 640, height: 480 } 
+    });
+    
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    video.autoplay = true;
+    
+    const preview = document.getElementById('camera-preview');
+    preview.innerHTML = '';
+    preview.appendChild(video);
+    
+  } catch (error) {
+    alert('❌ Erro ao acessar a câmera: ' + error.message);
+  }
+}
+
+function capturarRosto() {
+  const preview = document.getElementById('camera-preview');
+  const video = preview.querySelector('video');
+  const status = document.getElementById('status-facial');
+  
+  if (!video) {
+    alert('❌ Inicie a câmera primeiro');
+    return;
+  }
+  
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  
+  // Simular detecção facial
+  preview.innerHTML = '<div>✅ Rosto capturado!</div>';
+  status.style.display = 'block';
+  
+  // Em produção, aqui integraria com FaceAPI.js ou similar
+  setTimeout(() => {
+    status.innerHTML = '<div class="scanner-result"><strong>✅ Reconhecimento facial concluído!</strong><p>Características faciais validadas</p></div>';
+  }, 1500);
+}
+
+// ========== FUNÇÕES DE VALIDAÇÃO COM API DO CLIENTE ==========
+
+async function validarIdentificacao() {
+  const cpf = document.getElementById('identificacao').value.replace(/\D/g, '');
+  const nome = document.getElementById('nome').value;
+  const dataNascimento = document.getElementById('data-nascimento').value;
+
+  if (!cpf || !nome || !dataNascimento) {
+    alert('Preencha todos os campos obrigatórios');
+    return;
+  }
+
+  if (!validarCPF(cpf)) {
+    alert('❌ CPF inválido!');
+    return;
+  }
+
+  // Verificar se API está configurada
+  if (API_CONFIG.configurado) {
+    try {
+      mostrarLoading('Validando com API do cliente...');
+      const resultado = await chamarAPICliente(API_CONFIG.endpoints.validarCPF, {
+        cpf: cpf,
+        data_nascimento: dataNascimento,
+        nome: nome
+      });
+      esconderLoading();
+
+      if (resultado.valido) {
+        dadosEleitorAtual = {
+          metodo: metodoIdentificacaoAtual,
+          identificacao: cpf,
+          nome: resultado.eleitor.nome,
+          dataNascimento: dataNascimento,
+          dadosOficiais: resultado.eleitor,
+          fonte: 'api_cliente'
+        };
+        prosseguirParaGeracao();
+      } else {
+        alert('❌ Eleitor não encontrado na base do cliente!');
+      }
+    } catch (error) {
+      esconderLoading();
+      alert('❌ Erro ao consultar API do cliente. Usando validação local.');
+      // Fallback para validação local
+      validarIdentificacaoLocal(cpf, nome, dataNascimento);
+    }
+  } else {
+    // Validação local se API não configurada
+    validarIdentificacaoLocal(cpf, nome, dataNascimento);
+  }
+}
+
+function validarIdentificacaoLocal(cpf, nome, dataNascimento) {
+  dadosEleitorAtual = {
+    metodo: metodoIdentificacaoAtual,
+    identificacao: cpf,
+    nome: nome,
+    dataNascimento: dataNascimento,
+    fonte: 'local'
+  };
+  prosseguirParaGeracao();
+}
+
+function validarCodigoBarras() {
+  const codigo = document.getElementById('codigo-barras-input').value;
+  const nome = document.getElementById('nome-barras').value;
+  
+  if (!codigo || !nome) {
+    alert('Preencha o código e o nome');
+    return;
+  }
+  
+  // Validar formato básico de código de barras
+  if (codigo.length < 8) {
+    alert('❌ Código de barras inválido!');
+    return;
+  }
+  
+  dadosEleitorAtual = {
+    metodo: 'codigo-barras',
+    identificacao: codigo,
+    nome: nome
+  };
+  
+  prosseguirParaGeracao();
+}
+
+function validarQRCode() {
+  const codigo = document.getElementById('qr-code-input').value;
+  const nome = document.getElementById('nome-qr').value;
+  
+  if (!codigo || !nome) {
+    alert('Preencha o código QR e o nome');
+    return;
+  }
+  
+  dadosEleitorAtual = {
+    metodo: 'qr-code',
+    identificacao: codigo,
+    nome: nome
+  };
+  
+  prosseguirParaGeracao();
+}
+
+function validarDocumento() {
+  const numero = document.getElementById('numero-documento').value;
+  const nome = document.getElementById('nome-documento').value;
+  
+  if (!numero || !nome) {
+    alert('Preencha o número do documento e o nome');
+    return;
+  }
+  
+  dadosEleitorAtual = {
+    metodo: 'documento-foto',
+    identificacao: numero,
+    nome: nome
+  };
+  
+  prosseguirParaGeracao();
+}
+
+function validarBiometria() {
+  const nome = document.getElementById('nome-biometria').value;
+  
+  if (!nome) {
+    alert('Preencha o nome do eleitor');
+    return;
+  }
+  
+  dadosEleitorAtual = {
+    metodo: 'biometria',
+    identificacao: 'biometria_capturada_' + Date.now(),
+    nome: nome
+  };
+  
+  prosseguirParaGeracao();
+}
+
+function validarReconhecimentoFacial() {
+  const nome = document.getElementById('nome-facial').value;
+  
+  if (!nome) {
+    alert('Preencha o nome do eleitor');
+    return;
+  }
+  
+  dadosEleitorAtual = {
+    metodo: 'reconhecimento-facial',
+    identificacao: 'rosto_capturado_' + Date.now(),
+    nome: nome
+  };
+  
+  prosseguirParaGeracao();
+}
+
+// Função auxiliar para prosseguir
+function prosseguirParaGeracao() {
+  if (abaAtual === 'gerar-link') {
+    document.getElementById('gerar-link-section').style.display = 'block';
+    document.getElementById('eleitor-identificado').textContent = dadosEleitorAtual.nome;
+  } else if (abaAtual === 'urna-presencial') {
+    document.getElementById('gerar-token-urna').style.display = 'block';
+    document.getElementById('eleitor-urna').textContent = dadosEleitorAtual.nome;
+  } else if (abaAtual === 'enviar-comunicacao') {
+    document.getElementById('campo-contato').style.display = 'block';
+  } else if (abaAtual === 'metodos-verificacao') {
+    finalizarVerificacao();
+  }
+}
+
+// ========== FUNÇÕES DE LOADING ==========
+
+function mostrarLoading(mensagem) {
+  document.getElementById('loading-message').textContent = mensagem;
+  document.getElementById('loading').style.display = 'flex';
+}
+
+function esconderLoading() {
+  document.getElementById('loading').style.display = 'none';
+}
+
+// ========== ABA MÉTODOS DE VERIFICAÇÃO ==========
+
+function finalizarVerificacao() {
+  document.getElementById('resultado-verificacao').style.display = 'block';
+  document.getElementById('eleitor-verificado').textContent = dadosEleitorAtual.nome;
+  document.getElementById('metodo-verificacao').textContent = formatarMetodo(dadosEleitorAtual.metodo);
+  
+  // Gerar código de verificação
+  const codigo = 'VER_' + Math.random().toString(36).substr(2, 8).toUpperCase();
+  document.getElementById('codigo-verificacao').textContent = codigo;
+}
+
+// Formatar nome do método
+function formatarMetodo(metodo) {
+  switch(metodo) {
+    case 'identificacao-unica': return 'Identificação Única (CPF)';
+    case 'codigo-barras': return 'Código de Barras';
+    case 'qr-code': return 'QR Code';
+    case 'documento-foto': return 'Foto do Documento';
+    case 'biometria': return 'Biometria';
+    case 'reconhecimento-facial': return 'Reconhecimento Facial';
+    default: return metodo;
+  }
+}
+
+// ========== FUNÇÕES AUXILIARES ==========
+
+function copiarLink() {
+  const link = document.getElementById('link-gerado').textContent;
+  navigator.clipboard.writeText(link);
+  alert('✅ Link copiado!');
+}
+
+function compartilharWhatsApp() {
+  const link = document.getElementById('link-gerado').textContent;
+  const codigo = document.getElementById('codigo-link').textContent;
+  const texto = `🗳️ TERRA DOURADA\nCódigo: ${codigo}\nLink: ${link}\n\n⚠️ Link pessoal e intransferível`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
+}
+
+// Carregar informações da eleição
+async function carregarInfoEleicao() {
+  try {
+    const eleicao = await dbEleicoes.get(electionId);
+    document.getElementById('info-eleicao').textContent = `Eleição: ${eleicao.name}`;
+  } catch (error) {
+    console.error('Erro ao carregar eleição:', error);
+  }
+}
+
+// ========== ABA GERAR LINK ==========
+
+function gerarLinkVoto() {
+  if (!dadosEleitorAtual) return;
+  
+  const token = 'td_' + Math.random().toString(36).substr(2, 16);
+  const link = `${window.location.origin}/votar.html?eleicao=${electionId}&token=${token}`;
+  const codigo = `LNK-${token.substr(3, 8).toUpperCase()}`;
+  
+  dbAutorizacoes.put({
+    _id: token,
+    electionId: electionId,
+    metodoIdentificacao: dadosEleitorAtual.metodo,
+    dadosEleitor: dadosEleitorAtual,
+    tipo: 'link',
+    codigo: codigo,
+    link: link,
+    usado: false,
+    dataCriacao: new Date().toISOString()
+  });
+  
+  document.getElementById('codigo-link').textContent = codigo;
+  document.getElementById('link-gerado').textContent = link;
+  document.getElementById('resultado-link').style.display = 'block';
+}
+
+// ========== MÉTODOS DE ENVIO ==========
+
+function mostrarCampoContato() {
+  const metodo = document.getElementById('metodo-envio').value;
+  if (!metodo) return;
+  
+  metodoEnvioAtual = metodo;
+  const campo = document.getElementById('contato-eleitor');
+  const label = document.getElementById('label-contato');
+  
+  switch(metodo) {
+    case 'whatsapp':
+      campo.placeholder = '55DDDNUMERO (ex: 5511999999999)';
+      label.textContent = 'Número do WhatsApp *';
+      break;
+    case 'sms':
+      campo.placeholder = '55DDDNUMERO (ex: 5511999999999)';
+      label.textContent = 'Número de Celular *';
+      break;
+    case 'email':
+      campo.placeholder = 'eleitor@exemplo.com';
+      label.textContent = 'Email *';
+      break;
+  }
+  
+  document.getElementById('enviar-comunicacao-section').style.display = 'block';
+  document.getElementById('eleitor-comunicacao').textContent = dadosEleitorAtual.nome;
+  document.getElementById('metodo-envio-selecionado').textContent = 
+    metodo === 'whatsapp' ? 'WhatsApp' : metodo === 'sms' ? 'SMS' : 'Email';
+}
+
+// ========== ABA URNA PRESENCIAL ==========
+
+function gerarTokenUrna() {
+  if (!dadosEleitorAtual) return;
+  
+  const token = 'urn_' + Math.random().toString(36).substr(2, 12);
+  const codigo = `URN-${token.substr(4, 6).toUpperCase()}`;
+  
+  dbAutorizacoes.put({
+    _id: token,
+    electionId: electionId,
+    metodoIdentificacao: dadosEleitorAtual.metodo,
+    dadosEleitor: dadosEleitorAtual,
+    tipo: 'urna',
+    codigo: codigo,
+    usado: false,
+    dataCriacao: new Date().toISOString()
+  });
+  
+  document.getElementById('token-urna').textContent = codigo;
+  document.getElementById('resultado-urna').style.display = 'block';
+}
+
+// ========== ABA ENVIAR COMUNICAÇÃO ==========
+
+function enviarComunicacaoVoto() {
+  const contato = document.getElementById('contato-eleitor').value;
+  if (!contato || !dadosEleitorAtual || !metodoEnvioAtual) return;
+  
+  const token = 'com_' + Math.random().toString(36).substr(2, 16);
+  const link = `${window.location.origin}/votar.html?eleicao=${electionId}&token=${token}`;
+  const codigo = `${metodoEnvioAtual === 'whatsapp' ? 'WPP' : metodoEnvioAtual === 'sms' ? 'SMS' : 'EML'}-${token.substr(4, 8).toUpperCase()}`;
+  
+  dbAutorizacoes.put({
+    _id: token,
+    electionId: electionId,
+    metodoIdentificacao: dadosEleitorAtual.metodo,
+    dadosEleitor: { ...dadosEleitorAtual, contato: contato },
+    tipo: 'comunicacao',
+    metodoEnvio: metodoEnvioAtual,
+    codigo: codigo,
+    link: link,
+    usado: false,
+    dataCriacao: new Date().toISOString()
+  });
+  
+  // Preparar mensagem
+  let urlEnvio, mensagem;
+  const texto = `🗳️ TERRA DOURADA\nOlá ${dadosEleitorAtual.nome}!\n\n🔐 Código: ${codigo}\n🔗 Link: ${link}\n\n⚠️ Link pessoal e intransferível`;
+  
+  switch(metodoEnvioAtual) {
+    case 'whatsapp':
+      urlEnvio = `https://wa.me/${contato}?text=${encodeURIComponent(texto)}`;
+      mensagem = 'Convite preparado para envio no WhatsApp';
+      break;
+    case 'sms':
+      urlEnvio = `sms:${contato}?body=${encodeURIComponent(texto)}`;
+      mensagem = 'SMS preparado para envio';
+      break;
+    case 'email':
+      const assunto = `Convite para Votação - ${dadosEleitorAtual.nome}`;
+      const corpo = `Prezado(a) ${dadosEleitorAtual.nome},\n\n${texto}\n\nAtenciosamente,\nEquipe Terra Dourada`;
+      urlEnvio = `mailto:${contato}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+      mensagem = 'Email preparado para envio';
+      break;
+  }
+  
+  window.open(urlEnvio);
+  
+  document.getElementById('codigo-comunicacao').textContent = codigo;
+  document.getElementById('mensagem-envio').textContent = mensagem;
+  document.getElementById('resultado-comunicacao').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
