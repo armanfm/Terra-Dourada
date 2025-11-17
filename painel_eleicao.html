@@ -865,7 +865,7 @@ async function gerarLinkMesario() {
     usado: false
   });
 
-  const mesarioURL = `${window.location.origin}/eleitor_point.html?auth=${token}&eleicao=${eleicao._id}`;
+  const mesarioURL = `${window.location.origin}/eleitor_point.html?auth=${token}&eleicao_id=${eleicao._id}`;
   
   document.getElementById("auth-links").innerHTML += `
     <div class="auth-link">
