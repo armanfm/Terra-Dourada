@@ -365,7 +365,7 @@
     <button class="tab active" onclick="showTab('candidatos')">👥 Candidatos</button>
     <button class="tab" onclick="showTab('mesarios')">👥 Mesários</button>
     <button class="tab" onclick="showTab('api-cliente')">🔌 API Cliente</button>
-  <button class="tab" onclick="showTab('autorizacao')">🔐 Autorizar Votos</button>
+    <button class="tab" onclick="showTab('autorizacao')">🔐 Autorizar Votos</button>
     <button class="tab" onclick="showTab('monitor')">👁️ Monitorar Votos</button>
     <button class="tab" onclick="showTab('pagamento')">💰 Comprar Créditos</button>
   </div>
@@ -705,7 +705,7 @@ async function criarNovoMesario() {
     usuario: usuario,
     senha: senhaTemporaria,
     eleicao_id: eleicaoSelecionada._id,
-    eleicao_titulo: eleicaoSelecionada.name, // ✅ Usar .name em vez de .titulo
+    eleicao_titulo: eleicaoSelecionada.name,
     ativo: true,
     criado_em: new Date().toISOString(),
     ultimo_acesso: null
@@ -729,8 +729,6 @@ async function criarNovoMesario() {
   alert(credenciais);
   carregarMesarios();
 }
-
-// ... (restante das funções mantidas iguais) ...
 
 async function resetarSenhaMesario(mesarioId) {
   const novaSenha = Math.random().toString(36).substr(2, 10);
@@ -865,9 +863,10 @@ async function gerarLinkMesario() {
     usado: false
   });
 
+  // ✅✅✅ CORREÇÃO CRÍTICA: trocar 'eleicao' por 'eleicao_id'
   const mesarioURL = `${window.location.origin}/eleitor_point.html?auth=${token}&eleicao_id=${eleicao._id}`;
   
-  document.getElementById("auth-links").innerHTML += `
+  document.getElementById("auth-links").innerHTML = `
     <div class="auth-link">
       <h4>🔗 Link para Mesário - ${eleicao.name}</h4>
       <a href="${mesarioURL}" target="_blank">${mesarioURL}</a><br>
