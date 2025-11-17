@@ -6,6 +6,7 @@
   <title>Painel de Autoridade — Terra Dourada</title>
   <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     body {
@@ -218,6 +219,41 @@
       margin-bottom: 10px;
     }
 
+    /* Novo estilo para o campo de tipo */
+    .tipo-eleicao {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .tipo-option {
+      background: #1a1a1a;
+      border: 1px solid #d4af37;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .tipo-option:hover {
+      background: rgba(212,175,55,0.1);
+    }
+    .tipo-option.selecionado {
+      background: rgba(212,175,55,0.2);
+      border-color: #d4af37;
+    }
+    .tipo-option i {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .tipo-option small {
+      display: block;
+      margin-top: 5px;
+      color: #888;
+      font-size: 0.8rem;
+    }
+
     /* Tela de confirmação */
     .confirmation-screen {
       display: none;
@@ -348,6 +384,23 @@
           <label for="electionName">Nome da Eleição</label>
           <input type="text" id="electionName" placeholder="Ex: Eleições Municipais 2024">
         </div>
+
+        <!-- NOVO CAMPO: Tipo da Eleição -->
+        <div class="form-group">
+          <label>Tipo da Eleição</label>
+          <div class="tipo-eleicao">
+            <div class="tipo-option selecionado" onclick="selecionarTipo('online', this)">
+              <i class="fas fa-globe"></i>
+              <strong>🌐 Online</strong>
+              <small>Votação remota por link</small>
+            </div>
+            <div class="tipo-option" onclick="selecionarTipo('presencial', this)">
+              <i class="fas fa-building"></i>
+              <strong>🏛️ Presencial</strong>
+              <small>Votação física com mesário</small>
+            </div>
+          </div>
+        </div>
         
         <div class="form-group">
           <label for="position">Cargos em Disputa</label>
@@ -375,6 +428,7 @@
     <h2>Confirmação de Eleição</h2>
     <p>Você está prestes a criar a eleição:</p>
     <h3 id="confirmationElectionName" style="color: #d4af37; margin: 10px 0 20px;"></h3>
+    <p id="confirmationTipo" style="margin-bottom: 10px;"></p>
     <p id="confirmationPosition" style="margin-bottom: 10px;"></p>
     <p id="confirmationDescription" style="margin-bottom: 20px; color: #bbb;"></p>
     <p>Tem certeza de que deseja confirmar a criação?</p>
@@ -395,6 +449,7 @@ const dbEleicoes = new PouchDB('terra_dourada_eleicoes');
 // Variáveis
 let photoBase64 = null;
 let electionData = null;
+let tipoEleicao = 'online'; // Padrão: online
 
 // --- CONTROLE DE ABAS ---
 function showTab(tab) {
@@ -403,7 +458,7 @@ function showTab(tab) {
   document.querySelectorAll('[id^="tab-"]').forEach(c => c.style.display = 'none');
 
   // Ativar aba atual
-  document.querySelector(`button[onclick="showTab('${tab}')"]`).classList.add('active');
+  event.currentTarget.classList.add('active');
   document.getElementById(`tab-${tab}`).style.display = 'block';
 
   // Recarregar eleições se for a aba de listagem
@@ -412,40 +467,58 @@ function showTab(tab) {
   }
 }
 
+// --- NOVA FUNÇÃO: Selecionar Tipo ---
+function selecionarTipo(tipo, element) {
+  tipoEleicao = tipo;
+  
+  // Atualizar interface
+  document.querySelectorAll('.tipo-option').forEach(opt => {
+    opt.classList.remove('selecionado');
+  });
+  element.classList.add('selecionado');
+}
+
 // --- CARREGAR ELEIÇÕES ---
 async function carregarEleicoes() {
-  const res = await dbEleicoes.allDocs({ include_docs: true });
-  const cont = document.getElementById('eleicoes-list');
+  try {
+    const res = await dbEleicoes.allDocs({ include_docs: true });
+    const cont = document.getElementById('eleicoes-list');
 
-  if (res.rows.length === 0) {
-    cont.innerHTML = `
-      <div class="empty-state">
-        <h3>Nenhuma eleição cadastrada</h3>
-        <p>Clique em "Nova Eleição" para criar sua primeira eleição</p>
-      </div>
-    `;
-    return;
+    if (res.rows.length === 0) {
+      cont.innerHTML = `
+        <div class="empty-state">
+          <h3>Nenhuma eleição cadastrada</h3>
+          <p>Clique em "Nova Eleição" para criar sua primeira eleição</p>
+        </div>
+      `;
+      return;
+    }
+
+    cont.innerHTML = res.rows.map(r => {
+      const eleicao = r.doc;
+      const status = eleicao.status === 'ativa' ? 'status-ativa' : 'status-inativa';
+      const statusText = eleicao.status === 'ativa' ? 'Ativa' : 'Inativa';
+      const logo = eleicao.photo || 'https://via.placeholder.com/80/1a1a1a/d4af37?text=🗳️';
+      const tipoIcon = eleicao.tipo === 'presencial' ? '🏛️' : '🌐';
+      const tipoText = eleicao.tipo === 'presencial' ? 'Presencial' : 'Online';
+      
+      return `
+        <div class="eleicao-card" onclick="abrirPainelEleicao('${eleicao._id}')">
+          <img src="${logo}" alt="${eleicao.name}" class="eleicao-logo">
+          <h3>${eleicao.name}</h3>
+          <p><strong>Tipo:</strong> ${tipoIcon} ${tipoText}</p>
+          <p><strong>Cargo:</strong> ${eleicao.position}</p>
+          <p><strong>Criada em:</strong> ${new Date(eleicao.createdAt).toLocaleDateString()}</p>
+          <span class="status-badge ${status}">${statusText}</span>
+          <p style="margin-top: 15px; font-size: 0.8rem; color: #888;">
+            Clique para gerenciar esta eleição
+          </p>
+        </div>
+      `;
+    }).join('');
+  } catch (error) {
+    console.error('Erro ao carregar eleições:', error);
   }
-
-  cont.innerHTML = res.rows.map(r => {
-    const eleicao = r.doc;
-    const status = eleicao.status === 'ativa' ? 'status-ativa' : 'status-inativa';
-    const statusText = eleicao.status === 'ativa' ? 'Ativa' : 'Inativa';
-    const logo = eleicao.photo || 'https://via.placeholder.com/80/1a1a1a/d4af37?text=🗳️';
-    
-    return `
-      <div class="eleicao-card" onclick="abrirPainelEleicao('${eleicao._id}')">
-        <img src="${logo}" alt="${eleicao.name}" class="eleicao-logo">
-        <h3>${eleicao.name}</h3>
-        <p><strong>Cargo:</strong> ${eleicao.position}</p>
-        <p><strong>Criada em:</strong> ${new Date(eleicao.createdAt).toLocaleDateString()}</p>
-        <span class="status-badge ${status}">${statusText}</span>
-        <p style="margin-top: 15px; font-size: 0.8rem; color: #888;">
-          Clique para gerenciar esta eleição
-        </p>
-      </div>
-    `;
-  }).join('');
 }
 
 // --- ABRIR PAINEL DA ELEIÇÃO ---
@@ -486,6 +559,7 @@ function criarEleicao() {
   // Preparar dados
   electionData = {
     name: name,
+    tipo: tipoEleicao,
     position: position,
     description: description,
     photo: photoBase64
@@ -499,8 +573,9 @@ function criarEleicao() {
 function abrirTelaConfirmacao(dadosEleicao) {
   document.getElementById('confirmationImage').src = dadosEleicao.photo;
   document.getElementById('confirmationElectionName').textContent = dadosEleicao.name;
+  document.getElementById('confirmationTipo').textContent = `Tipo: ${dadosEleicao.tipo === 'presencial' ? '🏛️ Presencial' : '🌐 Online'}`;
   document.getElementById('confirmationPosition').textContent = `Cargos: ${dadosEleicao.position}`;
-  document.getElementById('confirmationDescription').textContent = dadosEleicao.description;
+  document.getElementById('confirmationDescription').textContent = dadosEleicao.description || 'Sem descrição';
   
   document.getElementById('confirmCadastroButton').onclick = function() {
     confirmarEleicao();
@@ -530,6 +605,7 @@ async function confirmarEleicao() {
     const election = {
       _id: electionId,
       name: electionData.name,
+      tipo: electionData.tipo,
       position: electionData.position,
       description: electionData.description,
       photo: electionData.photo,
@@ -552,6 +628,13 @@ async function confirmarEleicao() {
     document.getElementById('description').value = '';
     document.getElementById('photoPreview').innerHTML = '<i class="fas fa-image"></i>';
     photoBase64 = null;
+    
+    // Resetar tipo para padrão
+    document.querySelectorAll('.tipo-option').forEach(opt => {
+      opt.classList.remove('selecionado');
+    });
+    document.querySelector('.tipo-option').classList.add('selecionado');
+    tipoEleicao = 'online';
     
     fecharTelaConfirmacao();
     
@@ -586,14 +669,6 @@ async function capturarPrint() {
 // --- INICIALIZAÇÃO ---
 document.addEventListener("DOMContentLoaded", () => {
   carregarEleicoes();
-  
-  // Adicionar ícones do Font Awesome
-  if (!document.querySelector('link[href*="font-awesome"]')) {
-    const faLink = document.createElement('link');
-    faLink.rel = 'stylesheet';
-    faLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
-    document.head.appendChild(faLink);
-  }
 });
 </script>
 </body>
