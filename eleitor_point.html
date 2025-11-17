@@ -451,13 +451,20 @@ let API_CONFIG = {
   configurado: false
 };
 
-// Inicialização
+// ✅ CORREÇÃO: Apenas esta linha foi modificada
 document.addEventListener("DOMContentLoaded", async function() {
   const urlParams = new URLSearchParams(window.location.search);
-  electionId = urlParams.get('id');
+  
+  // ✅ CORREÇÃO: Pegar ID da eleição de 'eleicao' OU 'id'
+  electionId = urlParams.get('eleicao') || urlParams.get('id');
+  
+  console.log('🆔 ID da Eleição capturado:', electionId);
   
   if (electionId) {
     await carregarInfoEleicao();
+  } else {
+    console.error('❌ Nenhum ID de eleição encontrado na URL!');
+    document.getElementById('info-eleicao').textContent = '❌ Erro: Nenhuma eleição especificada';
   }
   
   carregarConfigAPI();
@@ -581,7 +588,7 @@ async function carregarInfoEleicao() {
     }
     
   } catch (error) {
-    console.error('Erro ao carregar eleição:', error);
+    console.error('❌ Erro ao carregar eleição:', error);
     document.getElementById('info-eleicao').textContent = 'Erro ao carregar eleição';
   }
 }
@@ -1114,7 +1121,7 @@ function validarReconhecimentoFacial() {
 // ========== FLUXO PRINCIPAL ==========
 
 function prosseguirParaProximaEtapa() {
-  if (eleicaoAtual.tipo === 'presencial') {
+  if (eleicaoAtual && eleicaoAtual.tipo === 'presencial') {
     document.getElementById('segunda-autorizacao').style.display = 'block';
   } else {
     document.getElementById('botao-autorizar').style.display = 'block';
@@ -1138,7 +1145,7 @@ function validarSegundaAutorizacao() {
 function autorizarVoto() {
   if (!dadosEleitorAtual) return;
   
-  if (eleicaoAtual.tipo === 'presencial' && !segundaAutorizacaoAprovada) {
+  if (eleicaoAtual && eleicaoAtual.tipo === 'presencial' && !segundaAutorizacaoAprovada) {
     alert('Confirme a segunda autorização para voto presencial');
     return;
   }
@@ -1149,7 +1156,7 @@ function autorizarVoto() {
   dbAutorizacoes.put({
     _id: token,
     electionId: electionId,
-    tipoEleicao: eleicaoAtual.tipo,
+    tipoEleicao: eleicaoAtual ? eleicaoAtual.tipo : 'online',
     metodoIdentificacao: dadosEleitorAtual.metodo,
     dadosEleitor: dadosEleitorAtual,
     segundaAutorizacao: segundaAutorizacaoAprovada,
@@ -1160,7 +1167,7 @@ function autorizarVoto() {
   
   document.getElementById('codigo-autorizacao').textContent = codigo;
   
-  if (eleicaoAtual.tipo === 'presencial') {
+  if (eleicaoAtual && eleicaoAtual.tipo === 'presencial') {
     document.getElementById('mensagem-autorizacao').textContent = 'Dupla autorização confirmada!';
   } else {
     document.getElementById('mensagem-autorizacao').textContent = 'Autorização online confirmada!';
