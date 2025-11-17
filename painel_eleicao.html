@@ -7,7 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
 
   <style>
-    /* SEUS ESTILOS ORIGINAIS MANTIDOS */
+    /* ESTILOS EXISTENTES MANTIDOS */
     body {
       background: #050703;
       color: #f5f5f5;
@@ -144,11 +144,10 @@
       background: transparent;
       border: 1px solid #d4af37;
       color: #d4af37;
-      padding: 12px 25px;
+      padding: 10px 20px;
       border-radius: 20px;
       cursor: pointer;
       margin: 10px;
-      font-size: 1.1rem;
     }
     .generate-btn:hover {
       background: rgba(212,175,55,0.2);
@@ -247,6 +246,8 @@
     .voltar-btn:hover {
       background: rgba(128, 128, 128, 0.4);
     }
+
+    /* NOVOS ESTILOS PARA MESÁRIOS E API */
     .mesarios-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -315,6 +316,8 @@
       margin: 15px 0;
       text-align: left;
     }
+
+    /* INFO DA ELEIÇÃO */
     .eleicao-header {
       background: rgba(212,175,55,0.1);
       border: 1px solid #d4af37;
@@ -341,6 +344,7 @@
     <h1>🌍 Painel de Autoridade — Terra Dourada</h1>
     <p>Gerencie eleições, candidatos e créditos</p>
     
+    <!-- INFO DA ELEIÇÃO ATUAL -->
     <div class="eleicao-header" id="eleicaoHeader">
       <h2 id="eleicaoNome">Carregando eleição...</h2>
       <p id="eleicaoInfo">ID: <span id="eleicaoId">-</span></p>
@@ -356,83 +360,106 @@
     </div>
   </header>
 
+  <!-- BOTÕES DAS ABAS -->
   <div class="tabs">
     <button class="tab active" onclick="showTab('candidatos')">👥 Candidatos</button>
     <button class="tab" onclick="showTab('mesarios')">👥 Mesários</button>
     <button class="tab" onclick="showTab('api-cliente')">🔌 API Cliente</button>
-    <button class="tab" onclick="showTab('autorizacao')">🔐 Ir para Votação</button>
+    <button class="tab" onclick="window.location.href='eleitor_point.html'">🔐 Autorizar Votos</button>
     <button class="tab" onclick="showTab('monitor')">👁️ Monitorar Votos</button>
     <button class="tab" onclick="showTab('pagamento')">💰 Comprar Créditos</button>
   </div>
 
+  <!-- CONTEÚDO -->
   <div class="content">
+
+    <!-- ABA CANDIDATOS -->
     <div id="tab-candidatos">
       <h2>Lista de Candidatos Cadastrados</h2>
       <div id="candidatos-list" class="candidatos-grid"></div>
     </div>
 
+    <!-- ABA MESÁRIOS -->
     <div id="tab-mesarios" style="display: none;">
       <h2>👥 Gerenciar Mesários</h2>
+      
       <div style="text-align: center; margin: 20px 0;">
         <button class="cadastro-btn" onclick="criarNovoMesario()">
           ➕ Cadastrar Novo Mesário
         </button>
       </div>
+
       <div id="lista-mesarios" class="mesarios-grid"></div>
     </div>
 
+    <!-- ABA API CLIENTE -->
     <div id="tab-api-cliente" style="display: none;">
       <h2>🔌 Configurar API do Cliente</h2>
+      
       <div class="api-config-section">
         <h3>⚙️ Configuração da API</h3>
+        
         <div class="form-group">
           <label>URL Base da API *</label>
           <input type="text" id="api-base-url" placeholder="https://api.cliente.com" style="width: 100%;">
         </div>
+        
         <div class="form-group">
           <label>Token de Autenticação *</label>
           <input type="password" id="api-token" placeholder="Bearer token..." style="width: 100%;">
         </div>
+
         <h4 style="color: #d4af37; margin: 20px 0 10px 0;">Endpoints Personalizados</h4>
+        
         <div class="form-group">
           <label>Validação de Eleitor</label>
           <input type="text" id="endpoint-validar" placeholder="/api/eleitores/validar" style="width: 100%;">
         </div>
+        
         <div class="form-group">
           <label>Validação por Código</label>
           <input type="text" id="endpoint-codigo" placeholder="/api/eleitores/codigo" style="width: 100%;">
         </div>
+
         <div style="display: flex; gap: 10px; margin-top: 20px;">
           <button class="action-btn" onclick="salvarConfigAPI()">💾 Salvar Configuração</button>
           <button class="action-btn" onclick="testarConexaoAPI()">🔍 Testar Conexão</button>
         </div>
+
         <div id="api-status" class="api-status nao-configurada">⚠️ API: Não Configurada</div>
       </div>
     </div>
 
-    <!-- ✅ ABA AUTORIZAÇÃO CORRIGIDA - VAI DIRETO -->
+    <!-- ABA AUTORIZAÇÃO -->
     <div id="tab-autorizacao" style="display: none;">
-      <h2>Ir para Ponto do Eleitor</h2>
+      <h2>Gerar Autorização de Voto</h2>
+      
       <div style="text-align: center; margin: 20px 0;">
-        <button class="generate-btn" onclick="irParaEleitorPoint()">
-          🗳️ Ir para Ponto do Eleitor
+        <button class="generate-btn" onclick="gerarLinkMesario()">
+          🔗 Gerar Link para Mesário
+        </button>
+        <button class="generate-btn" onclick="gerarAutorizacao()">
+          🎫 Gerar Autorização Direta
         </button>
       </div>
-      <div style="text-align: center; color: #888; margin-top: 20px;">
-        <p>Você será redirecionado diretamente para a tela de votação</p>
-      </div>
+
+      <div id="auth-links" class="auth-section"></div>
     </div>
 
+    <!-- ABA MONITOR -->
     <div id="tab-monitor" style="display: none;">
       <h2>Votos Autorizados e Realizados</h2>
       <div id="authorized-votes" class="authorized-votes"></div>
     </div>
 
+    <!-- ABA PAGAMENTO -->
     <div id="tab-pagamento" style="display: none;">
       <h2>💰 Comprar Créditos de Votação</h2>
+      
       <label>Quantidade de votos:</label><br>
       <input id="quantidade" type="number" min="10" placeholder="Ex: 500"
         style="padding:10px; width:220px; border-radius:8px; margin-top:10px;"><br><br>
+
       <label>Moeda de pagamento:</label><br>
       <select id="moeda" style="padding:10px; width:240px; border-radius:8px; margin-top:10px;">
         <option value="SOL">Solana (SOL)</option>
@@ -442,12 +469,16 @@
         <option value="CNY">Yuan (CNY)</option>
         <option value="BRL">Real (BRL)</option>
       </select>
+
       <div id="precoEstimado" style="margin-top:20px; font-size:1.2rem; color:#d4af37;"></div>
+
       <button class="cadastro-btn" onclick="simularPagamento()" style="margin-top:20px;">
         💳 Simular Pagamento
       </button>
+
       <div id="resultadoPagamento" style="margin-top:20px; color:#0f0;"></div>
     </div>
+
   </div>
 </div>
 
@@ -476,10 +507,14 @@ let API_CONFIG = {
 
 // --- INICIALIZAÇÃO - CARREGAR ELEIÇÃO ---
 async function inicializarPainel() {
+  // Pegar ID da eleição da URL
   const urlParams = new URLSearchParams(window.location.search);
   ELEICAO_ATUAL_ID = urlParams.get('id');
   
+  console.log('🆔 ID da Eleição:', ELEICAO_ATUAL_ID);
+  
   if (!ELEICAO_ATUAL_ID) {
+    console.error('❌ Nenhum ID de eleição na URL!');
     document.getElementById('eleicaoHeader').innerHTML = `
       <h2 style="color: #ff4444;">❌ Erro: Nenhuma eleição selecionada</h2>
       <p><a href="autoridade.html" class="voltar-btn">← Voltar para eleições</a></p>
@@ -488,14 +523,20 @@ async function inicializarPainel() {
   }
   
   try {
+    // Carregar dados da eleição
     ELEICAO_ATUAL_DATA = await dbEleicoes.get(ELEICAO_ATUAL_ID);
+    console.log('📊 Dados da eleição:', ELEICAO_ATUAL_DATA);
+    
+    // Atualizar header
     document.getElementById('eleicaoNome').textContent = ELEICAO_ATUAL_DATA.name;
     document.getElementById('eleicaoId').textContent = ELEICAO_ATUAL_ID;
     document.getElementById('eleicaoInfo').innerHTML = `
       <strong>Cargos:</strong> ${ELEICAO_ATUAL_DATA.position} | 
       <strong>ID:</strong> ${ELEICAO_ATUAL_ID}
     `;
+    
   } catch (error) {
+    console.error('❌ Erro ao carregar eleição:', error);
     document.getElementById('eleicaoHeader').innerHTML = `
       <h2 style="color: #ff4444;">❌ Erro: Eleição não encontrada</h2>
       <p><a href="autoridade.html" class="voltar-btn">← Voltar para eleições</a></p>
@@ -509,6 +550,8 @@ function cadastrarCandidato() {
     alert('❌ Nenhuma eleição selecionada!');
     return;
   }
+  
+  // ✅ CORREÇÃO: Enviar o ID da eleição para o cadastro
   window.location.href = `cad_candidato.html?eleicao_id=${ELEICAO_ATUAL_ID}`;
 }
 
@@ -516,8 +559,9 @@ function cadastrarCandidato() {
 function showTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('[id^="tab-"]').forEach(c => c.style.display = 'none');
+
   document.querySelector(`button[onclick="showTab('${tab}')"]`).classList.add('active');
-  document.getElementById(`tab-${tab}`).style.display = 'block');
+  document.getElementById(`tab-${tab}`).style.display = 'block';
 
   if (tab === "candidatos") carregarCandidatos();
   if (tab === "mesarios") carregarMesarios();
@@ -525,15 +569,26 @@ function showTab(tab) {
   if (tab === "monitor") carregarVotosAutorizados();
 }
 
-// --- CARREGAR CANDIDATOS ---
+// --- CARREGAR CANDIDATOS (FILTRADOS POR ELEIÇÃO) ---
 async function carregarCandidatos() {
   try {
     const res = await dbCandidatos.allDocs({ include_docs: true });
     const cont = document.getElementById('candidatos-list');
-    const candidatosFiltrados = res.rows.filter(row => row.doc.eleicao_id === ELEICAO_ATUAL_ID);
+
+    // ✅ CORREÇÃO: Filtrar candidatos apenas da eleição atual
+    const candidatosFiltrados = res.rows.filter(row => 
+      row.doc.eleicao_id === ELEICAO_ATUAL_ID
+    );
+
+    console.log('👥 Candidatos filtrados:', candidatosFiltrados.length, 'de', res.rows.length);
 
     if (candidatosFiltrados.length === 0) {
-      cont.innerHTML = `<div class="empty-state"><h3>Nenhum candidato cadastrado</h3><p>Clique em "Cadastrar Candidato"</p></div>`;
+      cont.innerHTML = `
+        <div class="empty-state">
+          <h3>Nenhum candidato cadastrado nesta eleição</h3>
+          <p>Clique em "Cadastrar Candidato" para começar</p>
+        </div>
+      `;
       return;
     }
 
@@ -541,6 +596,7 @@ async function carregarCandidatos() {
       const candidato = r.doc;
       const status = candidato.ativo ? 'status-ativa' : 'status-inativa';
       const statusText = candidato.ativo ? 'Ativo' : 'Inativo';
+      
       return `
         <div class="candidato-card">
           ${candidato.foto ? `<img src="${candidato.foto}" class="candidato-foto" alt="${candidato.nome}">` : '<div class="candidato-foto" style="background:#333; display:flex; align-items:center; justify-content:center;">👤</div>'}
@@ -549,15 +605,26 @@ async function carregarCandidatos() {
           <p><strong>Cargo:</strong> ${candidato.cargo || 'N/A'}</p>
           <p><strong>Número:</strong> ${candidato.numero || 'N/A'}</p>
           <span class="status-badge ${status}">${statusText}</span>
+          
           <div style="margin-top: 15px;">
-            <button class="action-btn" onclick="editarCandidato('${candidato._id}')">✏️ Editar</button>
-            <button class="delete-btn" onclick="excluirCandidato('${candidato._id}')">🗑️ Excluir</button>
+            <button class="action-btn" onclick="editarCandidato('${candidato._id}')">
+              ✏️ Editar
+            </button>
+            <button class="delete-btn" onclick="excluirCandidato('${candidato._id}')">
+              🗑️ Excluir
+            </button>
           </div>
         </div>
       `;
     }).join('');
   } catch (error) {
-    document.getElementById('candidatos-list').innerHTML = `<div class="empty-state"><h3>Erro ao carregar candidatos</h3></div>`;
+    console.error('Erro ao carregar candidatos:', error);
+    document.getElementById('candidatos-list').innerHTML = `
+      <div class="empty-state">
+        <h3>Erro ao carregar candidatos</h3>
+        <p>Recarregue a página e tente novamente</p>
+      </div>
+    `;
   }
 }
 
@@ -566,10 +633,19 @@ async function carregarMesarios() {
   try {
     const res = await dbMesarios.allDocs({ include_docs: true });
     const cont = document.getElementById('lista-mesarios');
-    const mesariosFiltrados = res.rows.filter(row => row.doc.eleicao_id === ELEICAO_ATUAL_ID);
+
+    // ✅ CORREÇÃO: Filtrar mesários apenas da eleição atual
+    const mesariosFiltrados = res.rows.filter(row => 
+      row.doc.eleicao_id === ELEICAO_ATUAL_ID
+    );
 
     if (mesariosFiltrados.length === 0) {
-      cont.innerHTML = `<div class="empty-state"><h3>Nenhum mesário cadastrado</h3></div>`;
+      cont.innerHTML = `
+        <div class="empty-state">
+          <h3>Nenhum mesário cadastrado nesta eleição</h3>
+          <p>Clique em "Cadastrar Novo Mesário" para começar</p>
+        </div>
+      `;
       return;
     }
 
@@ -577,6 +653,7 @@ async function carregarMesarios() {
       const mesario = r.doc;
       const status = mesario.ativo ? 'status-ativa' : 'status-inativa';
       const statusText = mesario.ativo ? 'Ativo' : 'Inativo';
+      
       return `
         <div class="mesario-card">
           <h4>${mesario.nome}</h4>
@@ -584,10 +661,17 @@ async function carregarMesarios() {
           <div class="mesario-info"><strong>Eleição:</strong> ${mesario.eleicao_titulo || 'N/A'}</div>
           <div class="mesario-info"><strong>Criado:</strong> ${new Date(mesario.criado_em).toLocaleDateString()}</div>
           <span class="status-badge ${status}">${statusText}</span>
+          
           <div style="margin-top: 10px;">
-            <button class="action-btn" onclick="resetarSenhaMesario('${mesario._id}')">🔑 Resetar Senha</button>
-            <button class="action-btn" onclick="${mesario.ativo ? 'desativarMesario' : 'ativarMesario'}('${mesario._id}')">${mesario.ativo ? '🚫 Desativar' : '✅ Ativar'}</button>
-            <button class="delete-btn" onclick="excluirMesario('${mesario._id}')">🗑️ Excluir</button>
+            <button class="action-btn" onclick="resetarSenhaMesario('${mesario._id}')">
+              🔑 Resetar Senha
+            </button>
+            <button class="action-btn" onclick="${mesario.ativo ? 'desativarMesario' : 'ativarMesario'}('${mesario._id}')">
+              ${mesario.ativo ? '🚫 Desativar' : '✅ Ativar'}
+            </button>
+            <button class="delete-btn" onclick="excluirMesario('${mesario._id}')">
+              🗑️ Excluir
+            </button>
           </div>
         </div>
       `;
@@ -602,35 +686,60 @@ async function criarNovoMesario() {
     alert('❌ Nenhuma eleição carregada!');
     return;
   }
+
   const nome = prompt('Nome completo do mesário:');
   if (!nome) return;
+
   const usuario = prompt('Usuário de acesso:');
   if (!usuario) return;
 
+  // ✅ CORREÇÃO: Usar a eleição atual automaticamente
+  const eleicaoSelecionada = ELEICAO_ATUAL_DATA;
+  
+  // Gerar senha temporária
   const senhaTemporaria = Math.random().toString(36).substr(2, 10);
+  
   const mesario = {
     _id: `mesario_${Date.now()}`,
     nome: nome,
     usuario: usuario,
     senha: senhaTemporaria,
-    eleicao_id: ELEICAO_ATUAL_DATA._id,
-    eleicao_titulo: ELEICAO_ATUAL_DATA.name,
+    eleicao_id: eleicaoSelecionada._id,
+    eleicao_titulo: eleicaoSelecionada.name, // ✅ Usar .name em vez de .titulo
     ativo: true,
     criado_em: new Date().toISOString(),
     ultimo_acesso: null
   };
 
   await dbMesarios.put(mesario);
-  alert(`✅ Mesário cadastrado!\n👤 Usuário: ${usuario}\n🔑 Senha: ${senhaTemporaria}`);
+
+  // Mostrar credenciais
+  const credenciais = `
+    ✅ Mesário cadastrado com sucesso!
+
+    📋 Credenciais de Acesso:
+    👤 Usuário: ${usuario}
+    🔑 Senha: ${senhaTemporaria}
+    🗳️ Eleição: ${eleicaoSelecionada.name}
+
+    ⚠️ Salve estas credenciais com segurança!
+    O mesário usará estas credenciais para acessar o Ponto do Eleitor.
+  `;
+
+  alert(credenciais);
   carregarMesarios();
 }
+
+// ... (restante das funções mantidas iguais) ...
 
 async function resetarSenhaMesario(mesarioId) {
   const novaSenha = Math.random().toString(36).substr(2, 10);
   const mesario = await dbMesarios.get(mesarioId);
+  
   mesario.senha = novaSenha;
   await dbMesarios.put(mesario);
-  alert(`Senha resetada!\nNova senha: ${novaSenha}`);
+  
+  alert(`Senha resetada!\nNova senha: ${novaSenha}\n\n⚠️ Compartilhe com o mesário.`);
 }
 
 async function desativarMesario(mesarioId) {
@@ -667,6 +776,7 @@ async function excluirCandidato(candidatoId) {
       await dbCandidatos.remove(candidato);
       carregarCandidatos();
     } catch (error) {
+      console.error('Erro ao excluir candidato:', error);
       alert('Erro ao excluir candidato!');
     }
   }
@@ -680,6 +790,8 @@ function carregarConfigAPI() {
     API_CONFIG.configurado = true;
     atualizarStatusAPI();
   }
+
+  // Preencher campos
   document.getElementById('api-base-url').value = API_CONFIG.baseURL;
   document.getElementById('api-token').value = API_CONFIG.token;
   document.getElementById('endpoint-validar').value = API_CONFIG.endpoints.validarCPF;
@@ -689,10 +801,12 @@ function carregarConfigAPI() {
 function salvarConfigAPI() {
   const baseURL = document.getElementById('api-base-url').value;
   const token = document.getElementById('api-token').value;
+  
   if (!baseURL || !token) {
     alert('Preencha a URL base e o token!');
     return;
   }
+  
   API_CONFIG = {
     baseURL: baseURL,
     token: token,
@@ -702,6 +816,7 @@ function salvarConfigAPI() {
     },
     configurado: true
   };
+  
   localStorage.setItem('api_config_cliente', JSON.stringify(API_CONFIG));
   atualizarStatusAPI();
   alert('✅ Configuração salva com sucesso!');
@@ -712,8 +827,10 @@ function testarConexaoAPI() {
     alert('Configure a API primeiro!');
     return;
   }
+  
+  // Simulação de teste de conexão
   setTimeout(() => {
-    alert('✅ Conexão com API testada com sucesso!');
+    alert('✅ Conexão com API testada com sucesso!\n\nEm produção, validaria os endpoints reais.');
   }, 1000);
 }
 
@@ -728,8 +845,8 @@ function atualizarStatusAPI() {
   }
 }
 
-// --- ✅ FUNÇÃO CORRIGIDA: IR DIRETAMENTE PARA ELEITOR_POINT ---
-async function irParaEleitorPoint() {
+// --- AUTORIZAÇÃO DE VOTOS ---
+async function gerarLinkMesario() {
   if (!ELEICAO_ATUAL_DATA) {
     alert('❌ Nenhuma eleição carregada!');
     return;
@@ -744,47 +861,96 @@ async function irParaEleitorPoint() {
     eleicao_id: eleicao._id,
     tipo: 'acesso_mesario',
     created_at: new Date().toISOString(),
-    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h
     usado: false
   });
 
-  // ✅ VAI DIRETAMENTE para o eleitor_point
-  window.location.href = `eleitor_point.html?auth=${token}&eleicao_id=${eleicao._id}`;
+  const mesarioURL = `${window.location.origin}/eleitor_point.html?auth=${token}&eleicao=${eleicao._id}`;
+  
+  document.getElementById("auth-links").innerHTML += `
+    <div class="auth-link">
+      <h4>🔗 Link para Mesário - ${eleicao.name}</h4>
+      <a href="${mesarioURL}" target="_blank">${mesarioURL}</a><br>
+      <small>Expira em: ${new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleString()}</small>
+      <button class="action-btn" onclick="copiarLink('${mesarioURL}')" style="margin-top: 10px;">
+        📋 Copiar Link
+      </button>
+    </div>
+  `;
+}
+
+async function gerarAutorizacao() {
+  const token = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 3600000);
+
+  await dbAuth.put({
+    _id: token,
+    token,
+    created_at: new Date().toISOString(),
+    expires_at: expiresAt.toISOString(),
+    used: false
+  });
+
+  const voteURL = `${window.location.origin}/voto.html?auth=${token}`;
+
+  document.getElementById("auth-links").innerHTML += `
+    <div class="auth-link">
+      🔗 <a href="${voteURL}" target="_blank">${voteURL}</a><br>
+      <small>Expira: ${expiresAt.toLocaleTimeString()}</small>
+    </div>
+  `;
+}
+
+function copiarLink(link) {
+  navigator.clipboard.writeText(link);
+  alert('✅ Link copiado!');
 }
 
 // --- FUNÇÕES EXISTENTES MANTIDAS ---
 async function carregarVotosAutorizados() {
   const auths = await dbAuth.allDocs({ include_docs: true });
   const votes = await dbVotes.allDocs({ include_docs: true });
+
   document.getElementById("authorized-votes").innerHTML =
     auths.rows.map(r => {
       const v = votes.rows.find(x => x.doc.auth_token === r.doc.token);
       return `
         <div class="vote-status">
-          <div>Token: ${r.doc.token.slice(0,8)}...</div>
+          <div>
+            Token: ${r.doc.token.slice(0,8)}...
+          </div>
           <div>${v ? "✅ Votou" : "⏳ Pendente"}</div>
         </div>
       `;
     }).join('');
 }
 
+// ======================
+//      PAGAMENTO - PREÇOS ATUALIZADOS
+// ======================
 function calcularPrecoBRL(q) {
-  if (q < 1000) return q * 0.10;
-  if (q < 100000) return q * 0.05;  
-  if (q < 1000000) return q * 0.03;
-  return q * 0.01;
+  if (q < 1000) return q * 0.10;      // 10 centavos por voto
+  if (q < 100000) return q * 0.05;    // 5 centavos por voto  
+  if (q < 1000000) return q * 0.03;   // 3 centavos por voto
+  return q * 0.01;                    // 1 centavo por voto (acima de 1M)
 }
 
 function simularPagamento() {
   const q = parseInt(document.getElementById("quantidade").value);
   const moeda = document.getElementById("moeda").value;
+
   if (!q || q < 10) {
     alert("Escolha pelo menos 10 votos!");
     return;
   }
+
   const precoBRL = calcularPrecoBRL(q);
-  document.getElementById("precoEstimado").textContent = `Preço total: R$ ${precoBRL.toFixed(2)} (${(precoBRL/q).toFixed(3)} por voto)`;
-  document.getElementById("resultadoPagamento").textContent = `Pagamento SIMULADO em ${moeda} aprovado! Créditos liberados: ${q} votos`;
+
+  document.getElementById("precoEstimado").textContent =
+    `Preço total: R$ ${precoBRL.toFixed(2)} (${(precoBRL/q).toFixed(3)} por voto)`;
+
+  document.getElementById("resultadoPagamento").textContent =
+    `Pagamento SIMULADO em ${moeda} aprovado! Créditos liberados: ${q} votos`;
 }
 
 // INICIALIZAÇÃO
