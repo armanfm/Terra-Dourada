@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -125,7 +126,6 @@
             padding: 0 15px;
         }
 
-        /* Container do Google Button */
         .google-button-container {
             margin-bottom: 15px;
             border-radius: 10px;
@@ -142,15 +142,65 @@
             margin: 10px 0;
         }
 
-        .error-message {
+        /* Modal SSO */
+        .sso-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
             display: none;
-            text-align: center;
-            padding: 15px;
-            color: #ff6b6b;
-            background: rgba(255,107,107,0.1);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .sso-modal-content {
+            background: #111;
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .sso-input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid rgba(212,175,55,0.5);
             border-radius: 8px;
-            margin: 10px 0;
-            border: 1px solid rgba(255,107,107,0.3);
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sso-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .sso-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .sso-btn-cancel {
+            border: 1px solid #666;
+            background: #333;
+            color: #aaa;
+        }
+
+        .sso-btn-continue {
+            border: 1px solid rgba(212,175,55,0.5);
+            background: rgba(212,175,55,0.2);
+            color: #d4af37;
         }
     </style>
 </head>
@@ -165,13 +215,8 @@
         </div>
         
         <div class="login-options">
-            <!-- Mensagens de status -->
             <div class="loading" id="loading">
                 🔄 Conectando à plataforma...
-            </div>
-            
-            <div class="error-message" id="errorMessage">
-                ❌ Erro no login. Tente novamente.
             </div>
 
             <!-- Botão do Google -->
@@ -195,16 +240,7 @@
                 </div>
             </div>
             
-            <div class="login-option" data-option="microsoft">
-                <div class="option-icon">🔷</div>
-                <div class="option-text">
-                    <h3>Microsoft 365</h3>
-                    <p>Login com conta Microsoft empresarial</p>
-                </div>
-                <div class="option-arrow">→</div>
-            </div>
-            
-            <div class="login-option" data-option="github">
+            <div class="login-option" onclick="loginGithub()">
                 <div class="option-icon">💻</div>
                 <div class="option-text">
                     <h3>GitHub Enterprise</h3>
@@ -213,7 +249,7 @@
                 <div class="option-arrow">→</div>
             </div>
             
-            <div class="login-option" data-option="sso">
+            <div class="login-option" onclick="openSSOModal()">
                 <div class="option-icon">🏛️</div>
                 <div class="option-text">
                     <h3>SSO Corporativo</h3>
@@ -232,103 +268,216 @@
         </div>
     </div>
 
+    <!-- Modal SSO -->
+    <div class="sso-modal" id="ssoModal">
+        <div class="sso-modal-content">
+            <h3 style="color: #d4af37; margin-bottom: 15px; text-align: center;">🏛️ SSO Corporativo</h3>
+            <p style="color: #aaa; margin-bottom: 10px; text-align: center;">
+                Digite o domínio da sua empresa para iniciar o login único
+            </p>
+            <p style="color: #888; font-size: 12px; margin-bottom: 15px; text-align: center;">
+                Exemplo: empresa.com
+            </p>
+            <input 
+                type="text" 
+                id="ssoDomain" 
+                placeholder="empresa.com" 
+                class="sso-input"
+            >
+            <div class="sso-buttons">
+                <button class="sso-btn sso-btn-cancel" onclick="closeSSOModal()">Cancelar</button>
+                <button class="sso-btn sso-btn-continue" onclick="proceedSSO()">Continuar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Verifica se já está logado
+        // FUNÇÃO GITHUB REAL - OAuth
+        function loginGithub() {
+            showLoading('GitHub');
+            
+            setTimeout(() => {
+                const clientId = "Ov23liJ8ewJBXHhryv7y";
+                const redirectUri = "https://armanfm.github.io/Terra-Dourada/auth/github/callback.html";
+                const scope = "read:user user:email";
+
+                const authUrl = 
+                    `https://github.com/login/oauth/authorize?client_id=${clientId}` +
+                    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+                    `&scope=${scope}`;
+
+                console.log('🌐 Redirecionando para GitHub OAuth...');
+                window.location.href = authUrl;
+            }, 1500);
+        }
+
+        // FUNÇÕES SSO CORPORATIVO
+        function openSSOModal() {
+            const modal = document.getElementById('ssoModal');
+            modal.style.display = 'flex';
+            
+            // Foca no input após um breve delay
+            setTimeout(() => {
+                const input = document.getElementById('ssoDomain');
+                if (input) {
+                    input.value = '';
+                    input.focus();
+                }
+            }, 100);
+            
+            // Enter para submeter
+            document.getElementById('ssoDomain').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    proceedSSO();
+                }
+            });
+        }
+
+        function closeSSOModal() {
+            const modal = document.getElementById('ssoModal');
+            modal.style.display = 'none';
+        }
+
+        function proceedSSO() {
+            const dominio = document.getElementById('ssoDomain').value.trim();
+            
+            if (!dominio) {
+                alert('Por favor, digite o domínio da sua empresa.');
+                return;
+            }
+
+            // Validação básica do domínio
+            if (!dominio.includes('.') || dominio.length < 3) {
+                alert('Por favor, digite um domínio válido (exemplo: empresa.com)');
+                return;
+            }
+
+            closeSSOModal();
+            showLoading('SSO Corporativo');
+
+            console.log(`🔐 Iniciando SSO para: ${dominio}`);
+            
+            // Simulação do fluxo SSO
+            setTimeout(() => {
+                const userData = {
+                    provider: "sso",
+                    dominio: dominio,
+                    email: `usuario@${dominio}`,
+                    name: `Usuário ${dominio}`,
+                    company: dominio.split('.')[0],
+                    sso_type: "OAuth2/SAML",
+                    status: "autenticado"
+                };
+                
+                localStorage.setItem("usuario_logado", "true");
+                localStorage.setItem("usuario_provider", "sso");
+                localStorage.setItem("usuario_data", JSON.stringify(userData));
+                localStorage.setItem("usuario_login_time", new Date().toISOString());
+                
+                console.log('✅ Login SSO realizado com sucesso!', userData);
+                
+                // Redireciona para o dashboard
+                setTimeout(() => {
+                    window.location.href = "autoridade.html";
+                }, 1500);
+            }, 2000);
+        }
+
+        // FUNÇÃO GOOGLE
+        function handleGoogleLogin(response) {
+            showLoading('Google');
+            
+            if (response.credential) {
+                const userData = {
+                    provider: "google",
+                    token: response.credential,
+                    email: "user@company.com",
+                    name: "Google Workspace User"
+                };
+                
+                localStorage.setItem("usuario_logado", "true");
+                localStorage.setItem("usuario_provider", "google");
+                localStorage.setItem("usuario_data", JSON.stringify(userData));
+                localStorage.setItem("usuario_login_time", new Date().toISOString());
+                
+                console.log('✅ Login Google realizado!');
+                
+                setTimeout(() => {
+                    window.location.href = "autoridade.html";
+                }, 1000);
+            }
+        }
+
+        // FUNÇÕES AUXILIARES
+        function showLoading(provider) {
+            const loading = document.getElementById('loading');
+            loading.textContent = `🔄 Iniciando conexão com ${provider}...`;
+            loading.style.display = 'block';
+        }
+
+        function hideLoading() {
+            const loading = document.getElementById('loading');
+            loading.style.display = 'none';
+        }
+
+        // VERIFICA SE JÁ ESTÁ LOGADO
         function checkExistingLogin() {
-            const token = localStorage.getItem("usuario_google_token");
+            const isLogged = localStorage.getItem("usuario_logado");
             const loginTime = localStorage.getItem("usuario_login_time");
             
-            if (token && loginTime) {
+            if (isLogged === "true" && loginTime) {
                 const loginDate = new Date(loginTime);
                 const now = new Date();
                 const hoursDiff = (now - loginDate) / (1000 * 60 * 60);
                 
-                // Token válido por 24 horas
                 if (hoursDiff < 24) {
-                    console.log('Usuário já logado, redirecionando...');
+                    console.log('✅ Usuário já logado, redirecionando...');
                     window.location.href = "autoridade.html";
                     return true;
-                } else {
-                    // Token expirado
-                    localStorage.removeItem("usuario_google_token");
-                    localStorage.removeItem("usuario_login_time");
-                    localStorage.removeItem("usuario_logado");
                 }
             }
+            
+            // Limpa dados expirados
+            localStorage.removeItem("usuario_logado");
+            localStorage.removeItem("usuario_provider");
+            localStorage.removeItem("usuario_data");
+            localStorage.removeItem("usuario_login_time");
             return false;
         }
 
-        // Função para lidar com o login do Google
-        function handleGoogleLogin(response) {
-            const loading = document.getElementById('loading');
-            const errorMessage = document.getElementById('errorMessage');
+        // INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Login Terra Dourada carregado');
+            checkExistingLogin();
             
-            loading.style.display = 'block';
-            errorMessage.style.display = 'none';
+            // Fecha modal se clicar fora
+            document.getElementById('ssoModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeSSOModal();
+                }
+            });
             
-            console.log('Resposta do Google:', response);
-            
-            if (response.credential) {
-                const idToken = response.credential;
-                
-                // Salva os dados no localStorage
-                localStorage.setItem("usuario_google_token", idToken);
+            console.log('💡 Dica: Digite testLogin() no console para teste rápido');
+        });
+
+        // FUNÇÃO DE TESTE RÁPIDO
+        function testLogin() {
+            showLoading('Teste');
+            setTimeout(() => {
                 localStorage.setItem("usuario_logado", "true");
+                localStorage.setItem("usuario_provider", "teste");
+                localStorage.setItem("usuario_data", JSON.stringify({
+                    provider: "teste",
+                    username: "usuario_teste",
+                    email: "teste@terra-dourada.com",
+                    name: "Usuário Teste"
+                }));
                 localStorage.setItem("usuario_login_time", new Date().toISOString());
                 
-                console.log('Login realizado com sucesso!');
-                
-                // Redireciona para o painel
-                setTimeout(() => {
-                    window.location.href = "autoridade.html";
-                }, 1500);
-                
-            } else {
-                loading.style.display = 'none';
-                errorMessage.style.display = 'block';
-                console.error('Erro: Credencial não recebida do Google');
-            }
-        }
-
-        // Função para simular login (para testes)
-        function simulateLogin() {
-            console.log('🚨 MODO DE TESTE: Simulando login...');
-            localStorage.setItem("usuario_google_token", "test_token_simulado");
-            localStorage.setItem("usuario_logado", "true");
-            localStorage.setItem("usuario_login_time", new Date().toISOString());
-            
-            setTimeout(() => {
+                console.log('✅ Login teste realizado!');
                 window.location.href = "autoridade.html";
             }, 1000);
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Página de login carregada');
-            
-            // Verifica se já está logado
-            if (!checkExistingLogin()) {
-                console.log('Usuário não logado, aguardando autenticação...');
-            }
-            
-            const loginOptions = document.querySelectorAll('.login-option');
-            
-            loginOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const optionType = this.getAttribute('data-option');
-                    
-                    const providerNames = {
-                        'microsoft': 'Microsoft 365',
-                        'github': 'GitHub Enterprise', 
-                        'sso': 'SSO Corporativo'
-                    };
-                    
-                    alert(`🔧 ${providerNames[optionType]} - Em desenvolvimento`);
-                });
-            });
-
-            // Botão de teste (remova em produção)
-            console.log('💡 Dica: Digite simulateLogin() no console para testar sem Google');
-        });
     </script>
 </body>
 </html>
