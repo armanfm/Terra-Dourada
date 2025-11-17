@@ -7,7 +7,6 @@
   <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
 
   <style>
-    /* ESTILOS EXISTENTES MANTIDOS */
     body {
       background: #050703;
       color: #f5f5f5;
@@ -29,6 +28,8 @@
       color: #d4af37;
       margin-bottom: 10px;
     }
+    
+    /* Abas */
     .tabs {
       display: flex;
       gap: 10px;
@@ -51,6 +52,8 @@
     .tab:hover {
       background: rgba(212,175,55,0.1);
     }
+    
+    /* Conteúdo principal */
     .content {
       background: #111;
       border-radius: 15px;
@@ -58,34 +61,42 @@
       border: 1px solid rgba(212,175,55,0.3);
       min-height: 400px;
     }
-    .candidatos-grid {
+
+    /* Grid de cards (para eleições E candidatos) */
+    .grid-cards {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 20px;
       margin-bottom: 30px;
     }
-    .candidato-card {
+    .card {
       background: #1a1a1a;
       border: 1px solid rgba(212,175,55,0.2);
       border-radius: 10px;
       padding: 20px;
       text-align: center;
+      transition: transform 0.3s, border-color 0.3s;
     }
-    .candidato-card h3 {
-      color: #d4af37;
-      margin-bottom: 10px;
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: #d4af37;
     }
-    .candidato-card p {
-      margin: 5px 0;
-      color: #ccc;
-    }
-    .candidato-foto {
+    .card-foto {
       width: 80px;
       height: 80px;
       border-radius: 50%;
       object-fit: cover;
       margin: 0 auto 15px;
       border: 2px solid #d4af37;
+    }
+    .card h3 {
+      color: #d4af37;
+      margin-bottom: 10px;
+    }
+    .card p {
+      margin: 5px 0;
+      color: #ccc;
+      font-size: 0.9rem;
     }
     .status-badge {
       display: inline-block;
@@ -104,15 +115,23 @@
       color: #ff4444;
       border: 1px solid #ff4444;
     }
+
+    /* Botões de ação */
+    .action-buttons {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
     .action-btn {
       background: rgba(212,175,55,0.2);
       border: 1px solid #d4af37;
       color: #d4af37;
-      padding: 8px 16px;
+      padding: 6px 12px;
       border-radius: 15px;
       cursor: pointer;
-      margin: 5px;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       transition: .3s;
     }
     .action-btn:hover {
@@ -122,12 +141,62 @@
       background: #ff4444;
       border: none;
       color: white;
-      padding: 8px 16px;
+      padding: 6px 12px;
       border-radius: 15px;
       cursor: pointer;
-      margin: 5px;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
     }
+    .delete-btn:hover {
+      background: #ff6666;
+    }
+
+    /* Botões do header */
+    .header-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    .candidato-btn {
+      background: rgba(148, 0, 211, 0.2);
+      border: 1px solid #9400d3;
+      color: #9400d3;
+      padding: 12px 25px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: .3s;
+    }
+    .candidato-btn:hover {
+      background: rgba(148, 0, 211, 0.4);
+    }
+    .auditor-btn {
+      background: rgba(86, 171, 47, 0.2);
+      border: 1px solid #56ab2f;
+      color: #56ab2f;
+      padding: 12px 25px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: .3s;
+    }
+    .auditor-btn:hover {
+      background: rgba(86, 171, 47, 0.4);
+    }
+
+    /* Estados vazios */
+    .empty-state {
+      text-align: center;
+      color: #888;
+      padding: 40px;
+    }
+    .empty-state h3 {
+      color: #d4af37;
+      margin-bottom: 10px;
+    }
+
+    /* Seções específicas */
     .auth-section {
       text-align: center;
       margin-top: 30px;
@@ -165,110 +234,8 @@
     .cadastro-btn:hover {
       background: rgba(212,175,55,0.4);
     }
-    .empty-state {
-      text-align: center;
-      color: #888;
-      padding: 40px;
-    }
-    .authorized-votes {
-      margin-top: 30px;
-      background: rgba(212,175,55,0.05);
-      border-radius: 10px;
-      padding: 15px;
-    }
-    .vote-status {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .auditor-btn {
-      background: rgba(86, 171, 47, 0.2);
-      border: 1px solid #56ab2f;
-      color: #56ab2f;
-      padding: 12px 25px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 1.1rem;
-      margin-top: 20px;
-      transition: .3s;
-    }
-    .auditor-btn:hover {
-      background: rgba(86, 171, 47, 0.4);
-    }
-    .candidato-btn {
-      background: rgba(148, 0, 211, 0.2);
-      border: 1px solid #9400d3;
-      color: #9400d3;
-      padding: 12px 25px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 1.1rem;
-      margin-top: 20px;
-      transition: .3s;
-    }
-    .candidato-btn:hover {
-      background: rgba(148, 0, 211, 0.4);
-    }
-    .eleicao-btn {
-      background: rgba(30, 144, 255, 0.2);
-      border: 1px solid #1e90ff;
-      color: #1e90ff;
-      padding: 12px 25px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 1.1rem;
-      margin-top: 20px;
-      transition: .3s;
-    }
-    .eleicao-btn:hover {
-      background: rgba(30, 144, 255, 0.4);
-    }
-    .header-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 15px;
-      flex-wrap: wrap;
-    }
-    .voltar-btn {
-      background: rgba(128, 128, 128, 0.2);
-      border: 1px solid #808080;
-      color: #808080;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      margin: 10px;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .voltar-btn:hover {
-      background: rgba(128, 128, 128, 0.4);
-    }
 
-    /* NOVOS ESTILOS PARA MESÁRIOS E API */
-    .mesarios-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 15px;
-      margin: 20px 0;
-    }
-    .mesario-card {
-      background: #1a1a1a;
-      border: 1px solid rgba(212,175,55,0.2);
-      border-radius: 10px;
-      padding: 15px;
-    }
-    .mesario-card h4 {
-      color: #d4af37;
-      margin: 0 0 10px 0;
-    }
-    .mesario-info {
-      font-size: 0.9rem;
-      color: #ccc;
-      margin: 5px 0;
-    }
+    /* API Config */
     .api-config-section {
       background: rgba(212,175,55,0.05);
       border-radius: 10px;
@@ -308,13 +275,54 @@
       border: 1px solid #d4af37;
       color: #d4af37;
     }
-    .credenciais-box {
-      background: rgba(212,175,55,0.1);
-      border: 1px dashed #d4af37;
-      border-radius: 8px;
+
+    /* Mesários */
+    .mesarios-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .mesario-card {
+      background: #1a1a1a;
+      border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 10px;
       padding: 15px;
-      margin: 15px 0;
-      text-align: left;
+    }
+    .mesario-card h4 {
+      color: #d4af37;
+      margin: 0 0 10px 0;
+    }
+    .mesario-info {
+      font-size: 0.9rem;
+      color: #ccc;
+      margin: 5px 0;
+    }
+
+    /* Monitor de votos */
+    .authorized-votes {
+      margin-top: 30px;
+      background: rgba(212,175,55,0.05);
+      border-radius: 10px;
+      padding: 15px;
+    }
+    .vote-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Pagamento */
+    #precoEstimado {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #d4af37;
+    }
+    #resultadoPagamento {
+      margin-top: 20px;
+      color: #0f0;
     }
   </style>
 </head>
@@ -352,7 +360,7 @@
     <!-- ABA CANDIDATOS -->
     <div id="tab-candidatos">
       <h2>Lista de Candidatos Cadastrados</h2>
-      <div id="candidatos-list" class="candidatos-grid"></div>
+      <div id="candidatos-list" class="grid-cards"></div>
     </div>
 
     <!-- ABA MESÁRIOS -->
@@ -398,8 +406,8 @@
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 20px;">
-          <button class="btn-confirmar" onclick="salvarConfigAPI()">💾 Salvar Configuração</button>
-          <button class="btn-confirmar" onclick="testarConexaoAPI()">🔍 Testar Conexão</button>
+          <button class="action-btn" onclick="salvarConfigAPI()">💾 Salvar Configuração</button>
+          <button class="action-btn" onclick="testarConexaoAPI()">🔍 Testar Conexão</button>
         </div>
 
         <div id="api-status" class="api-status nao-configurada">⚠️ API: Não Configurada</div>
@@ -491,10 +499,13 @@ function showTab(tab) {
   if (tab === "monitor") carregarVotosAutorizados();
 }
 
-// --- CARREGAR CANDIDATOS ---
+// --- CARREGAR CANDIDATOS (NOVO LAYOUT) ---
 async function carregarCandidatos() {
   try {
+    console.log('Carregando candidatos...');
     const res = await dbCandidatos.allDocs({ include_docs: true });
+    console.log('Candidatos encontrados:', res.rows);
+    
     const cont = document.getElementById('candidatos-list');
 
     if (res.rows.length === 0) {
@@ -509,19 +520,21 @@ async function carregarCandidatos() {
 
     cont.innerHTML = res.rows.map(r => {
       const candidato = r.doc;
+      console.log('Processando candidato:', candidato);
+      
       const status = candidato.ativo ? 'status-ativa' : 'status-inativa';
       const statusText = candidato.ativo ? 'Ativo' : 'Inativo';
       
       return `
-        <div class="candidato-card">
-          ${candidato.foto ? `<img src="${candidato.foto}" class="candidato-foto" alt="${candidato.nome}">` : '<div class="candidato-foto" style="background:#333; display:flex; align-items:center; justify-content:center;">👤</div>'}
-          <h3>${candidato.nome}</h3>
+        <div class="card">
+          ${candidato.foto ? `<img src="${candidato.foto}" class="card-foto" alt="${candidato.nome}">` : '<div class="card-foto" style="background:#333; display:flex; align-items:center; justify-content:center;">👤</div>'}
+          <h3>${candidato.nome || 'Sem nome'}</h3>
           <p><strong>Partido:</strong> ${candidato.partido || 'N/A'}</p>
           <p><strong>Cargo:</strong> ${candidato.cargo || 'N/A'}</p>
           <p><strong>Número:</strong> ${candidato.numero || 'N/A'}</p>
           <span class="status-badge ${status}">${statusText}</span>
           
-          <div style="margin-top: 15px;">
+          <div class="action-buttons">
             <button class="action-btn" onclick="editarCandidato('${candidato._id}')">
               ✏️ Editar
             </button>
@@ -538,6 +551,7 @@ async function carregarCandidatos() {
       <div class="empty-state">
         <h3>Erro ao carregar candidatos</h3>
         <p>Recarregue a página e tente novamente</p>
+        <p>Erro: ${error.message}</p>
       </div>
     `;
   }
