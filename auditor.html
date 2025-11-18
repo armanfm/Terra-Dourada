@@ -360,11 +360,37 @@ const db = new PouchDB('terra_dourada_votos_local');
 const IPFS_GATEWAY = "https://ipfs.io/ipfs/";
 let LOGS = [];
 
+// Mapeamento correto dos candidatos
+const candidatosMap = {
+  'joao': 'João Silva',
+  'paulo': 'Paulo Santos',
+  'maria': 'Maria Oliveira',
+  'carlos': 'Carlos Souza'
+  // Adicione outros candidatos conforme necessário
+};
+
 // Hashes dos candidatos para auditoria local
 const candidatosHashes = {
   joao: "099e7cc1f12662a33d1d757780b20a8bffe7a6c12651b585d34ac49ddbcab307",
   paulo: "1c3c978eae25037d6e7383b9f9b51b84a20dc2bdb0551434c1a5388d97f1c065"
 };
+
+// ==============================
+// FUNÇÕES AUXILIARES
+// ==============================
+function getNomeCandidato(codigo) {
+  return candidatosMap[codigo] || codigo || 'Candidato Desconhecido';
+}
+
+function getEmojiCandidato(codigo) {
+  const emojis = {
+    'joao': '🟦',
+    'paulo': '🟩',
+    'maria': '🟥',
+    'carlos': '🟨'
+  };
+  return emojis[codigo] || '⚪';
+}
 
 // ==============================
 // FUNÇÕES DE ABA
@@ -410,9 +436,9 @@ async function atualizarDashboard() {
     } else {
       listaPendentes.innerHTML = pendentes.map((doc, index) => `
         <div class="voto-item voto-pendente">
-          <div class="voto-candidato">${doc.candidato === 'joao' ? '🟦 João Silva' : '🟩 Paulo Santos'}</div>
-          <div class="voto-eleitor">Eleitor: ${doc.eleitor.substring(0, 12)}...</div>
-          <div class="voto-timestamp">${new Date(doc.timestamp).toLocaleString()}</div>
+          <div class="voto-candidato">${getEmojiCandidato(doc.candidato)} ${getNomeCandidato(doc.candidato)}</div>
+          <div class="voto-eleitor">Eleitor: ${doc.eleitor ? doc.eleitor.substring(0, 12) + '...' : 'N/A'}</div>
+          <div class="voto-timestamp">${doc.timestamp ? new Date(doc.timestamp).toLocaleString() : 'Data não disponível'}</div>
         </div>
       `).join('');
     }
@@ -429,10 +455,10 @@ async function atualizarDashboard() {
     } else {
       listaEnviados.innerHTML = enviados.map((doc, index) => `
         <div class="voto-item voto-enviado">
-          <div class="voto-candidato">${doc.candidato === 'joao' ? '🟦 João Silva' : '🟩 Paulo Santos'}</div>
-          <div class="voto-eleitor">Eleitor: ${doc.eleitor.substring(0, 12)}...</div>
-          <div class="voto-cid">CID: ${doc.cid_pinata.substring(0, 20)}...</div>
-          <div class="voto-timestamp">${new Date(doc.timestamp).toLocaleString()}</div>
+          <div class="voto-candidato">${getEmojiCandidato(doc.candidato)} ${getNomeCandidato(doc.candidato)}</div>
+          <div class="voto-eleitor">Eleitor: ${doc.eleitor ? doc.eleitor.substring(0, 12) + '...' : 'N/A'}</div>
+          <div class="voto-cid">CID: ${doc.cid_pinata ? doc.cid_pinata.substring(0, 20) + '...' : 'N/A'}</div>
+          <div class="voto-timestamp">${doc.timestamp ? new Date(doc.timestamp).toLocaleString() : 'Data não disponível'}</div>
         </div>
       `).join('');
     }
@@ -488,15 +514,15 @@ async function reenviarPendentes() {
           delete doc.erro;
           await db.put(doc);
           
-          log(`✅ ${doc.candidato} sincronizado → ${cid.substring(0, 20)}...`, 'success');
+          log(`✅ ${getNomeCandidato(doc.candidato)} sincronizado → ${cid.substring(0, 20)}...`, 'success');
           sucessos++;
         } else {
-          log(`❌ ${doc.candidato} → Erro: ${data.message || res.status}`, 'error');
+          log(`❌ ${getNomeCandidato(doc.candidato)} → Erro: ${data.message || res.status}`, 'error');
           erros++;
         }
 
       } catch (err) {
-        log(`❌ Falha: ${doc.candidato} - ${err.message}`, 'error');
+        log(`❌ Falha: ${getNomeCandidato(doc.candidato)} - ${err.message}`, 'error');
         erros++;
       }
     }
@@ -523,6 +549,7 @@ async function exportarDados() {
     return {
       nome_produtor: doc.eleitor,
       produto: doc.candidato,
+      nome_candidato: getNomeCandidato(doc.candidato),
       screenshot_hash: doc.screenshot_hash || "N/A",
       tipo: "voto_presidencial",
       timestamp: doc.timestamp,
@@ -606,23 +633,23 @@ async function auditarVotos() {
       resultHTML.push(`
         <div class="audit-item valid">
           <b>Voto válido ✔</b><br>
-          Candidato: ${candidato}<br>
+          Candidato: ${getNomeCandidato(candidato)}<br>
           Hash: ${hash.substring(0,25)}...
         </div>
       `);
 
-      LOGS.push(`✔ OK | ${candidato} | ${hash}`);
+      LOGS.push(`✔ OK | ${getNomeCandidato(candidato)} | ${hash}`);
     } else {
       auditoriaCompleta = false;
       resultHTML.push(`
         <div class="audit-item invalid">
           <b>INVÁLIDO ❌</b><br>
-          Candidato: ${candidato}<br>
+          Candidato: ${getNomeCandidato(candidato)}<br>
           Encontrado: ${hash.substring(0,25)}...<br>
           Esperado: ${candidatosHashes[candidato].substring(0,25)}...
         </div>
       `);
-      LOGS.push(`❌ ERRO | ${candidato} | hash mismatch`);
+      LOGS.push(`❌ ERRO | ${getNomeCandidato(candidato)} | hash mismatch`);
     }
   }
 
@@ -693,8 +720,8 @@ async function auditarIPFS(qtd) {
       // Comparar candidato local vs pacote IPFS
       if (doc.candidato !== ipfsCandidate) {
         logIPFS(`❌ Divergência detectada:
-Local → ${doc.candidato}
-IPFS → ${ipfsCandidate}`, "bad");
+Local → ${getNomeCandidato(doc.candidato)}
+IPFS → ${getNomeCandidato(ipfsCandidate)}`, "bad");
         failCount++;
         continue;
       }
@@ -706,7 +733,7 @@ IPFS → ${ipfsCandidate}`, "bad");
         continue;
       }
 
-      logIPFS(`✔ Voto OK | Prova OK | CID OK — ${cid}`, "good");
+      logIPFS(`✔ Voto OK | ${getNomeCandidato(doc.candidato)} | Prova OK | CID OK — ${cid}`, "good");
       okCount++;
 
     } catch (err) {
