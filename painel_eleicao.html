@@ -733,7 +733,7 @@ async function carregarCandidatos() {
 }
 
 // ======================
-// MONITOR DE RESULTADOS EM TEMPO REAL - VERSÃO CORRIGIDA
+// MONITOR DE RESULTADOS - VERSÃO CORRIGIDA (FILTRA POR ELEIÇÃO)
 // ======================
 
 async function carregarResultados() {
@@ -741,18 +741,25 @@ async function carregarResultados() {
     // Buscar TODOS os votos (incluindo pendentes)
     const todosVotos = await dbVotes.allDocs({ include_docs: true });
     
-    // ✅ CORREÇÃO: Agora conta TODOS os votos, não só os com CID
-    const votosComCandidato = todosVotos.rows.filter(row => 
+    // ✅ CORREÇÃO CRÍTICA: Filtrar apenas votos da ELEIÇÃO ATUAL
+    const votosDestaEleicao = todosVotos.rows.filter(row => 
+      row.doc.eleicao_id === ELEICAO_ATUAL_ID
+    );
+    
+    console.log(`🗳️ Votos desta eleição: ${votosDestaEleicao.length} de ${todosVotos.rows.length} totais`);
+    
+    // ✅ CORREÇÃO: Agora conta apenas votos desta eleição
+    const votosComCandidato = votosDestaEleicao.filter(row => 
       row.doc.candidato_id && row.doc.candidato_id !== 'branco'
     );
     
-    const votosBrancos = todosVotos.rows.filter(row => 
+    const votosBrancos = votosDestaEleicao.filter(row => 
       row.doc.candidato_id === 'branco'
     );
 
-    // ✅ CORREÇÃO: Separar votos por status
-    const votosEnviados = todosVotos.rows.filter(row => row.doc.cid_pinata && !row.doc.erro).length;
-    const votosPendentes = todosVotos.rows.filter(row => row.doc.erro === "sem_conexao_backend").length;
+    // ✅ CORREÇÃO: Separar votos por status (APENAS DESTA ELEIÇÃO)
+    const votosEnviados = votosDestaEleicao.filter(row => row.doc.cid_pinata && !row.doc.erro).length;
+    const votosPendentes = votosDestaEleicao.filter(row => row.doc.erro === "sem_conexao_backend").length;
 
     // Buscar candidatos ativos desta eleição
     const todosCandidatos = await dbCandidatos.allDocs({ include_docs: true });
@@ -760,22 +767,27 @@ async function carregarResultados() {
       row.doc.ativo !== false && row.doc.eleicao_id === ELEICAO_ATUAL_ID
     );
 
-    // Atualizar estatísticas
-    document.getElementById('total-votos').textContent = todosVotos.rows.length;
+    // Atualizar estatísticas (AGORA APENAS DESTA ELEIÇÃO)
+    document.getElementById('total-votos').textContent = votosDestaEleicao.length;
     document.getElementById('votos-enviados').textContent = votosEnviados;
     document.getElementById('votos-pendentes').textContent = votosPendentes;
     document.getElementById('candidatos-ativos').textContent = candidatosAtivos.length;
 
-    // Calcular votos por candidato (AGORA CONTA TODOS OS VOTOS)
+    // ✅ CORREÇÃO: Atualizar informações detalhadas
+    document.getElementById('info-total').textContent = `Apenas desta eleição`;
+    document.getElementById('info-enviados').textContent = `Com CID nesta eleição`;
+    document.getElementById('info-pendentes').textContent = `Sem sincronização nesta eleição`;
+
+    // Calcular votos por candidato (APENAS VOTOS DESTA ELEIÇÃO)
     const resultados = candidatosAtivos.map(candidatoRow => {
       const candidato = candidatoRow.doc;
       
-      // ✅ CORREÇÃO: Conta TODOS os votos deste candidato, mesmo pendentes
+      // ✅ CORREÇÃO: Conta apenas votos desta eleição para este candidato
       const votosDoCandidato = votosComCandidato.filter(voto => 
         voto.doc.candidato_id === candidato._id
       ).length;
       
-      // ✅ CORREÇÃO: Porcentagem baseada no total de votos válidos (com candidato)
+      // ✅ CORREÇÃO: Porcentagem baseada no total de votos válidos desta eleição
       const porcentagem = votosComCandidato.length > 0 ? 
         ((votosDoCandidato / votosComCandidato.length) * 100).toFixed(1) : 0;
       
