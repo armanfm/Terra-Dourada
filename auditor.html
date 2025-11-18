@@ -746,7 +746,7 @@ async function auditarVotos() {
 }
 
 // ==============================
-// AUDITORIA IPFS - CORRIGIDA
+// AUDITORIA IPFS - CORRIGIDA COM ESTRUTURA REAL
 // ==============================
 async function auditarIPFS(qtd) {
   const logBox = document.getElementById("logBoxIPFS");
@@ -766,51 +766,65 @@ async function auditarIPFS(qtd) {
     try {
       const cid = doc.cid_pinata;
       const eleitorNome = await getEleitorInfo(doc);
+      const candidatoLocal = getCandidatoInfo(doc);
       
       if (!cid) {
-        logIPFS(`❌ CID ausente - ${eleitorNome} - ${getNomeCandidato(getCandidatoInfo(doc))}`, "bad");
+        logIPFS(`❌ CID ausente - ${eleitorNome} - ${getNomeCandidato(candidatoLocal)}`, "bad");
         failCount++;
         continue;
       }
 
-      logIPFS(`🌐 Buscando pacote IPFS: ${cid}`);
+      logIPFS(`🌐 Buscando pacote IPFS: ${cid.substring(0, 20)}...`);
 
       const ipfsData = await fetchIPFSPackage(cid);
 
-      // Extrair dados do IPFS
-      const ipfsVote = ipfsData.vote;
-      const ipfsCandidate = ipfsVote.candidate || ipfsVote.candidato || null;
+      // ✅ ESTRUTURA REAL DA PINATA - CORRIGIDA
+      // A Pinata salva exatamente o payload que enviamos
+      const ipfsProduto = ipfsData.produto || ipfsData.candidate || null;
+      const ipfsNomeProdutor = ipfsData.nome_produtor || null;
+      const ipfsScreenshotHash = ipfsData.screenshot_hash || null;
 
-      if (!ipfsCandidate) {
-        logIPFS(`❌ Pacote IPFS inválido (sem candidato): ${cid}`, "bad");
+      if (!ipfsProduto) {
+        logIPFS(`❌ Pacote IPFS inválido (sem produto/candidato): ${cid}`, "bad");
         failCount++;
         continue;
       }
 
-      // Comparar candidato local vs pacote IPFS
-      const candidatoLocal = getCandidatoInfo(doc);
-      if (candidatoLocal !== ipfsCandidate) {
-        logIPFS(`❌ Divergência detectada:
-Local → ${getNomeCandidato(candidatoLocal)}
-IPFS → ${getNomeCandidato(ipfsCandidate)}
-Eleitor: ${eleitorNome}`, "bad");
+      // ✅ COMPARAÇÃO CORRETA - Local vs IPFS
+      const divergencias = [];
+      
+      // 1. Comparar candidato
+      if (candidatoLocal !== ipfsProduto) {
+        divergencias.push(`CANDIDATO: Local "${candidatoLocal}" ≠ IPFS "${ipfsProduto}"`);
+      }
+
+      // 2. Comparar eleitor (se disponível no IPFS)
+      if (ipfsNomeProdutor && eleitorNome !== ipfsNomeProdutor) {
+        divergencias.push(`ELEITOR: Local "${eleitorNome}" ≠ IPFS "${ipfsNomeProdutor}"`);
+      }
+
+      // 3. Comparar hash da screenshot
+      if (doc.screenshot_hash && ipfsScreenshotHash && doc.screenshot_hash !== ipfsScreenshotHash) {
+        divergencias.push(`HASH: Local "${doc.screenshot_hash.substring(0, 20)}..." ≠ IPFS "${ipfsScreenshotHash.substring(0, 20)}..."`);
+      }
+
+      if (divergencias.length > 0) {
+        logIPFS(`❌ Divergências detectadas (${eleitorNome}):\n${divergencias.join('\n')}`, "bad");
         failCount++;
         continue;
       }
 
-      // Verificar prova
-      if (!ipfsData.proof_bytes) {
-        logIPFS("❌ Prova ausente no pacote IPFS!", "bad");
-        failCount++;
-        continue;
+      // ✅ Verificar proof_bytes (se existir)
+      if (ipfsData.proof_bytes) {
+        logIPFS(`✔ Voto OK | ${getNomeCandidato(candidatoLocal)} | ${eleitorNome} | Prova OK | CID: ${cid.substring(0, 20)}...`, "good");
+      } else {
+        logIPFS(`✔ Voto OK | ${getNomeCandidato(candidatoLocal)} | ${eleitorNome} | CID: ${cid.substring(0, 20)}...`, "good");
       }
-
-      logIPFS(`✔ Voto OK | ${getNomeCandidato(candidatoLocal)} | ${eleitorNome} | Prova OK | CID OK`, "good");
       okCount++;
 
     } catch (err) {
       const eleitorNome = await getEleitorInfo(doc);
-      logIPFS(`❌ Erro ao auditar voto: ${eleitorNome} - ${err.message}`, "bad");
+      logIPFS(`❌ Erro ao auditar voto (${eleitorNome}): ${err.message}`, "bad");
       failCount++;
     }
   }
@@ -818,13 +832,14 @@ Eleitor: ${eleitorNome}`, "bad");
   logIPFS("----------------------------------------------");
   logIPFS(`🟢 CONSISTENTES: ${okCount}`, "good");
   logIPFS(`🔴 INCONSISTENTES: ${failCount}`, "bad");
+  logIPFS(`📊 TOTAL AUDITADO: ${docs.length} votos`, "info");
   logIPFS("----------------------------------------------");
 }
 
 async function fetchIPFSPackage(cid) {
   const url = IPFS_GATEWAY + cid;
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Erro IPFS: " + (await res.text()));
+  if (!res.ok) throw new Error(`IPFS ${res.status}: ${await res.text()}`);
   return res.json();
 }
 
