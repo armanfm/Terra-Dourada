@@ -39,25 +39,30 @@
     height:160px;
     border-radius:50%;
     border:2px solid #d4af37;
-    margin-top:15px;
+    margin:15px auto;
     object-fit:cover;
+    display:block;
   }
   #nome {
     font-size:1.3rem;
     margin-top:10px;
     color:#f5f5f5;
   }
-  button {
-    margin-top:25px;
-    padding:12px 30px;
-    background:transparent;
-    border:1px solid #d4af37;
-    border-radius:25px;
+  #partido {
     color:#d4af37;
+    margin-top:5px;
+    font-size:0.9rem;
+  }
+  button {
+    margin-top:15px;
+    padding:12px;
+    border-radius:25px;
     cursor:pointer;
     font-size:1rem;
-    display:block;
     width:100%;
+    border:1px solid #d4af37;
+    background:transparent;
+    color:#d4af37;
   }
   button:hover {
     background:rgba(212,175,55,0.15);
@@ -81,52 +86,58 @@
 
 <body>
 <div class="box">
-  <h1>✔️ Voto Registrado</h1>
+  <h1>✔️ Voto Computado</h1>
 
   <img id="foto">
-  <div id="nome">Carregando...</div>
+  <div id="nome"></div>
+  <div id="partido"></div>
 
-  <button id="provaBtn">Ver Comprovante no IPFS</button>
-
-  <button onclick="location.href='login.html'">Voltar ao início</button>
+  <button id="provaBtn">🔗 Ver Comprovante no IPFS</button>
+  <button onclick="location.href='login.html'">🏠 Voltar ao Início</button>
 </div>
 
 <script>
-window.onload = function () {
-  const cid = localStorage.getItem("voto_cid");
+window.onload = function() {
+  // PEGA O CANDIDATO QUE FOI VOTADO
   const candidatoSalvo = localStorage.getItem("ultimo_candidato_votado");
-
+  const cidPinata = localStorage.getItem("voto_cid");
+  
   const foto = document.getElementById("foto");
   const nome = document.getElementById("nome");
+  const partido = document.getElementById("partido");
   const provaBtn = document.getElementById("provaBtn");
 
-  // Carrega dados do candidato
   if (candidatoSalvo) {
     const candidato = JSON.parse(candidatoSalvo);
-    nome.textContent = candidato.nome || "Candidato";
     
-    if (candidato.foto && candidato.foto.startsWith('data:image')) {
+    // MOSTRA O CANDIDATO VOTADO
+    nome.textContent = candidato.nome || "Candidato";
+    partido.textContent = candidato.partido || "";
+    
+    if (candidato.foto) {
       foto.src = candidato.foto;
     } else {
-      // Foto padrão se não tiver
       foto.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop";
     }
   } else {
-    nome.textContent = "Voto Computado";
+    // SE NÃO ACHOU, MOSTRA GENÉRICO
+    nome.textContent = "Voto Registrado";
+    partido.textContent = "Obrigado por votar!";
     foto.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop";
   }
 
-  // Configura botão do comprovante
-  if (cid) {
-    provaBtn.onclick = function () {
-      window.open("https://gateway.pinata.cloud/ipfs/" + cid, "_blank");
+  // CONFIGURA BOTÃO DO IPFS
+  if (cidPinata) {
+    provaBtn.onclick = function() {
+      window.open("https://gateway.pinata.cloud/ipfs/" + cidPinata, "_blank");
     };
   } else {
     provaBtn.disabled = true;
-    provaBtn.textContent = "Comprovante Indisponível";
+    provaBtn.textContent = "📄 Comprovante Local";
   }
+  
+  console.log("✅ Candidato mostrado:", JSON.parse(candidatoSalvo));
 };
 </script>
-
 </body>
 </html>
