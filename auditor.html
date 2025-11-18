@@ -360,15 +360,6 @@ const db = new PouchDB('terra_dourada_votos_local');
 const IPFS_GATEWAY = "https://ipfs.io/ipfs/";
 let LOGS = [];
 
-// Mapeamento correto dos candidatos
-const candidatosMap = {
-  'joao': 'João Silva',
-  'paulo': 'Paulo Santos',
-  'maria': 'Maria Oliveira',
-  'carlos': 'Carlos Souza'
-  // Adicione outros candidatos conforme necessário
-};
-
 // Hashes dos candidatos para auditoria local
 const candidatosHashes = {
   joao: "099e7cc1f12662a33d1d757780b20a8bffe7a6c12651b585d34ac49ddbcab307",
@@ -376,10 +367,21 @@ const candidatosHashes = {
 };
 
 // ==============================
-// FUNÇÕES AUXILIARES
+// FUNÇÕES AUXILIARES - CORRIGIDAS
 // ==============================
 function getNomeCandidato(codigo) {
-  return candidatosMap[codigo] || codigo || 'Candidato Desconhecido';
+  // Usa o código real do banco, sem placeholders
+  return codigo || 'Voto sem candidato';
+}
+
+function getEleitorInfo(doc) {
+  // Busca o nome real do eleitor
+  return doc.eleitor || doc.nome_produtor || 'Eleitor não identificado';
+}
+
+function getCandidatoInfo(doc) {
+  // Busca o candidato real
+  return doc.candidato || doc.produto || 'Candidato não identificado';
 }
 
 function getEmojiCandidato(codigo) {
@@ -390,6 +392,14 @@ function getEmojiCandidato(codigo) {
     'carlos': '🟨'
   };
   return emojis[codigo] || '⚪';
+}
+
+function getCIDInfo(doc) {
+  return doc.cid_pinata || doc.cid || doc.ipfs_hash || 'Aguardando CID';
+}
+
+function getTimestampInfo(doc) {
+  return doc.timestamp || doc.dataCriacao || Date.now();
 }
 
 // ==============================
@@ -412,7 +422,7 @@ function abrirTab(tabName) {
 }
 
 // ==============================
-// DASHBOARD PRINCIPAL
+// DASHBOARD PRINCIPAL - CORRIGIDO
 // ==============================
 async function atualizarDashboard() {
   try {
@@ -434,13 +444,18 @@ async function atualizarDashboard() {
         </div>
       `;
     } else {
-      listaPendentes.innerHTML = pendentes.map((doc, index) => `
+      listaPendentes.innerHTML = pendentes.map((doc, index) => {
+        const eleitor = getEleitorInfo(doc);
+        const candidato = getCandidatoInfo(doc);
+        
+        return `
         <div class="voto-item voto-pendente">
-          <div class="voto-candidato">${getEmojiCandidato(doc.candidato)} ${getNomeCandidato(doc.candidato)}</div>
-          <div class="voto-eleitor">Eleitor: ${doc.eleitor ? doc.eleitor.substring(0, 12) + '...' : 'N/A'}</div>
-          <div class="voto-timestamp">${doc.timestamp ? new Date(doc.timestamp).toLocaleString() : 'Data não disponível'}</div>
+          <div class="voto-candidato">${getEmojiCandidato(candidato)} ${getNomeCandidato(candidato)}</div>
+          <div class="voto-eleitor">Eleitor: ${eleitor}</div>
+          <div class="voto-timestamp">${new Date(getTimestampInfo(doc)).toLocaleString()}</div>
         </div>
-      `).join('');
+        `;
+      }).join('');
     }
     
     // Atualiza lista de enviados
@@ -453,14 +468,20 @@ async function atualizarDashboard() {
         </div>
       `;
     } else {
-      listaEnviados.innerHTML = enviados.map((doc, index) => `
+      listaEnviados.innerHTML = enviados.map((doc, index) => {
+        const eleitor = getEleitorInfo(doc);
+        const candidato = getCandidatoInfo(doc);
+        const cid = getCIDInfo(doc);
+        
+        return `
         <div class="voto-item voto-enviado">
-          <div class="voto-candidato">${getEmojiCandidato(doc.candidato)} ${getNomeCandidato(doc.candidato)}</div>
-          <div class="voto-eleitor">Eleitor: ${doc.eleitor ? doc.eleitor.substring(0, 12) + '...' : 'N/A'}</div>
-          <div class="voto-cid">CID: ${doc.cid_pinata ? doc.cid_pinata.substring(0, 20) + '...' : 'N/A'}</div>
-          <div class="voto-timestamp">${doc.timestamp ? new Date(doc.timestamp).toLocaleString() : 'Data não disponível'}</div>
+          <div class="voto-candidato">${getEmojiCandidato(candidato)} ${getNomeCandidato(candidato)}</div>
+          <div class="voto-eleitor">Eleitor: ${eleitor}</div>
+          <div class="voto-cid">CID: ${cid}</div>
+          <div class="voto-timestamp">${new Date(getTimestampInfo(doc)).toLocaleString()}</div>
         </div>
-      `).join('');
+        `;
+      }).join('');
     }
     
     log('Dashboard atualizado com sucesso', 'success');
@@ -471,7 +492,7 @@ async function atualizarDashboard() {
 }
 
 // ==============================
-// SINCRONIZAR PENDENTES
+// SINCRONIZAR PENDENTES - CORRIGIDO
 // ==============================
 async function reenviarPendentes() {
   try {
@@ -490,9 +511,12 @@ async function reenviarPendentes() {
 
     for (let doc of pendentes) {
       try {
+        const eleitor = getEleitorInfo(doc);
+        const candidato = getCandidatoInfo(doc);
+        
         const payload = {
-          nome_produtor: doc.eleitor,
-          produto: doc.candidato,
+          nome_produtor: eleitor,
+          produto: candidato,
           screenshot_hash: doc.screenshot_hash || "hash_nao_disponivel",
           tipo: "voto_presidencial"
         };
@@ -514,15 +538,15 @@ async function reenviarPendentes() {
           delete doc.erro;
           await db.put(doc);
           
-          log(`✅ ${getNomeCandidato(doc.candidato)} sincronizado → ${cid.substring(0, 20)}...`, 'success');
+          log(`✅ ${getNomeCandidato(candidato)} sincronizado → ${cid.substring(0, 20)}...`, 'success');
           sucessos++;
         } else {
-          log(`❌ ${getNomeCandidato(doc.candidato)} → Erro: ${data.message || res.status}`, 'error');
+          log(`❌ ${getNomeCandidato(candidato)} → Erro: ${data.message || res.status}`, 'error');
           erros++;
         }
 
       } catch (err) {
-        log(`❌ Falha: ${getNomeCandidato(doc.candidato)} - ${err.message}`, 'error');
+        log(`❌ Falha: ${getNomeCandidato(getCandidatoInfo(doc))} - ${err.message}`, 'error');
         erros++;
       }
     }
@@ -539,22 +563,25 @@ async function reenviarPendentes() {
 }
 
 // ==============================
-// EXPORTAR DADOS
+// EXPORTAR DADOS - CORRIGIDO
 // ==============================
 async function exportarDados() {
   const all = await db.allDocs({ include_docs: true });
   
   const dadosExportar = all.rows.map(row => {
     const doc = row.doc;
+    const eleitor = getEleitorInfo(doc);
+    const candidato = getCandidatoInfo(doc);
+    
     return {
-      nome_produtor: doc.eleitor,
-      produto: doc.candidato,
-      nome_candidato: getNomeCandidato(doc.candidato),
+      nome_produtor: eleitor,
+      produto: candidato,
+      nome_candidato: getNomeCandidato(candidato),
       screenshot_hash: doc.screenshot_hash || "N/A",
       tipo: "voto_presidencial",
-      timestamp: doc.timestamp,
+      timestamp: getTimestampInfo(doc),
       status: doc.erro ? "pendente" : "enviado",
-      cid: doc.cid_pinata || null
+      cid: getCIDInfo(doc)
     };
   });
   
@@ -589,7 +616,7 @@ async function limparEnviados() {
 }
 
 // ==============================
-// AUDITORIA LOCAL
+// AUDITORIA LOCAL - CORRIGIDA
 // ==============================
 async function auditarVotos() {
   LOGS = []; // limpa log
@@ -634,22 +661,24 @@ async function auditarVotos() {
         <div class="audit-item valid">
           <b>Voto válido ✔</b><br>
           Candidato: ${getNomeCandidato(candidato)}<br>
+          Eleitor: ${getEleitorInfo(row)}<br>
           Hash: ${hash.substring(0,25)}...
         </div>
       `);
 
-      LOGS.push(`✔ OK | ${getNomeCandidato(candidato)} | ${hash}`);
+      LOGS.push(`✔ OK | ${getNomeCandidato(candidato)} | ${getEleitorInfo(row)} | ${hash}`);
     } else {
       auditoriaCompleta = false;
       resultHTML.push(`
         <div class="audit-item invalid">
           <b>INVÁLIDO ❌</b><br>
           Candidato: ${getNomeCandidato(candidato)}<br>
+          Eleitor: ${getEleitorInfo(row)}<br>
           Encontrado: ${hash.substring(0,25)}...<br>
           Esperado: ${candidatosHashes[candidato].substring(0,25)}...
         </div>
       `);
-      LOGS.push(`❌ ERRO | ${getNomeCandidato(candidato)} | hash mismatch`);
+      LOGS.push(`❌ ERRO | ${getNomeCandidato(candidato)} | ${getEleitorInfo(row)} | hash mismatch`);
     }
   }
 
@@ -678,7 +707,7 @@ async function auditarVotos() {
 }
 
 // ==============================
-// AUDITORIA IPFS
+// AUDITORIA IPFS - CORRIGIDA
 // ==============================
 async function auditarIPFS(qtd) {
   const logBox = document.getElementById("logBoxIPFS");
@@ -698,7 +727,7 @@ async function auditarIPFS(qtd) {
     try {
       const cid = doc.cid_pinata;
       if (!cid) {
-        logIPFS("❌ CID ausente no voto local — não é auditável.", "bad");
+        logIPFS(`❌ CID ausente - ${getEleitorInfo(doc)} - ${getNomeCandidato(getCandidatoInfo(doc))}`, "bad");
         failCount++;
         continue;
       }
@@ -721,7 +750,8 @@ async function auditarIPFS(qtd) {
       if (doc.candidato !== ipfsCandidate) {
         logIPFS(`❌ Divergência detectada:
 Local → ${getNomeCandidato(doc.candidato)}
-IPFS → ${getNomeCandidato(ipfsCandidate)}`, "bad");
+IPFS → ${getNomeCandidato(ipfsCandidate)}
+Eleitor: ${getEleitorInfo(doc)}`, "bad");
         failCount++;
         continue;
       }
@@ -733,11 +763,11 @@ IPFS → ${getNomeCandidato(ipfsCandidate)}`, "bad");
         continue;
       }
 
-      logIPFS(`✔ Voto OK | ${getNomeCandidato(doc.candidato)} | Prova OK | CID OK — ${cid}`, "good");
+      logIPFS(`✔ Voto OK | ${getNomeCandidato(doc.candidato)} | ${getEleitorInfo(doc)} | Prova OK | CID OK`, "good");
       okCount++;
 
     } catch (err) {
-      logIPFS("❌ Erro ao auditar voto: " + err.message, "bad");
+      logIPFS(`❌ Erro ao auditar voto: ${getEleitorInfo(doc)} - ${err.message}`, "bad");
       failCount++;
     }
   }
