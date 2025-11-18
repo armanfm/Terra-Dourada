@@ -394,6 +394,11 @@
       color: #ccc;
       font-size: 0.9rem;
     }
+    .status-info {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 5px;
+    }
   </style>
 </head>
 
@@ -490,7 +495,7 @@
       </div>
     </div>
 
-    <!-- ABA MONITOR - NOVA VERSÃO COM RESULTADOS EM TEMPO REAL -->
+    <!-- ABA MONITOR - VERSÃO CORRIGIDA QUE CONTA TODOS OS VOTOS -->
     <div id="tab-monitor" style="display: none;">
       <h2>📊 Resultados em Tempo Real</h2>
       
@@ -509,24 +514,28 @@
           <div class="stat-icon">🗳️</div>
           <div class="stat-number" id="total-votos">0</div>
           <div class="stat-label">Total de Votos</div>
+          <div class="status-info" id="info-total">Todos os votos</div>
         </div>
         
         <div class="stat-card" style="border-color: #56ab2f; background: rgba(86, 171, 47, 0.1);">
           <div class="stat-icon">✅</div>
-          <div class="stat-number" id="votos-validos">0</div>
-          <div class="stat-label">Votos Válidos</div>
+          <div class="stat-number" id="votos-enviados">0</div>
+          <div class="stat-label">Enviados (IPFS)</div>
+          <div class="status-info" id="info-enviados">Com CID</div>
         </div>
         
         <div class="stat-card" style="border-color: #ffa500; background: rgba(255, 165, 0, 0.1);">
-          <div class="stat-icon">⚪</div>
-          <div class="stat-number" id="votos-brancos">0</div>
-          <div class="stat-label">Votos em Branco</div>
+          <div class="stat-icon">⏳</div>
+          <div class="stat-number" id="votos-pendentes">0</div>
+          <div class="stat-label">Pendentes</div>
+          <div class="status-info" id="info-pendentes">Sem sincronização</div>
         </div>
         
         <div class="stat-card" style="border-color: #ff4444; background: rgba(255, 68, 68, 0.1);">
           <div class="stat-icon">📊</div>
           <div class="stat-number" id="candidatos-ativos">0</div>
           <div class="stat-label">Candidatos Ativos</div>
+          <div class="status-info">Nesta eleição</div>
         </div>
       </div>
 
@@ -724,21 +733,27 @@ async function carregarCandidatos() {
 }
 
 // ======================
-// MONITOR DE RESULTADOS EM TEMPO REAL
+// MONITOR DE RESULTADOS EM TEMPO REAL - VERSÃO CORRIGIDA
 // ======================
 
 async function carregarResultados() {
   try {
-    // Buscar todos os votos
+    // Buscar TODOS os votos (incluindo pendentes)
     const todosVotos = await dbVotes.allDocs({ include_docs: true });
-    const votosValidos = todosVotos.rows.filter(row => 
-      row.doc.cid_pinata && !row.doc.erro && row.doc.candidato_id !== 'branco'
+    
+    // ✅ CORREÇÃO: Agora conta TODOS os votos, não só os com CID
+    const votosComCandidato = todosVotos.rows.filter(row => 
+      row.doc.candidato_id && row.doc.candidato_id !== 'branco'
     );
     
     const votosBrancos = todosVotos.rows.filter(row => 
       row.doc.candidato_id === 'branco'
     );
-    
+
+    // ✅ CORREÇÃO: Separar votos por status
+    const votosEnviados = todosVotos.rows.filter(row => row.doc.cid_pinata && !row.doc.erro).length;
+    const votosPendentes = todosVotos.rows.filter(row => row.doc.erro === "sem_conexao_backend").length;
+
     // Buscar candidatos ativos desta eleição
     const todosCandidatos = await dbCandidatos.allDocs({ include_docs: true });
     const candidatosAtivos = todosCandidatos.rows.filter(row => 
@@ -747,19 +762,22 @@ async function carregarResultados() {
 
     // Atualizar estatísticas
     document.getElementById('total-votos').textContent = todosVotos.rows.length;
-    document.getElementById('votos-validos').textContent = votosValidos.length;
-    document.getElementById('votos-brancos').textContent = votosBrancos.length;
+    document.getElementById('votos-enviados').textContent = votosEnviados;
+    document.getElementById('votos-pendentes').textContent = votosPendentes;
     document.getElementById('candidatos-ativos').textContent = candidatosAtivos.length;
 
-    // Calcular votos por candidato
+    // Calcular votos por candidato (AGORA CONTA TODOS OS VOTOS)
     const resultados = candidatosAtivos.map(candidatoRow => {
       const candidato = candidatoRow.doc;
-      const votosDoCandidato = votosValidos.filter(voto => 
+      
+      // ✅ CORREÇÃO: Conta TODOS os votos deste candidato, mesmo pendentes
+      const votosDoCandidato = votosComCandidato.filter(voto => 
         voto.doc.candidato_id === candidato._id
       ).length;
       
-      const porcentagem = votosValidos.length > 0 ? 
-        ((votosDoCandidato / votosValidos.length) * 100).toFixed(1) : 0;
+      // ✅ CORREÇÃO: Porcentagem baseada no total de votos válidos (com candidato)
+      const porcentagem = votosComCandidato.length > 0 ? 
+        ((votosDoCandidato / votosComCandidato.length) * 100).toFixed(1) : 0;
       
       return {
         candidato: candidato,
