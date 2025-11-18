@@ -20,11 +20,91 @@ h1 {
   color: #d4af37;
   margin-bottom: 30px;
 }
+
+/* Campo de busca por número */
+.search-container {
+  margin: 20px auto;
+  max-width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 20px;
+  border: 1px solid #d4af37;
+  border-radius: 25px;
+  background: #1a1f1a;
+  color: #f5f5f5;
+  font-size: 1.2rem;
+  outline: none;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.search-input::placeholder {
+  color: #888;
+  letter-spacing: normal;
+}
+
+.search-input:focus {
+  border-color: #f5f5f5;
+  box-shadow: 0 0 10px rgba(212,175,55,0.3);
+}
+
+/* Teclado numérico */
+.teclado-numerico {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 200px;
+  margin: 15px auto;
+}
+
+.tecla {
+  background: rgba(212,175,55,0.1);
+  border: 1px solid #d4af37;
+  color: #d4af37;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.tecla:hover {
+  background: rgba(212,175,55,0.3);
+}
+
+.tecla:active {
+  background: rgba(212,175,55,0.5);
+}
+
+.botoes-acao {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.btn-branco, .btn-corrige {
+  background: transparent;
+  border: 1px solid #888;
+  color: #888;
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-branco:hover, .btn-corrige:hover {
+  background: rgba(136,136,136,0.2);
+}
+
 .candidates {
   display: flex;
   justify-content: center;
   gap: 40px;
   flex-wrap: wrap;
+  margin-top: 30px;
 }
 .card {
   background: #1a1f1a;
@@ -32,6 +112,11 @@ h1 {
   border-radius: 15px;
   padding: 20px;
   width: 250px;
+  transition: transform 0.3s, border-color 0.3s;
+}
+.card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(212,175,55,0.5);
 }
 .card img {
   width: 180px;
@@ -174,6 +259,35 @@ button:hover {
 .cancel-button:hover {
   background: rgba(136,136,136,0.2);
 }
+
+/* Loading */
+.loading {
+  color: #d4af37;
+  font-size: 1.2rem;
+  margin: 40px 0;
+}
+
+/* Mensagem quando não há candidatos */
+.no-candidates {
+  color: #888;
+  font-size: 1.1rem;
+  margin: 40px 0;
+}
+
+/* Candidato encontrado via busca */
+.candidato-encontrado {
+  border-color: #56ab2f !important;
+  box-shadow: 0 0 15px rgba(86, 171, 47, 0.3);
+}
+
+/* Display do número digitado */
+.numero-display {
+  font-size: 2rem;
+  color: #d4af37;
+  margin: 10px 0;
+  letter-spacing: 5px;
+  font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -189,18 +303,35 @@ window.onpopstate = function () {
 
 <h1>🗳️ Eleição Presidencial — Terra Dourada</h1>
 
-<div class="candidates" id="urnaTela">
-  <div class="card">
-    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop" alt="João Silva">
-    <h3>João Silva</h3>
-    <button onclick="abrirTelaConfirmacao('joao', 'João Silva', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop')">Votar em João</button>
-  </div>
+<!-- Campo de busca por número -->
+<div class="search-container">
+  <input type="text" id="searchInput" class="search-input" placeholder="Digite o número" 
+         maxlength="2" onkeydown="filtrarPorTeclado(event)" oninput="filtrarPorNumero()">
+  <div id="numeroDisplay" class="numero-display"></div>
+</div>
 
-  <div class="card">
-    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop" alt="Paulo Santos">
-    <h3>Paulo Santos</h3>
-    <button onclick="abrirTelaConfirmacao('paulo', 'Paulo Santos', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop')">Votar em Paulo</button>
-  </div>
+<!-- Teclado numérico -->
+<div class="teclado-numerico">
+  <div class="tecla" onclick="adicionarNumero('1')">1</div>
+  <div class="tecla" onclick="adicionarNumero('2')">2</div>
+  <div class="tecla" onclick="adicionarNumero('3')">3</div>
+  <div class="tecla" onclick="adicionarNumero('4')">4</div>
+  <div class="tecla" onclick="adicionarNumero('5')">5</div>
+  <div class="tecla" onclick="adicionarNumero('6')">6</div>
+  <div class="tecla" onclick="adicionarNumero('7')">7</div>
+  <div class="tecla" onclick="adicionarNumero('8')">8</div>
+  <div class="tecla" onclick="adicionarNumero('9')">9</div>
+  <div class="tecla" onclick="adicionarNumero('0')">0</div>
+</div>
+
+<div class="botoes-acao">
+  <button class="btn-branco" onclick="votoBranco()">BRANCO</button>
+  <button class="btn-corrige" onclick="corrigirNumero()">CORRIGE</button>
+</div>
+
+<!-- Container dos candidatos -->
+<div class="candidates" id="urnaTela">
+  <div class="loading" id="loadingMessage">Carregando candidatos...</div>
 </div>
 
 <!-- Tela de confirmação -->
@@ -219,28 +350,30 @@ window.onpopstate = function () {
 </div>
 
 <div class="results">
-  <div>🟦 João: <span id="joao-count">0</span> votos</div>
-  <div>🟩 Paulo: <span id="paulo-count">0</span> votos</div>
-  <div>🔸 Total: <span id="total-count">0</span></div>
+  <div>📊 Total de candidatos: <span id="total-candidates">0</span></div>
+  <div>🔍 Buscando por número</div>
 </div>
 
-<div id="processando"><div>Processing vote…</div></div>
+<div id="processando"><div>Processando voto…</div></div>
 
 <audio id="somFIM" src="fim.mp3"></audio>
 
 <script>
 // ==============================
-// PouchDB
+// BANCOS DE DADOS
 // ==============================
 const db = new PouchDB('terra_dourada_votos_local');
-const db2 = new PouchDB('terra_dourada_voto');       // Segundo banco (novo)
+const db2 = new PouchDB('terra_dourada_voto');
+const dbCandidatos = new PouchDB('terra_dourada_candidatos');
+
 const remoteURL = "http://admin:senha123@127.0.0.1:5984/terra_dourada_votos";
 db.sync(remoteURL, { live: true, retry: true });
 
-let votos = { joao: 0, paulo: 0 };
+let todosCandidatos = [];
 let voted = false;
 const cid = localStorage.getItem("user_cid") || ("cid_" + Math.random().toString(36).slice(2));
 let candidatoSelecionado = null;
+let numeroDigitado = '';
 
 function debug(msg) {
   const box = document.getElementById("debugBox");
@@ -249,15 +382,175 @@ function debug(msg) {
 }
 
 // ==============================
-// Funções para a tela de confirmação
+// CARREGAR CANDIDATOS DO BANCO
 // ==============================
-function abrirTelaConfirmacao(candidato, nome, imagem) {
+async function carregarCandidatos() {
+  try {
+    debug("📥 Carregando candidatos do banco...");
+    
+    const resultado = await dbCandidatos.allDocs({ include_docs: true });
+    
+    // Filtrar apenas candidatos ativos
+    todosCandidatos = resultado.rows
+      .filter(row => row.doc.ativo !== false)
+      .map(row => row.doc);
+    
+    debug(`✅ ${todosCandidatos.length} candidatos carregados`);
+    
+    atualizarInterfaceCandidatos();
+    atualizarContadores();
+    
+  } catch (error) {
+    debug("❌ Erro ao carregar candidatos: " + error.message);
+    
+    // Candidatos de exemplo caso o banco esteja vazio
+    todosCandidatos = [
+      {
+        _id: "candidato_1",
+        nome: "João Silva",
+        partido: "PSDB",
+        numero: "45",
+        foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+        ativo: true
+      },
+      {
+        _id: "candidato_2", 
+        nome: "Paulo Santos",
+        partido: "PT",
+        numero: "13",
+        foto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
+        ativo: true
+      },
+      {
+        _id: "candidato_3", 
+        nome: "Maria Oliveira",
+        partido: "PDT",
+        numero: "12",
+        foto: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop",
+        ativo: true
+      }
+    ];
+    
+    atualizarInterfaceCandidatos();
+    atualizarContadores();
+  }
+}
+
+// ==============================
+// ATUALIZAR INTERFACE DOS CANDIDATOS
+// ==============================
+function atualizarInterfaceCandidatos() {
+  const container = document.getElementById("urnaTela");
+  
+  // Se tem número digitado, mostra apenas o candidato correspondente
+  if (numeroDigitado) {
+    const candidatoEncontrado = todosCandidatos.find(c => c.numero === numeroDigitado);
+    
+    if (candidatoEncontrado) {
+      container.innerHTML = `
+        <div class="card candidato-encontrado">
+          <img src="${candidatoEncontrado.foto || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}" 
+               alt="${candidatoEncontrado.nome}" 
+               onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'">
+          <h3>${candidatoEncontrado.nome}</h3>
+          <p><strong>${candidatoEncontrado.partido || 'Independ.'}</strong></p>
+          <p>Nº ${candidatoEncontrado.numero || '--'}</p>
+          <button onclick="abrirTelaConfirmacao('${candidatoEncontrado._id}', '${candidatoEncontrado.nome}', '${candidatoEncontrado.foto || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}')">
+            Votar em ${candidatoEncontrado.nome.split(' ')[0]}
+          </button>
+        </div>
+      `;
+    } else {
+      container.innerHTML = '<div class="no-candidates">Nenhum candidato encontrado com o número ' + numeroDigitado + '</div>';
+    }
+  } else {
+    // Mostra todos os candidatos
+    if (todosCandidatos.length === 0) {
+      container.innerHTML = '<div class="no-candidates">Nenhum candidato cadastrado</div>';
+      return;
+    }
+    
+    container.innerHTML = todosCandidatos.map(candidato => `
+      <div class="card">
+        <img src="${candidato.foto || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}" 
+             alt="${candidato.nome}" 
+             onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'">
+        <h3>${candidato.nome}</h3>
+        <p><strong>${candidato.partido || 'Independ.'}</strong></p>
+        <p>Nº ${candidato.numero || '--'}</p>
+        <button onclick="abrirTelaConfirmacao('${candidato._id}', '${candidato.nome}', '${candidato.foto || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}')">
+          Votar em ${candidato.nome.split(' ')[0]}
+        </button>
+      </div>
+    `).join('');
+  }
+}
+
+// ==============================
+// FUNÇÕES DO TECLADO NUMÉRICO
+// ==============================
+function adicionarNumero(numero) {
+  if (numeroDigitado.length < 2) {
+    numeroDigitado += numero;
+    atualizarDisplay();
+    filtrarPorNumero();
+  }
+}
+
+function corrigirNumero() {
+  numeroDigitado = '';
+  atualizarDisplay();
+  atualizarInterfaceCandidatos();
+}
+
+function votoBranco() {
   if (voted) {
     alert("Você já votou!");
     return;
   }
   
-  candidatoSelecionado = candidato;
+  // Abre confirmação para voto em branco
+  abrirTelaConfirmacao('branco', 'VOTO EM BRANCO', 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=400&h=400&fit=crop');
+}
+
+function atualizarDisplay() {
+  document.getElementById('numeroDisplay').textContent = numeroDigitado;
+  document.getElementById('searchInput').value = numeroDigitado;
+}
+
+function filtrarPorNumero() {
+  numeroDigitado = document.getElementById('searchInput').value.replace(/\D/g, '');
+  if (numeroDigitado.length > 2) {
+    numeroDigitado = numeroDigitado.substring(0, 2);
+  }
+  atualizarDisplay();
+  atualizarInterfaceCandidatos();
+}
+
+function filtrarPorTeclado(event) {
+  // Permite apenas números e teclas de controle
+  if (!/[0-9]|Backspace|Delete|ArrowLeft|ArrowRight/.test(event.key)) {
+    event.preventDefault();
+  }
+}
+
+// ==============================
+// ATUALIZAR CONTADORES
+// ==============================
+function atualizarContadores() {
+  document.getElementById("total-candidates").textContent = todosCandidatos.length;
+}
+
+// ==============================
+// Funções para a tela de confirmação
+// ==============================
+function abrirTelaConfirmacao(candidatoId, nome, imagem) {
+  if (voted) {
+    alert("Você já votou!");
+    return;
+  }
+  
+  candidatoSelecionado = candidatoId;
   
   // Preencher informações na tela de confirmação
   document.getElementById('confirmationImage').src = imagem;
@@ -291,48 +584,46 @@ async function sha256Base64(dataURL) {
 }
 
 // ==============================
-// Capturar print - AGORA DA TELA DE CONFIRMAÇÃO
+// Capturar print - DA TELA DE CONFIRMAÇÃO
 // ==============================
 async function capturarPrint() {
-  // Capturar APENAS a tela de confirmação
   const elemento = document.getElementById("confirmationCard");
   const canvas = await html2canvas(elemento);
   return canvas.toDataURL("image/png");
 }
 
 // ==============================
-// Carregar votos já existentes
+// CONFIRMAR VOTO (FINAL)
 // ==============================
-async function carregarVotosDoPouch() {
-  const all = await db.allDocs({ include_docs: true });
-  votos = { joao: 0, paulo: 0 };
-
-  all.rows.forEach(row => {
-    if (row.doc.candidato === "joao") votos.joao++;
-    if (row.doc.candidato === "paulo") votos.paulo++;
-  });
-
-  atualizarResultados();
-}
-
-// ==============================
-// CONFIRMAR VOTO (FINAL) - CORRIGIDO PARA SEMPRE CAPTURAR SCREENSHOT
-// ==============================
-async function confirmarVoto(candidato) {
+async function confirmarVoto(candidatoId) {
   if (voted) return alert("Você já votou!");
 
   document.getElementById("processando").style.display = "flex";
   document.getElementById("somFIM").play();
 
-  // ✅ SEMPRE CAPTURA SCREENSHOT (ONLINE E OFFLINE)
+  let candidato = null;
+  
+  if (candidatoId !== 'branco') {
+    // Buscar dados completos do candidato
+    candidato = todosCandidatos.find(c => c._id === candidatoId);
+    if (!candidato) {
+      alert("Candidato não encontrado!");
+      return;
+    }
+  }
+
+  // ✅ SEMPRE CAPTURA SCREENSHOT
   const printBase64 = await capturarPrint();
   const hashPrint = await sha256Base64(printBase64);
   debug("📸 Screenshot capturada. Hash: " + hashPrint);
 
-  // 3) Payload FINAL (sem imagem)
+  // Payload FINAL
   const payload = {
     nome_produtor: cid,
-    produto: candidato,
+    candidato_id: candidatoId,
+    candidato_nome: candidato ? candidato.nome : 'VOTO EM BRANCO',
+    candidato_partido: candidato ? candidato.partido : 'BRANCO',
+    candidato_numero: candidato ? candidato.numero : '000',
     screenshot_hash: hashPrint,
     tipo: "voto_presidencial",
     timestamp: new Date().toISOString()
@@ -351,47 +642,43 @@ async function confirmarVoto(candidato) {
     debug("📥 Backend retornou:\n" + JSON.stringify(data, null, 2));
 
     const cidPinata = data.IpfsHash;
-    localStorage.setItem("voto_cid", cidPinata);
-    localStorage.setItem("voto_candidato", candidato);
 
-    // ✅ SALVA NO PRIMEIRO BANCO (COM HASH)
+    // ✅ SALVA NOS DOIS BANCOS (COM HASH)
     await db.put({
       _id: cid + "_" + Date.now(),
       eleitor: cid,
-      candidato,
+      candidato_id: candidatoId,
+      candidato_nome: candidato ? candidato.nome : 'VOTO EM BRANCO',
       cid_pinata: cidPinata,
       screenshot_hash: hashPrint,
       resposta_backend: data,
       timestamp: new Date().toISOString()
     });
 
-    // ✅ SALVA NO SEGUNDO BANCO (terra_dourada_voto) COM HASH
     await db2.put({
       _id: cid + "_" + Date.now(),
       eleitor: cid,
-      candidato,
+      candidato_id: candidatoId,
+      candidato_nome: candidato ? candidato.nome : 'VOTO EM BRANCO',
       cid_pinata: cidPinata,
       screenshot_hash: hashPrint,
       resposta_backend: data,
       timestamp: new Date().toISOString()
     });
 
-    // Interface
-    votos[candidato]++;
-    atualizarResultados();
     voted = true;
-
     setTimeout(() => window.location.href = "obrigado.html", 1200);
 
   } catch (err) {
     debug("❌ Erro no envio: " + err.message);
 
-    // ✅ SALVA OFFLINE NOS DOIS BANCOS COM HASH DA SCREENSHOT
+    // ✅ SALVA OFFLINE NOS DOIS BANCOS COM HASH
     const docOffline = {
       _id: cid + "_" + Date.now(),
       eleitor: cid,
-      candidato,
-      screenshot_hash: hashPrint, // ✅ AGORA TEM HASH MESMO OFFLINE!
+      candidato_id: candidatoId,
+      candidato_nome: candidato ? candidato.nome : 'VOTO EM BRANCO',
+      screenshot_hash: hashPrint,
       erro: "sem_conexao_backend",
       timestamp: new Date().toISOString()
     };
@@ -400,10 +687,6 @@ async function confirmarVoto(candidato) {
     await db2.put(docOffline);
 
     debug("💾 Voto offline salvo COM HASH nos dois bancos!");
-
-    // Interface
-    votos[candidato]++;
-    atualizarResultados();
     voted = true;
 
     setTimeout(() => window.location.href = "obrigado.html", 1200);
@@ -411,15 +694,11 @@ async function confirmarVoto(candidato) {
 }
 
 // ==============================
-// Atualizar placar
+// INICIALIZAÇÃO
 // ==============================
-function atualizarResultados() {
-  document.getElementById("joao-count").textContent = votos.joao;
-  document.getElementById("paulo-count").textContent = votos.paulo;
-  document.getElementById("total-count").textContent = votos.joao + votos.paulo;
-}
-
-carregarVotosDoPouch();
+document.addEventListener("DOMContentLoaded", function() {
+  carregarCandidatos();
+});
 </script>
 
 </body>
