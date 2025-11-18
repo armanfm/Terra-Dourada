@@ -56,6 +56,24 @@
       background: rgba(212,175,55,0.1);
     }
     
+    /* NOVO BOTÃO P2P SOCIAL - VERDE */
+    .tab-p2p {
+      background: transparent;
+      border: 1px solid #56ab2f;
+      color: #56ab2f;
+      padding: 12px 25px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: .3s;
+      font-size: 1rem;
+    }
+    .tab-p2p:hover {
+      background: rgba(86, 171, 47, 0.1);
+    }
+    .tab-p2p.active {
+      background: rgba(86, 171, 47, 0.2);
+    }
+
     /* Conteúdo principal */
     .content {
       background: #111;
@@ -371,6 +389,8 @@
   <div class="tabs">
     <button class="tab active" onclick="showTab('eleicoes')">🗳️ Minhas Eleições</button>
     <button class="tab" onclick="showTab('cadastro')">➕ Nova Eleição</button>
+    <!-- NOVO BOTÃO P2P SOCIAL -->
+    <button class="tab-p2p" onclick="irParaRedeSocial()">🌐 P2P Social</button>
   </div>
 
   <!-- CONTEÚDO PRINCIPAL -->
@@ -471,6 +491,19 @@ let electionData = null;
 let tipoEleicao = 'online'; // Padrão: online
 let usuarioLogado = null; // ⭐⭐ NOVA VARIÁVEL: usuário atual
 
+// ⭐⭐ FUNÇÃO NOVA: Ir para Rede Social P2P
+function irParaRedeSocial() {
+  if (!usuarioLogado) {
+    alert('Erro: Usuário não identificado. Faça login novamente.');
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  // Redirecionar para rede_social.html com o ID do usuário
+  const userId = encodeURIComponent(usuarioLogado.email);
+  window.location.href = `rede_social.html?user_id=${userId}`;
+}
+
 // ⭐⭐ FUNÇÃO NOVA: Identificar usuário logado
 async function identificarUsuarioLogado() {
   try {
@@ -510,6 +543,7 @@ function atualizarInfoUsuario(usuario) {
 function showTab(tab) {
   // Atualizar abas
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-p2p').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('[id^="tab-"]').forEach(c => c.style.display = 'none');
 
   // Ativar aba atual
