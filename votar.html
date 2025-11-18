@@ -607,7 +607,7 @@ async function capturarPrint() {
 }
 
 // ==============================
-// CONFIRMAR VOTO (FINAL) - VERSÃO COM TRAVA E REDIRECIONAMENTO CORRETO
+// CONFIRMAR VOTO (FINAL) - VERSÃO COM SALVAMENTO DO CANDIDATO
 // ==============================
 async function confirmarVoto(candidatoId) {
   // ✅ TRAVA CRÍTICA: Impede múltiplos votos
@@ -661,6 +661,21 @@ async function confirmarVoto(candidatoId) {
   
   debug(`🗳️ Eleição ID: ${ELEICAO_ATUAL_ID}`);
 
+  // ✅✅✅ SALVA O CANDIDATO VOTADO NO LOCALSTORAGE (PARA TELA DE OBRIGADO)
+  if (candidatoId === 'branco') {
+    // SALVA VOTO BRANCO
+    localStorage.setItem("ultimo_candidato_votado", JSON.stringify({
+      nome: "VOTO EM BRANCO",
+      partido: "Voto válido",
+      foto: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=400&h=400&fit=crop"
+    }));
+  } else {
+    // SALVA CANDIDATO NORMAL
+    localStorage.setItem("ultimo_candidato_votado", JSON.stringify(candidato));
+  }
+  
+  debug("💾 Candidato salvo no localStorage para tela de obrigado");
+
   let hashPrint = '';
   
   try {
@@ -698,6 +713,9 @@ async function confirmarVoto(candidatoId) {
     debug("📥 Backend retornou:\n" + JSON.stringify(data, null, 2));
 
     const cidPinata = data.IpfsHash;
+
+    // ✅ SALVA O CID DA PINATA NO LOCALSTORAGE TAMBÉM
+    localStorage.setItem("voto_cid", cidPinata);
 
     // ✅ SALVA NOS DOIS BANCOS (COM HASH E eleicao_id)
     await db.put({
