@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Terra Dourada — Obrigado</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    background:#0a0f0a;
+    color:#f5f5f5;
+    font-family:system-ui, sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    text-align:center;
+    padding:20px;
+  }
+  .box {
+    background:#111;
+    padding:40px;
+    border-radius:20px;
+    border:1px solid #d4af37;
+    width:380px;
+    box-shadow:0 0 20px rgba(212,175,55,0.35);
+    animation: fadeIn 0.6s ease-out;
+  }
+  @keyframes fadeIn {
+    from {opacity:0; transform:scale(0.95);}
+    to {opacity:1; transform:scale(1);}
+  }
+  h1 {
+    color:#d4af37;
+    margin-bottom:15px;
+  }
+  #foto {
+    width:160px;
+    height:160px;
+    border-radius:50%;
+    border:2px solid #d4af37;
+    margin-top:15px;
+    object-fit:cover;
+  }
+  #nome {
+    font-size:1.3rem;
+    margin-top:10px;
+    color:#f5f5f5;
+  }
+  button {
+    margin-top:25px;
+    padding:12px 30px;
+    background:transparent;
+    border:1px solid #d4af37;
+    border-radius:25px;
+    color:#d4af37;
+    cursor:pointer;
+    font-size:1rem;
+    display:block;
+    width:100%;
+  }
+  button:hover {
+    background:rgba(212,175,55,0.15);
+  }
+  #provaBtn {
+    background:#d4af37;
+    color:#000;
+    border:none;
+    font-weight:bold;
+  }
+  #provaBtn:hover {
+    background:#b9962c;
+  }
+</style>
+</head>
+
+<body>
+<div class="box">
+  <h1>✔️ Voto Registrado</h1>
+
+  <img id="foto">
+  <div id="nome"></div>
+
+  <button id="provaBtn">Ver Comprovante no IPFS</button>
+</div>
+
+<script>
+window.onload = function () {
+
+  const cid = localStorage.getItem("voto_cid") || null;
+  const candidato = localStorage.getItem("voto_candidato") || "desconhecido";
+
+  const foto = document.getElementById("foto");
+  const nome = document.getElementById("nome");
+
+  if (candidato === "joao") {
+    nome.textContent = "João Silva";
+    foto.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop";
+  } 
+  else if (candidato === "paulo") {
+    nome.textContent = "Paulo Santos";
+    foto.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop";
+  }
+  else {
+    nome.textContent = "Candidato Desconhecido";
+    foto.src = "";
+  }
+
+  document.getElementById("provaBtn").onclick = function () {
+    if (!cid) {
+      alert("Comprovante ainda não registrado");
+      return;
+    }
+    window.open("https://gateway.pinata.cloud/ipfs/" + cid, "_blank");
+  };
+
+};
+</script>
+
+</body>
+</html>

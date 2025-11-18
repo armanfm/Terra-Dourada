@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terra Dourada — Votação Presidencial</title>
+
+<script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+body {
+  background: #0a0f0a;
+  color: #f5f5f5;
+  font-family: system-ui, sans-serif;
+  text-align: center;
+  padding: 40px;
+}
+h1 {
+  color: #d4af37;
+  margin-bottom: 30px;
+}
+.candidates {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.card {
+  background: #1a1f1a;
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 15px;
+  padding: 20px;
+  width: 250px;
+}
+.card img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  border: 2px solid #d4af37;
+  display: block;
+}
+button {
+  background: transparent;
+  border: 1px solid #d4af37;
+  color: #d4af37;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+button:hover {
+  background: rgba(212,175,55,0.1);
+}
+.results {
+  margin-top: 50px;
+  background: #111;
+  border-radius: 10px;
+  padding: 20px;
+  display: inline-block;
+}
+.results div {
+  margin: 10px 0;
+}
+
+#processando {
+  display:none;
+  position:fixed;
+  top:0; left:0; right:0; bottom:0;
+  background:#000c;
+  color:#d4af37;
+  font-size:1.5rem;
+  font-family:system-ui;
+  backdrop-filter:blur(4px);
+  justify-content:center;
+  align-items:center;
+  text-shadow:0 0 8px #d4af37;
+}
+
+#debugBox {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 380px;
+  padding: 15px;
+  background: #111;
+  border: 1px solid #d4af37;
+  color: #d4af37;
+  font-family: monospace;
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  display: none;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(212,175,55,0.35);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Estilos para a tela de confirmação */
+.confirmation-screen {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 15, 10, 0.95);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.confirmation-card {
+  background: #1a1f1a;
+  border: 2px solid #d4af37;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+}
+
+.confirmation-card img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  border: 3px solid #d4af37;
+  display: block;
+}
+
+.confirmation-card h2 {
+  color: #d4af37;
+  margin-bottom: 20px;
+}
+
+.confirmation-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.confirm-button {
+  background: rgba(212,175,55,0.2);
+  border: 1px solid #d4af37;
+  color: #d4af37;
+  padding: 12px 25px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 1rem;
+}
+
+.confirm-button:hover {
+  background: rgba(212,175,55,0.4);
+}
+
+.cancel-button {
+  background: transparent;
+  border: 1px solid #888;
+  color: #888;
+  padding: 12px 25px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 1rem;
+}
+
+.cancel-button:hover {
+  background: rgba(136,136,136,0.2);
+}
+</style>
+</head>
+<body>
+
+<div id="debugBox"></div>
+
+<script>
+history.pushState(null, "", location.href);
+window.onpopstate = function () {
+  history.pushState(null, "", location.href);
+};
+</script>
+
+<h1>🗳️ Eleição Presidencial — Terra Dourada</h1>
+
+<div class="candidates" id="urnaTela">
+  <div class="card">
+    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop" alt="João Silva">
+    <h3>João Silva</h3>
+    <button onclick="abrirTelaConfirmacao('joao', 'João Silva', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop')">Votar em João</button>
+  </div>
+
+  <div class="card">
+    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop" alt="Paulo Santos">
+    <h3>Paulo Santos</h3>
+    <button onclick="abrirTelaConfirmacao('paulo', 'Paulo Santos', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop')">Votar em Paulo</button>
+  </div>
+</div>
+
+<!-- Tela de confirmação -->
+<div id="confirmationScreen" class="confirmation-screen">
+  <div id="confirmationCard" class="confirmation-card">
+    <img id="confirmationImage" src="" alt="Candidato">
+    <h2 id="confirmationName">Candidato</h2>
+    <p>Você está prestes a votar em:</p>
+    <h3 id="confirmationCandidateName" style="color: #d4af37; margin: 10px 0 20px;"></h3>
+    <p>Tem certeza de que deseja confirmar seu voto?</p>
+    <div class="confirmation-buttons">
+      <button id="confirmVoteButton" class="confirm-button">Sim, confirmar voto</button>
+      <button onclick="fecharTelaConfirmacao()" class="cancel-button">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="results">
+  <div>🟦 João: <span id="joao-count">0</span> votos</div>
+  <div>🟩 Paulo: <span id="paulo-count">0</span> votos</div>
+  <div>🔸 Total: <span id="total-count">0</span></div>
+</div>
+
+<div id="processando"><div>Processing vote…</div></div>
+
+<audio id="somFIM" src="fim.mp3"></audio>
+
+<script>
+// ==============================
+// PouchDB
+// ==============================
+const db = new PouchDB('terra_dourada_votos_local');
+const db2 = new PouchDB('terra_dourada_voto');       // Segundo banco (novo)
+const remoteURL = "http://admin:senha123@127.0.0.1:5984/terra_dourada_votos";
+db.sync(remoteURL, { live: true, retry: true });
+
+let votos = { joao: 0, paulo: 0 };
+let voted = false;
+const cid = localStorage.getItem("user_cid") || ("cid_" + Math.random().toString(36).slice(2));
+let candidatoSelecionado = null;
+
+function debug(msg) {
+  const box = document.getElementById("debugBox");
+  box.style.display = "block";
+  box.textContent += "\n" + msg;
+}
+
+// ==============================
+// Funções para a tela de confirmação
+// ==============================
+function abrirTelaConfirmacao(candidato, nome, imagem) {
+  if (voted) {
+    alert("Você já votou!");
+    return;
+  }
+  
+  candidatoSelecionado = candidato;
+  
+  // Preencher informações na tela de confirmação
+  document.getElementById('confirmationImage').src = imagem;
+  document.getElementById('confirmationName').textContent = nome;
+  document.getElementById('confirmationCandidateName').textContent = nome;
+  
+  // Configurar o botão de confirmação
+  const confirmButton = document.getElementById('confirmVoteButton');
+  confirmButton.onclick = function() {
+    confirmarVoto(candidatoSelecionado);
+  };
+  
+  // Mostrar a tela de confirmação
+  document.getElementById('confirmationScreen').style.display = 'flex';
+}
+
+function fecharTelaConfirmacao() {
+  document.getElementById('confirmationScreen').style.display = 'none';
+  candidatoSelecionado = null;
+}
+
+// ==============================
+// SHA-256
+// ==============================
+async function sha256Base64(dataURL) {
+  const base64 = dataURL.split(",")[1];
+  const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+  const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// ==============================
+// Capturar print - AGORA DA TELA DE CONFIRMAÇÃO
+// ==============================
+async function capturarPrint() {
+  // Capturar APENAS a tela de confirmação
+  const elemento = document.getElementById("confirmationCard");
+  const canvas = await html2canvas(elemento);
+  return canvas.toDataURL("image/png");
+}
+
+// ==============================
+// Carregar votos já existentes
+// ==============================
+async function carregarVotosDoPouch() {
+  const all = await db.allDocs({ include_docs: true });
+  votos = { joao: 0, paulo: 0 };
+
+  all.rows.forEach(row => {
+    if (row.doc.candidato === "joao") votos.joao++;
+    if (row.doc.candidato === "paulo") votos.paulo++;
+  });
+
+  atualizarResultados();
+}
+
+// ==============================
+// CONFIRMAR VOTO (FINAL) - CORRIGIDO PARA SEMPRE CAPTURAR SCREENSHOT
+// ==============================
+async function confirmarVoto(candidato) {
+  if (voted) return alert("Você já votou!");
+
+  document.getElementById("processando").style.display = "flex";
+  document.getElementById("somFIM").play();
+
+  // ✅ SEMPRE CAPTURA SCREENSHOT (ONLINE E OFFLINE)
+  const printBase64 = await capturarPrint();
+  const hashPrint = await sha256Base64(printBase64);
+  debug("📸 Screenshot capturada. Hash: " + hashPrint);
+
+  // 3) Payload FINAL (sem imagem)
+  const payload = {
+    nome_produtor: cid,
+    produto: candidato,
+    screenshot_hash: hashPrint,
+    tipo: "voto_presidencial",
+    timestamp: new Date().toISOString()
+  };
+
+  debug("📤 Enviando JSON:\n" + JSON.stringify(payload, null, 2));
+
+  try {
+    const res = await fetch("http://127.0.0.1:8085/enviar_voto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    debug("📥 Backend retornou:\n" + JSON.stringify(data, null, 2));
+
+    const cidPinata = data.IpfsHash;
+    localStorage.setItem("voto_cid", cidPinata);
+    localStorage.setItem("voto_candidato", candidato);
+
+    // ✅ SALVA NO PRIMEIRO BANCO (COM HASH)
+    await db.put({
+      _id: cid + "_" + Date.now(),
+      eleitor: cid,
+      candidato,
+      cid_pinata: cidPinata,
+      screenshot_hash: hashPrint,
+      resposta_backend: data,
+      timestamp: new Date().toISOString()
+    });
+
+    // ✅ SALVA NO SEGUNDO BANCO (terra_dourada_voto) COM HASH
+    await db2.put({
+      _id: cid + "_" + Date.now(),
+      eleitor: cid,
+      candidato,
+      cid_pinata: cidPinata,
+      screenshot_hash: hashPrint,
+      resposta_backend: data,
+      timestamp: new Date().toISOString()
+    });
+
+    // Interface
+    votos[candidato]++;
+    atualizarResultados();
+    voted = true;
+
+    setTimeout(() => window.location.href = "obrigado.html", 1200);
+
+  } catch (err) {
+    debug("❌ Erro no envio: " + err.message);
+
+    // ✅ SALVA OFFLINE NOS DOIS BANCOS COM HASH DA SCREENSHOT
+    const docOffline = {
+      _id: cid + "_" + Date.now(),
+      eleitor: cid,
+      candidato,
+      screenshot_hash: hashPrint, // ✅ AGORA TEM HASH MESMO OFFLINE!
+      erro: "sem_conexao_backend",
+      timestamp: new Date().toISOString()
+    };
+
+    await db.put(docOffline);
+    await db2.put(docOffline);
+
+    debug("💾 Voto offline salvo COM HASH nos dois bancos!");
+
+    // Interface
+    votos[candidato]++;
+    atualizarResultados();
+    voted = true;
+
+    setTimeout(() => window.location.href = "obrigado.html", 1200);
+  }
+}
+
+// ==============================
+// Atualizar placar
+// ==============================
+function atualizarResultados() {
+  document.getElementById("joao-count").textContent = votos.joao;
+  document.getElementById("paulo-count").textContent = votos.paulo;
+  document.getElementById("total-count").textContent = votos.joao + votos.paulo;
+}
+
+carregarVotosDoPouch();
+</script>
+
+</body>
+</html>
