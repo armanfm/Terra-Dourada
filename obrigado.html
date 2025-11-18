@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+  /* SEUS ESTILOS MANTIDOS */
   body {
     background:#0a0f0a;
     color:#f5f5f5;
@@ -36,7 +37,7 @@
     margin-bottom:15px;
   }
 
-  /* ANEL DOURADO LINDÃO ✨ */
+  /* ANEL DOURADO */
   .foto-container {
     width: 180px;
     height: 180px;
@@ -231,11 +232,11 @@
 <div class="box">
   <h1>✔️ Voto Computado com Sucesso</h1>
 
-  <!-- ANEL DOURADO ✨ -->
+  <!-- ANEL DOURADO -->
   <div class="foto-container">
     <div class="anel-dourado">
       <div id="fotoContainer">
-        <div class="foto-vazia">✓</div>
+        <div class="foto-vazia">⏳</div>
       </div>
     </div>
   </div>
@@ -243,14 +244,17 @@
   <div id="nome">Carregando candidato...</div>
 
   <!-- Status do voto -->
-  <div id="statusVoto" class="status">Verificando status...</div>
+  <div id="statusVoto" class="status">Buscando dados do voto...</div>
+
+  <!-- DEBUG INFO (remover depois) -->
+  <div id="debugInfo" style="display:none; background:#222; padding:10px; border-radius:8px; margin:10px 0; font-size:0.8rem; font-family:monospace;"></div>
 
   <!-- Mensagem de bloqueio -->
   <div class="blocked-message">
     ⚠️ <strong>Sessão Finalizada</strong> - Não é possível voltar ou votar novamente
   </div>
 
-  <!-- Botão do comprovante (SEMPRE VISÍVEL) -->
+  <!-- Botão do comprovante -->
   <div class="tooltip">
     <button id="provaBtn" class="inativo">🔗 Ver Comprovante no IPFS</button>
     <span class="tooltiptext" id="tooltipText">Comprovante disponível apenas para votos com conexão ativa</span>
@@ -285,17 +289,24 @@
 
 <script>
 // ==============================
+// DEBUG - MOSTRAR INFORMAÇÕES (remover depois)
+// ==============================
+function debugInfo(msg) {
+  const debugDiv = document.getElementById("debugInfo");
+  debugDiv.style.display = "block";
+  debugDiv.innerHTML += msg + "<br>";
+  console.log("🔍 DEBUG:", msg);
+}
+
+// ==============================
 // BLOQUEIO TOTAL DE NAVEGAÇÃO
 // ==============================
-
-// Impede voltar com botão do navegador
 history.pushState(null, null, location.href);
 window.onpopstate = function(event) {
   history.go(1);
   alert("❌ Sessão finalizada. Não é possível voltar.");
 };
 
-// Impede F5/refresh
 document.onkeydown = function(e) {
   if (e.key === "F5" || (e.ctrlKey && e.key === "r")) {
     e.preventDefault();
@@ -304,39 +315,51 @@ document.onkeydown = function(e) {
   }
 };
 
-// Impede menu de contexto (botão direito)
 document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
   return false;
 });
 
 // ==============================
-// CARREGAR DADOS DO VOTO
+// CARREGAR DADOS DO VOTO - CORRIGIDO
 // ==============================
 async function carregarDadosVoto() {
-  console.log("🔍 Iniciando carregamento dos dados do voto...");
+  debugInfo("🚀 INICIANDO CARREGAMENTO...");
   
   const db = new PouchDB('terra_dourada_votos_local');
   const dbCandidatos = new PouchDB('terra_dourada_candidatos');
   
   try {
+    // 1. PRIMEIRO: Tenta pegar do localStorage (mais rápido)
+    const candidatoIdLocal = localStorage.getItem("voto_candidato");
+    const cidPinataLocal = localStorage.getItem("voto_cid");
+    
+    debugInfo("📱 LocalStorage - candidatoId: " + candidatoIdLocal);
+    debugInfo("📱 LocalStorage - cidPinata: " + cidPinataLocal);
+
+    if (candidatoIdLocal && candidatoIdLocal !== "branco") {
+      debugInfo("✅ Usando dados do LocalStorage");
+      await carregarCandidatoPorId(candidatoIdLocal, !!cidPinataLocal, cidPinataLocal);
+      return;
+    }
+
+    // 2. SEGUNDO: Se não tem no localStorage, busca no banco
+    debugInfo("🔍 Buscando no banco de dados...");
     const cid = localStorage.getItem("user_cid");
-    console.log("👤 CID do usuário:", cid);
     
     if (!cid) {
       throw new Error("CID do usuário não encontrado");
     }
 
-    // Busca TODOS os votos
     const allDocs = await db.allDocs({ include_docs: true });
-    console.log("📊 Total de documentos no DB:", allDocs.rows.length);
+    debugInfo("📊 Total de documentos no DB: " + allDocs.rows.length);
 
     // Filtra votos deste usuário
     const votosUsuario = allDocs.rows.filter(row => 
       row.doc.eleitor === cid && row.doc.candidato_id
     );
     
-    console.log("🗳️ Votos deste usuário:", votosUsuario.length);
+    debugInfo("🗳️ Votos deste usuário: " + votosUsuario.length);
 
     if (votosUsuario.length > 0) {
       // Pega o voto mais recente
@@ -344,66 +367,144 @@ async function carregarDadosVoto() {
         return new Date(current.doc.timestamp) > new Date(latest.doc.timestamp) ? current : latest;
       });
       
-      console.log("✅ Último voto encontrado:", ultimoVoto.doc);
-      
       const dadosVoto = ultimoVoto.doc;
       const usouBackend = dadosVoto.cid_pinata && !dadosVoto.erro;
       const cidPinata = dadosVoto.cid_pinata;
       const candidatoId = dadosVoto.candidato_id;
       
-      console.log("🔧 Dados do voto:", {
-        usouBackend,
-        cidPinata,
-        candidatoId,
-        nome: dadosVoto.candidato_nome
-      });
+      debugInfo("✅ Último voto - candidatoId: " + candidatoId);
+      debugInfo("✅ Último voto - usouBackend: " + usouBackend);
+      debugInfo("✅ Último voto - cidPinata: " + cidPinata);
 
-      // ATUALIZA BOTÃO DO COMPROVANTE
-      atualizarBotaoComprovante(usouBackend, cidPinata);
-
-      // CARREGA DADOS DO CANDIDATO
-      try {
-        const candidatosResult = await dbCandidatos.allDocs({ include_docs: true });
-        const candidato = candidatosResult.rows.find(row => row.doc._id === candidatoId)?.doc;
-        
-        console.log("👤 Candidato encontrado no DB:", candidato);
-        
-        if (candidato) {
-          atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVoto);
-        } else {
-          // Usa dados do próprio voto
-          const candidatoFallback = {
-            nome: dadosVoto.candidato_nome || "Candidato",
-            foto: null,
-            partido: dadosVoto.candidato_partido || ""
-          };
-          atualizarInterfaceCandidato(candidatoFallback, usouBackend, cidPinata, dadosVoto);
+      // Salva no localStorage para próxima vez
+      if (candidatoId && candidatoId !== "branco") {
+        localStorage.setItem("voto_candidato", candidatoId);
+        if (cidPinata) {
+          localStorage.setItem("voto_cid", cidPinata);
         }
-      } catch (error) {
-        console.error("❌ Erro ao carregar candidato:", error);
-        // Fallback com dados do voto
-        const candidatoFallback = {
-          nome: dadosVoto.candidato_nome || "Seu Candidato",
-          foto: null
-        };
-        atualizarInterfaceCandidato(candidatoFallback, usouBackend, cidPinata, dadosVoto);
       }
+
+      await carregarCandidatoPorId(candidatoId, usouBackend, cidPinata, dadosVoto);
       
     } else {
       throw new Error("Nenhum voto encontrado para este usuário");
     }
     
   } catch (error) {
-    console.error("❌ Erro geral:", error);
+    debugInfo("❌ ERRO: " + error.message);
+    
     // Fallback completo
     document.getElementById("fotoContainer").innerHTML = '<div class="foto-vazia">✓</div>';
     document.getElementById("nome").textContent = "Voto Registrado";
     document.getElementById("statusVoto").innerHTML = '⚠️ <strong>Voto Computado</strong>';
     document.getElementById("statusVoto").className = 'status offline';
     
-    // Botão fica inativo no fallback
     atualizarBotaoComprovante(false, null);
   }
+}
+
+// ==============================
+// CARREGAR CANDIDATO POR ID - CORRIGIDO
+// ==============================
+async function carregarCandidatoPorId(candidatoId, usouBackend, cidPinata, dadosVoto = null) {
+  debugInfo("👤 Buscando candidato ID: " + candidatoId);
+  
+  const dbCandidatos = new PouchDB('terra_dourada_candidatos');
+  
+  try {
+    // Busca TODOS os candidatos
+    const candidatosResult = await dbCandidatos.allDocs({ include_docs: true });
+    debugInfo("📋 Total de candidatos no DB: " + candidatosResult.rows.length);
+    
+    // Procura o candidato pelo ID
+    const candidatoEncontrado = candidatosResult.rows.find(row => row.doc._id === candidatoId);
+    
+    if (candidatoEncontrado) {
+      const candidato = candidatoEncontrado.doc;
+      debugInfo("🎯 Candidato encontrado: " + candidato.nome);
+      debugInfo("🎯 Foto do candidato: " + (candidato.foto ? "SIM" : "NÃO"));
+      
+      atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVoto);
+    } else {
+      debugInfo("❌ Candidato não encontrado no DB, usando fallback");
+      
+      // Fallback: usa dados do voto se disponível
+      const candidatoFallback = {
+        nome: dadosVoto?.candidato_nome || "Candidato Escolhido",
+        foto: null,
+        partido: dadosVoto?.candidato_partido || ""
+      };
+      
+      atualizarInterfaceCandidato(candidatoFallback, usouBackend, cidPinata, dadosVoto);
+    }
+  } catch (error) {
+    debugInfo("❌ Erro ao buscar candidato: " + error.message);
+    
+    // Fallback de emergência
+    const candidatoFallback = {
+      nome: "Seu Candidato",
+      foto: null
+    };
+    
+    atualizarInterfaceCandidato(candidatoFallback, usouBackend, cidPinata, dadosVoto);
+  }
+}
+
+// ==============================
+// ATUALIZAR INTERFACE - CORRIGIDO
+// ==============================
+function atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVoto) {
+  const fotoContainer = document.getElementById("fotoContainer");
+  const nomeElement = document.getElementById("nome");
+  const statusElement = document.getElementById("statusVoto");
+
+  debugInfo("🎨 Atualizando interface: " + candidato.nome);
+
+  // Atualiza nome
+  nomeElement.textContent = candidato.nome;
+
+  // Atualiza foto - CORRIGIDO
+  if (candidato.foto) {
+    debugInfo("🖼️ Carregando foto: " + candidato.foto);
+    
+    const img = document.createElement('img');
+    img.className = "foto-candidato";
+    img.alt = candidato.nome;
+    
+    // Força recarregamento da imagem
+    img.src = candidato.foto + '?t=' + new Date().getTime();
+    
+    img.onload = function() {
+      debugInfo("✅ Foto carregada com sucesso");
+      fotoContainer.innerHTML = '';
+      fotoContainer.appendChild(img);
+    };
+    
+    img.onerror = function() {
+      debugInfo("❌ Erro ao carregar foto, usando fallback");
+      fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
+    };
+    
+    // Coloca a imagem imediatamente
+    fotoContainer.innerHTML = '';
+    fotoContainer.appendChild(img);
+    
+  } else {
+    debugInfo("📷 Sem foto, usando ícone");
+    fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
+  }
+
+  // Atualiza status
+  if (usouBackend && cidPinata) {
+    statusElement.innerHTML = `✅ <strong>Voto Registrado com Auditoria Completa</strong>`;
+    statusElement.className = 'status online';
+  } else {
+    statusElement.innerHTML = `⚠️ <strong>Voto Registrado Localmente</strong><br><small>Será sincronizado quando online</small>`;
+    statusElement.className = 'status offline';
+  }
+
+  // Atualiza botão
+  atualizarBotaoComprovante(usouBackend, cidPinata);
 }
 
 function atualizarBotaoComprovante(usouBackend, cidPinata) {
@@ -411,7 +512,6 @@ function atualizarBotaoComprovante(usouBackend, cidPinata) {
   const tooltipText = document.getElementById("tooltipText");
 
   if (usouBackend && cidPinata) {
-    // ✅ BOTÃO ATIVO (dourado)
     provaBtn.className = "ativo";
     provaBtn.innerHTML = "🔗 Ver Comprovante no IPFS";
     tooltipText.textContent = "Clique para ver seu comprovante no IPFS Pinata";
@@ -420,7 +520,6 @@ function atualizarBotaoComprovante(usouBackend, cidPinata) {
       window.open("https://gateway.pinata.cloud/ipfs/" + cidPinata, "_blank");
     };
   } else {
-    // ❌ BOTÃO INATIVO (cinza)
     provaBtn.className = "inativo";
     provaBtn.innerHTML = "🔗 Comprovante Indisponível";
     tooltipText.textContent = "Comprovante disponível apenas para votos com conexão ativa ao backend";
@@ -431,51 +530,9 @@ function atualizarBotaoComprovante(usouBackend, cidPinata) {
   }
 }
 
-function atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVoto) {
-  const fotoContainer = document.getElementById("fotoContainer");
-  const nomeElement = document.getElementById("nome");
-  const statusElement = document.getElementById("statusVoto");
-
-  console.log("🎨 Atualizando interface com candidato:", candidato);
-
-  // Atualiza nome
-  nomeElement.textContent = candidato.nome;
-
-  // Atualiza foto - DENTRO DO ANEL DOURADO ✨
-  if (candidato.foto) {
-    const img = new Image();
-    img.src = candidato.foto;
-    img.alt = candidato.nome;
-    img.className = "foto-candidato";
-    img.onload = function() {
-      fotoContainer.innerHTML = '';
-      fotoContainer.appendChild(img);
-    };
-    img.onerror = function() {
-      fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
-    };
-  } else {
-    fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
-  }
-
-  // Atualiza status
-  if (usouBackend && cidPinata) {
-    statusElement.innerHTML = `✅ <strong>Voto Registrado com Auditoria Completa</strong><br>
-                              <small>Hash: ${dadosVoto?.screenshot_hash?.substring(0, 16)}...</small>`;
-    statusElement.className = 'status online';
-  } else {
-    statusElement.innerHTML = `⚠️ <strong>Voto Registrado Localmente</strong><br>
-                              <small>Será sincronizado quando online</small>`;
-    statusElement.className = 'status offline';
-  }
-}
-
 function sairDoSistema() {
-  // Limpa dados sensíveis e redireciona
   localStorage.removeItem("voto_cid");
   localStorage.removeItem("voto_candidato");
-  
-  // Redireciona para página inicial
   window.location.href = "index.html";
 }
 
@@ -483,10 +540,9 @@ function sairDoSistema() {
 // INICIALIZAÇÃO
 // ==============================
 document.addEventListener('DOMContentLoaded', function() {
-  console.log("🚀 Página Obrigado carregada - Iniciando...");
+  debugInfo("📄 Página carregada - iniciando...");
   carregarDadosVoto();
   
-  // Bloqueia saída da página
   window.onbeforeunload = function() {
     return "❌ Sua sessão de votação foi finalizada. Tem certeza que deseja sair?";
   };
