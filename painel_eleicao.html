@@ -334,6 +334,66 @@
       margin: 5px 0;
       color: #ccc;
     }
+
+    /* NOVOS ESTILOS PARA MONITOR DE RESULTADOS */
+    .candidato-resultado {
+      background: #1a1a1a;
+      border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: transform 0.3s;
+    }
+    .candidato-resultado:hover {
+      transform: translateY(-2px);
+      border-color: rgba(212,175,55,0.5);
+    }
+    .barra-progresso {
+      background: #333;
+      border-radius: 10px;
+      height: 20px;
+      overflow: hidden;
+      margin: 10px 0;
+      position: relative;
+    }
+    .preenchimento-barra {
+      background: linear-gradient(90deg, #d4af37, #ffd700);
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.5s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      font-size: 0.7rem;
+      color: #000;
+      font-weight: bold;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .stat-card {
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      border: 1px solid;
+    }
+    .stat-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+    .stat-label {
+      color: #ccc;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 
@@ -365,8 +425,8 @@
     <button class="tab active" onclick="showTab('candidatos')">👥 Candidatos</button>
     <button class="tab" onclick="showTab('mesarios')">👥 Mesários</button>
     <button class="tab" onclick="showTab('api-cliente')">🔌 API Cliente</button>
-<button class="tab" onclick="window.location.href='eleitor_point.html?eleicao=' + ELEICAO_ATUAL_ID">🔐 Autorizar Votos</button>
-    <button class="tab" onclick="showTab('monitor')">👁️ Monitorar Votos</button>
+    <button class="tab" onclick="window.location.href='eleitor_point.html?eleicao=' + ELEICAO_ATUAL_ID">🔐 Autorizar Votos</button>
+    <button class="tab" onclick="showTab('monitor')">📊 Monitorar Votos</button>
     <button class="tab" onclick="showTab('pagamento')">💰 Comprar Créditos</button>
   </div>
 
@@ -430,26 +490,61 @@
       </div>
     </div>
 
-    <!-- ABA AUTORIZAÇÃO -->
-    <div id="tab-autorizacao" style="display: none;">
-      <h2>Gerar Autorização de Voto</h2>
+    <!-- ABA MONITOR - NOVA VERSÃO COM RESULTADOS EM TEMPO REAL -->
+    <div id="tab-monitor" style="display: none;">
+      <h2>📊 Resultados em Tempo Real</h2>
       
       <div style="text-align: center; margin: 20px 0;">
-        <button class="generate-btn" onclick="gerarLinkMesario()">
-          🔗 Gerar Link para Mesário
+        <button class="action-btn" onclick="atualizarResultados()">
+          🔄 Atualizar Resultados
         </button>
-        <button class="generate-btn" onclick="gerarAutorizacao()">
-          🎫 Gerar Autorização Direta
+        <button class="action-btn" onclick="exportarResultados()">
+          📈 Exportar Resultados
         </button>
       </div>
 
-      <div id="auth-links" class="auth-section"></div>
-    </div>
+      <!-- ESTATÍSTICAS GERAIS -->
+      <div class="stats-grid">
+        <div class="stat-card" style="border-color: #d4af37; background: rgba(212,175,55,0.1);">
+          <div class="stat-icon">🗳️</div>
+          <div class="stat-number" id="total-votos">0</div>
+          <div class="stat-label">Total de Votos</div>
+        </div>
+        
+        <div class="stat-card" style="border-color: #56ab2f; background: rgba(86, 171, 47, 0.1);">
+          <div class="stat-icon">✅</div>
+          <div class="stat-number" id="votos-validos">0</div>
+          <div class="stat-label">Votos Válidos</div>
+        </div>
+        
+        <div class="stat-card" style="border-color: #ffa500; background: rgba(255, 165, 0, 0.1);">
+          <div class="stat-icon">⚪</div>
+          <div class="stat-number" id="votos-brancos">0</div>
+          <div class="stat-label">Votos em Branco</div>
+        </div>
+        
+        <div class="stat-card" style="border-color: #ff4444; background: rgba(255, 68, 68, 0.1);">
+          <div class="stat-icon">📊</div>
+          <div class="stat-number" id="candidatos-ativos">0</div>
+          <div class="stat-label">Candidatos Ativos</div>
+        </div>
+      </div>
 
-    <!-- ABA MONITOR -->
-    <div id="tab-monitor" style="display: none;">
-      <h2>Votos Autorizados e Realizados</h2>
-      <div id="authorized-votes" class="authorized-votes"></div>
+      <!-- LISTA DE CANDIDATOS COM BARRAS DE PROGRESSO -->
+      <div id="resultados-candidatos" style="margin-top: 30px;">
+        <div class="empty-state">
+          <h3>Carregando resultados...</h3>
+          <p>Clique em "Atualizar Resultados" para ver os votos</p>
+        </div>
+      </div>
+
+      <!-- GRÁFICO DE COMPARAÇÃO -->
+      <div id="grafico-comparacao" style="margin-top: 40px; display: none;">
+        <h3 style="color: #d4af37; border-bottom: 1px solid rgba(212,175,55,0.3); padding-bottom: 10px;">
+          📈 Comparação entre Candidatos
+        </h3>
+        <div id="barras-comparacao" style="margin-top: 20px;"></div>
+      </div>
     </div>
 
     <!-- ABA PAGAMENTO -->
@@ -566,7 +661,7 @@ function showTab(tab) {
   if (tab === "candidatos") carregarCandidatos();
   if (tab === "mesarios") carregarMesarios();
   if (tab === "api-cliente") carregarConfigAPI();
-  if (tab === "monitor") carregarVotosAutorizados();
+  if (tab === "monitor") carregarResultados(); // ✅ AGORA CARREGA RESULTADOS
 }
 
 // --- CARREGAR CANDIDATOS (FILTRADOS POR ELEIÇÃO) ---
@@ -627,6 +722,183 @@ async function carregarCandidatos() {
     `;
   }
 }
+
+// ======================
+// MONITOR DE RESULTADOS EM TEMPO REAL
+// ======================
+
+async function carregarResultados() {
+  try {
+    // Buscar todos os votos
+    const todosVotos = await dbVotes.allDocs({ include_docs: true });
+    const votosValidos = todosVotos.rows.filter(row => 
+      row.doc.cid_pinata && !row.doc.erro && row.doc.candidato_id !== 'branco'
+    );
+    
+    const votosBrancos = todosVotos.rows.filter(row => 
+      row.doc.candidato_id === 'branco'
+    );
+    
+    // Buscar candidatos ativos desta eleição
+    const todosCandidatos = await dbCandidatos.allDocs({ include_docs: true });
+    const candidatosAtivos = todosCandidatos.rows.filter(row => 
+      row.doc.ativo !== false && row.doc.eleicao_id === ELEICAO_ATUAL_ID
+    );
+
+    // Atualizar estatísticas
+    document.getElementById('total-votos').textContent = todosVotos.rows.length;
+    document.getElementById('votos-validos').textContent = votosValidos.length;
+    document.getElementById('votos-brancos').textContent = votosBrancos.length;
+    document.getElementById('candidatos-ativos').textContent = candidatosAtivos.length;
+
+    // Calcular votos por candidato
+    const resultados = candidatosAtivos.map(candidatoRow => {
+      const candidato = candidatoRow.doc;
+      const votosDoCandidato = votosValidos.filter(voto => 
+        voto.doc.candidato_id === candidato._id
+      ).length;
+      
+      const porcentagem = votosValidos.length > 0 ? 
+        ((votosDoCandidato / votosValidos.length) * 100).toFixed(1) : 0;
+      
+      return {
+        candidato: candidato,
+        votos: votosDoCandidato,
+        porcentagem: porcentagem
+      };
+    });
+
+    // Ordenar por mais votos
+    resultados.sort((a, b) => b.votos - a.votos);
+
+    // Gerar HTML dos resultados
+    const container = document.getElementById('resultados-candidatos');
+    
+    if (resultados.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <h3>Nenhum candidato com votos ainda</h3>
+          <p>Os resultados aparecerão aqui quando os votos começarem a chegar</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = resultados.map((resultado, index) => {
+      const candidato = resultado.candidato;
+      const emojiPosicao = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '📊';
+      
+      return `
+        <div class="candidato-resultado">
+          <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+            ${candidato.foto ? 
+              `<img src="${candidato.foto}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #d4af37;">` : 
+              `<div style="width: 60px; height: 60px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; border: 2px solid #d4af37; font-size: 1.5rem;">👤</div>`
+            }
+            
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="color: #d4af37; margin: 0; font-size: 1.2rem;">
+                  ${emojiPosicao} ${candidato.nome}
+                </h3>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #d4af37;">
+                  ${resultado.votos}
+                </div>
+              </div>
+              <p style="margin: 5px 0; color: #ccc;">
+                ${candidato.partido || 'Independ.'} • Nº ${candidato.numero || '--'}
+              </p>
+            </div>
+          </div>
+
+          <!-- BARRA DE PROGRESSO -->
+          <div class="barra-progresso">
+            <div class="preenchimento-barra" style="width: ${resultado.porcentagem}%;">
+              ${resultado.porcentagem}%
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; color: #888; font-size: 0.9rem;">
+            <span>${resultado.votos} votos</span>
+            <span>${resultado.porcentagem}% dos votos válidos</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Mostrar gráfico de comparação se tiver mais de 1 candidato
+    if (resultados.length > 1) {
+      document.getElementById('grafico-comparacao').style.display = 'block';
+      gerarGraficoComparacao(resultados);
+    } else {
+      document.getElementById('grafico-comparacao').style.display = 'none';
+    }
+
+  } catch (error) {
+    console.error('Erro ao carregar resultados:', error);
+    document.getElementById('resultados-candidatos').innerHTML = `
+      <div class="empty-state">
+        <h3>Erro ao carregar resultados</h3>
+        <p>Recarregue a página e tente novamente</p>
+      </div>
+    `;
+  }
+}
+
+function gerarGraficoComparacao(resultados) {
+  const container = document.getElementById('barras-comparacao');
+  const maxVotos = Math.max(...resultados.map(r => r.votos));
+  
+  container.innerHTML = resultados.map(resultado => {
+    const larguraBarra = maxVotos > 0 ? (resultado.votos / maxVotos) * 100 : 0;
+    
+    return `
+      <div style="margin-bottom: 15px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+          <span style="color: #ccc; font-size: 0.9rem;">
+            ${resultado.candidato.nome.split(' ')[0]} (${resultado.votos} votos)
+          </span>
+          <span style="color: #d4af37; font-weight: bold;">${resultado.porcentagem}%</span>
+        </div>
+        <div style="background: #333; border-radius: 5px; height: 25px; overflow: hidden;">
+          <div style="
+            background: linear-gradient(90deg, #d4af37, #ffd700);
+            height: 100%; 
+            width: ${larguraBarra}%;
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
+          "></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function atualizarResultados() {
+  carregarResultados();
+  // Efeito visual de atualização
+  const btn = event.target;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Atualizando...';
+  btn.disabled = true;
+  
+  setTimeout(() => {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }, 1000);
+}
+
+function exportarResultados() {
+  alert('📈 Funcionalidade de exportação em PDF/Excel será implementada em breve!');
+}
+
+// Atualizar automaticamente a cada 30 segundos
+setInterval(() => {
+  const monitorTab = document.getElementById('tab-monitor');
+  if (monitorTab.style.display !== 'none') {
+    carregarResultados();
+  }
+}, 30000);
 
 // --- SISTEMA DE MESÁRIOS ---
 async function carregarMesarios() {
@@ -729,8 +1001,6 @@ async function criarNovoMesario() {
   alert(credenciais);
   carregarMesarios();
 }
-
-// ... (restante das funções mantidas iguais) ...
 
 async function resetarSenhaMesario(mesarioId) {
   const novaSenha = Math.random().toString(36).substr(2, 10);
@@ -843,86 +1113,6 @@ function atualizarStatusAPI() {
     statusElement.textContent = '⚠️ API: Não Configurada';
     statusElement.className = 'api-status nao-configurada';
   }
-}
-
-// --- AUTORIZAÇÃO DE VOTOS ---
-async function gerarLinkMesario() {
-  if (!ELEICAO_ATUAL_DATA) {
-    alert('❌ Nenhuma eleição carregada!');
-    return;
-  }
-
-  const eleicao = ELEICAO_ATUAL_DATA;
-  const token = crypto.randomUUID();
-  
-  await dbAuth.put({
-    _id: token,
-    token: token,
-    eleicao_id: eleicao._id,
-    tipo: 'acesso_mesario',
-    created_at: new Date().toISOString(),
-    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h
-    usado: false
-  });
-
-  const mesarioURL = `${window.location.origin}/eleitor_point.html?auth=${token}&eleicao=${eleicao._id}`;
-  
-  document.getElementById("auth-links").innerHTML += `
-    <div class="auth-link">
-      <h4>🔗 Link para Mesário - ${eleicao.name}</h4>
-      <a href="${mesarioURL}" target="_blank">${mesarioURL}</a><br>
-      <small>Expira em: ${new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleString()}</small>
-      <button class="action-btn" onclick="copiarLink('${mesarioURL}')" style="margin-top: 10px;">
-        📋 Copiar Link
-      </button>
-    </div>
-  `;
-}
-
-async function gerarAutorizacao() {
-  const token = crypto.randomUUID();
-  const expiresAt = new Date(Date.now() + 3600000);
-
-  await dbAuth.put({
-    _id: token,
-    token,
-    created_at: new Date().toISOString(),
-    expires_at: expiresAt.toISOString(),
-    used: false
-  });
-
-  const voteURL = `${window.location.origin}/voto.html?auth=${token}`;
-
-  document.getElementById("auth-links").innerHTML += `
-    <div class="auth-link">
-      🔗 <a href="${voteURL}" target="_blank">${voteURL}</a><br>
-      <small>Expira: ${expiresAt.toLocaleTimeString()}</small>
-    </div>
-  `;
-}
-
-function copiarLink(link) {
-  navigator.clipboard.writeText(link);
-  alert('✅ Link copiado!');
-}
-
-// --- FUNÇÕES EXISTENTES MANTIDAS ---
-async function carregarVotosAutorizados() {
-  const auths = await dbAuth.allDocs({ include_docs: true });
-  const votes = await dbVotes.allDocs({ include_docs: true });
-
-  document.getElementById("authorized-votes").innerHTML =
-    auths.rows.map(r => {
-      const v = votes.rows.find(x => x.doc.auth_token === r.doc.token);
-      return `
-        <div class="vote-status">
-          <div>
-            Token: ${r.doc.token.slice(0,8)}...
-          </div>
-          <div>${v ? "✅ Votou" : "⏳ Pendente"}</div>
-        </div>
-      `;
-    }).join('');
 }
 
 // ======================
