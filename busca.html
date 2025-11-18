@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌍 Terra Dourada - Rede Social</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
+  <style>
+    body {
+      background: #0a0f0a;
+      color: #f5f5f5;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .friend-search {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10,15,10,0.7);
+      border: 1px solid #d4af37;
+      border-radius: 25px;
+      padding: 8px 15px;
+      margin: 20px;
+      width: 320px;
+    }
+    .search-icon { cursor: pointer; color: #d4af37; margin-right: 10px; }
+    .friend-search input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      width: 100%;
+      outline: none;
+    }
+
+    .profile-card {
+      background: linear-gradient(145deg, rgba(26,31,26,0.9), rgba(40,45,40,0.9));
+      border-radius: 18px;
+      border: 1px solid rgba(212,175,55,0.3);
+      padding: 25px;
+      text-align: center;
+      width: 320px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+    }
+
+    .friends-list, #perfil-encontrado {
+      width: 320px;
+      text-align: center;
+    }
+
+    .friend-item {
+      background: rgba(25,25,25,0.8);
+      border: 1px solid #d4af37;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .friend-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #d4af37;
+    }
+    .friend-info { flex: 1; text-align: left; }
+    .friend-info h4 { color: #ffd700; margin: 0; }
+    .friend-info p { color: #aaa; font-size: 0.9rem; margin: 4px 0; }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .open-btn, .add-btn {
+      padding: 6px 10px;
+      border: 1px solid #d4af37;
+      background: none;
+      color: #ffd700;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: 0.2s;
+    }
+    .open-btn:hover, .add-btn:hover {
+      background: rgba(212,175,55,0.15);
+    }
+    .add-btn.pendente {
+      background: rgba(212,175,55,0.2);
+      color: #aaa;
+      cursor: pointer;
+    }
+
+    .msg-erro { color: #f66; margin-top: 10px; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <!-- 🔍 Campo de busca -->
+  <div class="friend-search">
+    <i class="fas fa-search search-icon" id="search-icon"></i>
+    <input type="text" id="friend-search-input" placeholder="Buscar por nome, produto ou hash..." autocomplete="off">
+  </div>
+
+  <!-- 🔁 Resultados -->
+  <div class="friends-list" id="resultados"></div>
+  <div id="perfil-encontrado"></div>
+
+<script>
+const PINATA_GATEWAY = "https://gateway.pinata.cloud/ipfs/";
+const localDB = new PouchDB('terra_dourada_users');
+const remoteDB = new PouchDB("http://admin:senha123@127.0.0.1:5050/terra_dourada");
+localDB.sync(remoteDB, { live: true, retry: true });
+
+// 📬 Envia ou cancela convite
+async function alternarConvite(cidAmigo, nomeAmigo, botao) {
+  const conviteId = `convite_${cidAmigo}`;
+  try {
+    const existente = await localDB.get(conviteId).catch(() => null);
+    if (existente && existente.status === "pendente") {
+      existente.status = "cancelado";
+      await localDB.put(existente);
+      botao.textContent = "Adicionar";
+      botao.classList.remove("pendente");
+      alert(`❌ Convite cancelado para ${nomeAmigo}`);
+    } else {
+      const convite = {
+        _id: conviteId,
+        tipo: "convite",
+        cid_destino: cidAmigo,
+        nome_destino: nomeAmigo,
+        timestamp: new Date().toISOString(),
+        status: "pendente"
+      };
+      await localDB.put(convite);
+      botao.textContent = "Pendente";
+      botao.classList.add("pendente");
+      alert(`🎉 Convite enviado para ${nomeAmigo}!`);
+    }
+  } catch (err) {
+    alert("💥 Erro ao atualizar convite: " + err.message);
+  }
+}
+
+// 🔍 Busca (autocomplete)
+async function buscarUsuarios(termo) {
+  const lista = document.getElementById("resultados");
+  lista.innerHTML = "⏳ Buscando...";
+  const termoLower = termo.toLowerCase();
+  let encontrados = [];
+
+  try {
+    const res = await fetch("http://127.0.0.1:5050/terra_dourada/_all_docs?include_docs=true", {
+      headers: { "Authorization": "Basic " + btoa("admin:senha123") }
+    });
+    const data = await res.json();
+    encontrados = data.rows.map(r => r.doc).filter(d => {
+      const nome = (d.nome_produtor || "").toLowerCase();
+      const produto = (d.produto || "").toLowerCase();
+      const hash = (d.hash_prova || "").toLowerCase();
+      return nome.includes(termoLower) || produto.includes(termoLower) || hash.includes(termoLower);
+    });
+  } catch (err) {
+    console.warn("⚠️ Falha CouchDB:", err);
+    const local = await localDB.allDocs({ include_docs: true });
+    encontrados = local.rows.map(r => r.doc).filter(d => {
+      const nome = (d.nome_produtor || "").toLowerCase();
+      const produto = (d.produto || "").toLowerCase();
+      const hash = (d.hash_prova || "").toLowerCase();
+      return nome.includes(termoLower) || produto.includes(termoLower) || hash.includes(termoLower);
+    });
+  }
+
+  if (!encontrados.length) {
+    lista.innerHTML = "<p class='msg-erro'>❌ Nenhum resultado encontrado.</p>";
+    return;
+  }
+
+  lista.innerHTML = "";
+  for (const u of encontrados) {
+    const nome = u.nome_produtor || "Usuário";
+    const produto = u.produto || "Produto não especificado";
+    const hash = u.hash_prova ? u.hash_prova.slice(0, 12) + "..." : "N/A";
+    const foto = u.foto || "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=200&q=80";
+    const conviteId = `convite_${u.cid}`;
+    let status = "Adicionar";
+
+    try {
+      const c = await localDB.get(conviteId);
+      if (c.status === "pendente") status = "Pendente";
+    } catch {}
+
+    lista.innerHTML += `
+      <div class="friend-item">
+        <img src="${foto}" class="friend-avatar" alt="foto de ${nome}">
+        <div class="friend-info">
+          <h4>${nome}</h4>
+          <p>${produto}</p>
+          <p style="font-size:0.8rem;color:#bbb;">🔐 ${hash}</p>
+        </div>
+        <div class="action-buttons">
+          <button class="open-btn" onclick="abrirPerfil('${u.cid}')">Abrir</button>
+          <button class="add-btn ${status === "Pendente" ? "pendente" : ""}" 
+            onclick="alternarConvite('${u.cid}', '${nome}', this)">${status}</button>
+        </div>
+      </div>`;
+  }
+}
+
+// 👤 Abre perfil (Pinata)
+async function abrirPerfil(cid) {
+  window.location.href = `perfil.html?cid=${cid}`;
+}
+
+document.getElementById("friend-search-input").addEventListener("input", e => {
+  const termo = e.target.value.trim();
+  if (termo.length > 2) buscarUsuarios(termo);
+});
+document.getElementById("search-icon").addEventListener("click", () => {
+  const termo = document.getElementById("friend-search-input").value.trim();
+  if (termo.length > 0) buscarUsuarios(termo);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terra Dourada - Perfil</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset e Variáveis */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        :root {
+            --primary-gold: #d4af37;
+            --dark-gold: #b8941f;
+            --earth-brown: #8B4513;
+            --deep-green: #2d5016;
+            --dark-bg: #0a0f0a;
+            --card-bg: #1a1f1a;
+            --light-text: #f5f5f5;
+            --accent-blue: #2a9fd6;
+            --accent-green: #4CAF50;
+            --transparency: rgba(255,255,255,0.1);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            line-height: 1.7;
+            overflow-x: hidden;
+            background: linear-gradient(rgba(10, 15, 10, 0.95), rgba(10, 15, 10, 0.95)), 
+                        url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        /* Cabeçalho */
+        header {
+            background-color: rgba(10, 15, 10, 0.95);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            color: var(--primary-gold);
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-left: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+            color: var(--primary-gold);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--light-text);
+            transition: all 0.3s ease;
+        }
+        
+        .notification-bell:hover {
+            color: var(--primary-gold);
+            transform: scale(1.1);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-gold);
+            object-fit: cover;
+        }
+        
+        /* Conteúdo Principal */
+        .profile-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        /* Coluna Lateral */
+        .profile-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        /* Card de Perfil */
+        .profile-card {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.9), rgba(40, 45, 40, 0.9));
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            height: fit-content;
+        }
+        
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--primary-gold));
+        }
+        
+        /* Card de Prova ZKP */
+        .zkp-card {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.9), rgba(40, 45, 40, 0.9));
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .zkp-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--primary-gold));
+        }
+        
+        .zkp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .zkp-title {
+            font-size: 1.5rem;
+            color: var(--light-text);
+            display: flex;
+            align-items: center;
+        }
+        
+        .zkp-title i {
+            margin-right: 10px;
+            color: var(--primary-gold);
+        }
+        
+        .zkp-status {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .zkp-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .hash-display {
+            background: rgba(10, 15, 10, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            padding: 25px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            word-break: break-all;
+            text-align: center;
+            color: var(--primary-gold);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            cursor: default;
+        }
+        
+        .hash-placeholder {
+            color: rgba(245, 245, 245, 0.5);
+            font-style: italic;
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .profile-avatar {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            border: 3px solid var(--primary-gold);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .profile-avatar:hover .avatar-edit {
+            opacity: 1;
+        }
+        
+        .profile-name {
+            font-size: 1.8rem;
+            color: var(--light-text);
+            margin-bottom: 5px;
+        }
+        
+        .profile-bio {
+            color: rgba(245, 245, 245, 0.7);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-gold);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(245, 245, 245, 0.7);
+        }
+        
+        .profile-info {
+            margin-bottom: 25px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(10, 15, 10, 0.5);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .info-item:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .info-icon {
+            margin-right: 10px;
+            color: var(--primary-gold);
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .info-content {
+            flex: 1;
+        }
+        
+        .info-label {
+            font-size: 0.9rem;
+            color: rgba(245, 245, 245, 0.7);
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            color: var(--light-text);
+        }
+        
+        .btn {
+            display: inline-block;
+            background: transparent;
+            color: var(--primary-gold);
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.4s ease;
+            border: 1px solid var(--primary-gold);
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+        
+        .btn:hover {
+            background-color: rgba(212, 175, 55, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Conteúdo do Perfil */
+        .profile-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .content-card {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.9), rgba(40, 45, 40, 0.9));
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+        
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--primary-gold));
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--light-text);
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title i {
+            margin-right: 10px;
+            color: var(--primary-gold);
+        }
+        
+        .edit-btn {
+            background: transparent;
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .edit-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        /* Áreas de Atuação */
+        .areas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .area-card {
+            background: rgba(10, 15, 10, 0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+        }
+        
+        .area-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-gold);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+        
+        .area-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .area-name {
+            font-size: 1rem;
+            color: var(--light-text);
+        }
+        
+        .remove-area {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(244, 67, 54, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .area-card:hover .remove-area {
+            display: block;
+        }
+        
+        .add-area {
+            border: 2px dashed rgba(212, 175, 55, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: rgba(245, 245, 245, 0.5);
+        }
+        
+        .add-area:hover {
+            color: var(--primary-gold);
+            border-color: var(--primary-gold);
+        }
+        
+        /* Certificações */
+        .certifications-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .certification-card {
+            background: rgba(10, 15, 10, 0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .certification-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-gold);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+        
+        .certification-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .certification-name {
+            font-size: 1rem;
+            color: var(--light-text);
+            margin-bottom: 8px;
+        }
+        
+        .certification-status {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+        
+        .status-pending {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+            border: 1px solid rgba(255, 152, 0, 0.5);
+        }
+        
+        .status-required {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+        
+        .add-certification {
+            border: 2px dashed rgba(212, 175, 55, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: rgba(245, 245, 245, 0.5);
+            cursor: pointer;
+        }
+        
+        .add-certification:hover {
+            color: var(--primary-gold);
+            border-color: var(--primary-gold);
+        }
+        
+        /* Estrela amarela para UE */
+        .eu-star {
+            font-size: 2.5rem;
+            color: #FFD700;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+        
+        /* História */
+        .history-content {
+            line-height: 1.8;
+            color: rgba(245, 245, 245, 0.9);
+            min-height: 150px;
+            padding: 15px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            background: rgba(10, 15, 10, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .history-content:focus {
+            outline: none;
+            border-color: var(--primary-gold);
+            background: rgba(10, 15, 10, 0.5);
+        }
+        
+        .save-history-btn {
+            background: transparent;
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+        
+        .save-history-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .history-placeholder {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(245, 245, 245, 0.5);
+            font-style: italic;
+        }
+        
+        /* Notificações */
+        .notifications-panel {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            width: 350px;
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.95), rgba(40, 45, 40, 0.95));
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        
+        .notifications-title {
+            font-size: 1.2rem;
+            color: var(--light-text);
+        }
+        
+        .notification-item {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: rgba(10, 15, 10, 0.5);
+            border-left: 3px solid var(--primary-gold);
+        }
+        
+        .notification-item.unread {
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .notification-text {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 5px;
+        }
+        
+        .notification-time {
+            font-size: 0.8rem;
+            color: rgba(245, 245, 245, 0.5);
+        }
+        
+        /* Modal de Upload de Foto */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.95), rgba(40, 45, 40, 0.95));
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--light-text);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--light-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            color: var(--primary-gold);
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-gold);
+            background: rgba(212, 175, 55, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: rgba(212, 175, 55, 0.5);
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            color: rgba(245, 245, 245, 0.7);
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            font-size: 0.9rem;
+            color: rgba(245, 245, 245, 0.5);
+        }
+        
+        /* Preview da imagem */
+        .image-preview {
+            width: 100%;
+            max-height: 250px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+        
+        /* Input de arquivo oculto */
+        .file-input {
+            display: none;
+        }
+        
+        /* Botões de ação no modal */
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-actions .btn {
+            flex: 1;
+            margin-top: 0;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: rgba(245, 245, 245, 0.7);
+            border: 1px solid rgba(245, 245, 245, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(245, 245, 245, 0.1);
+            color: var(--light-text);
+        }
+        
+        /* Modal de edição de informações */
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .edit-modal-content {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.95), rgba(40, 45, 40, 0.95));
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            position: relative;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--light-text);
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            background: rgba(10, 15, 10, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--light-text);
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-gold);
+        }
+        
+        /* Modal de assinatura digital */
+        .signature-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .signature-modal-content {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.95), rgba(40, 45, 40, 0.95));
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            position: relative;
+        }
+        
+        .signature-pad {
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            background: white;
+            margin-bottom: 20px;
+            cursor: crosshair;
+        }
+        
+        .signature-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .signature-actions .btn {
+            width: auto;
+            margin-top: 0;
+        }
+        
+        /* Modal de adicionar área */
+        .area-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .area-modal-content {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.95), rgba(40, 45, 40, 0.95));
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            position: relative;
+        }
+        
+        .area-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .area-option {
+            background: rgba(10, 15, 10, 0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .area-option:hover {
+            border-color: var(--primary-gold);
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .area-option.selected {
+            border-color: var(--primary-gold);
+            background: rgba(212, 175, 55, 0.2);
+        }
+        
+        .area-option-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .area-option-name {
+            font-size: 0.9rem;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 968px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-sidebar {
+                order: 2;
+            }
+            
+            .profile-content {
+                order: 1;
+            }
+            
+            .areas-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .certifications-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .area-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .profile-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .areas-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .certifications-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .modal-actions, .signature-actions {
+                flex-direction: column;
+            }
+            
+            .area-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Cabeçalho -->
+    <header>
+        
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🌍</span>
+                    <h1>TERRA DOURADA</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="notification-bell" id="notificationBell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="user-menu">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Avatar do usuário" class="user-avatar">
+                        <span>⏳</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+
+    
+
+    <!-- Painel de Notificações -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3 class="notifications-title">Notificações</h3>
+            <button class="edit-btn">Marcar todas como lidas</button>
+        </div>
+        <div class="notification-item unread">
+            <div class="notification-text">Novo produto adicionado ao seu catálogo</div>
+            <div class="notification-time">Há 2 horas</div>
+        </div>
+        <div class="notification-item unread">
+            <div class="notification-text">Pedido #1234 foi confirmado</div>
+            <div class="notification-time">Há 1 dia</div>
+        </div>
+        <div class="notification-item">
+            <div class="notification-text">Atualização nos termos de serviço</div>
+            <div class="notification-time">Há 3 dias</div>
+        </div>
+        <div class="notification-item">
+            <div class="notification-text">Bem-vindo à Terra Dourada!</div>
+            <div class="notification-time">Há 1 semana</div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="container">
+        <div class="profile-container">
+            <!-- Coluna Lateral -->
+            <div class="profile-sidebar">
+                <!-- Card de Perfil -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profileAvatar">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Foto de perfil">
+                            <div class="avatar-edit">Alterar foto</div>
+                        </div>
+                        <h2 class="profile-name">⏳</h2>
+                        <p class="profile-bio">Produtor rural • São Paulo, SP</p>
+                    </div>
+
+
+
+
+
+                    <div class="profile-info">
+                        <div class="info-item" data-field="email">
+                            <div class="info-icon">📧</div>
+                            <div class="info-content">
+                                <div class="info-label">E-mail</div>
+                                <div class="info-value">joao.silva@email.com</div>
+                            </div>
+                        </div>
+                        <div class="info-item" data-field="phone">
+                            <div class="info-icon">📱</div>
+                            <div class="info-content">
+                                <div class="info-label">Telefone</div>
+                                <div class="info-value">(11) 99999-9999</div>
+                            </div>
+                        </div>
+                        <div class="info-item" data-field="address">
+                            <div class="info-icon">📍</div>
+                            <div class="info-content">
+                                <div class="info-label">Endereço</div>
+                                <div class="info-value">Rua das Flores, 123 - São Paulo, SP</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" id="editProfileBtn">Editar Perfil</button>
+                </div>
+                
+                <!-- Card de Prova ZKP -->
+                <div class="zkp-card">
+                    <div class="zkp-header">
+                        <h3 class="zkp-title"><i class="fas fa-shield-alt"></i> Hash Proof ZKP</h3>
+                        <div class="zkp-status">Ativo</div>
+                    </div>
+                    <div class="zkp-content">
+                        <div class="hash-display" id="zkpHash">
+                            <div class="hash-placeholder">Aguardando hash de prova ZKP...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
+<script>
+const localDB = new PouchDB('terra_dourada_users');
+const remoteDB = new PouchDB('http://admin:senha123@127.0.0.1:5050/terra_dourada');
+localDB.sync(remoteDB, { live: true, retry: true });
+
+// 🧭 Pega o CID ativo
+function getCID() {
+  return new URLSearchParams(window.location.search).get("cid") ||
+         localStorage.getItem("user_cid") ||
+         localStorage.getItem("cid_ativo");
+}
+
+// ✨ Atualiza nome no topo (ampulheta)
+function atualizarHeaderNome(nome) {
+  const userSpan = document.querySelector('.user-menu span');
+  if (userSpan && (userSpan.textContent.trim() === '⏳' || userSpan.textContent.trim() === '')) {
+    userSpan.textContent = nome || 'Usuário';
+  }
+}
+
+// 🎨 Atualiza interface do perfil
+function atualizarUI(doc, origem) {
+  const nomeEl = document.querySelector(".profile-name");
+  const bioEl = document.querySelector(".profile-bio");
+  const hashBox = document.getElementById("zkpHash");
+
+  if (!doc) {
+    if (nomeEl) nomeEl.textContent = "Usuário desconhecido";
+    if (bioEl) bioEl.textContent = "Produto não informado";
+    if (hashBox) hashBox.innerHTML = `<div style="color:#999;">⚠️ Nenhum registro encontrado.</div>`;
+    atualizarHeaderNome("Usuário");
+    return;
+  }
+
+  const nome = doc.nome_produtor || "Usuário desconhecido";
+  const produto = doc.produto || "Produto não informado";
+  const hash = doc.hash_prova || null;
+
+  if (nomeEl) nomeEl.textContent = nome;
+  if (bioEl) bioEl.textContent = produto;
+  atualizarHeaderNome(nome);
+
+  if (hashBox) {
+    if (hash) {
+      hashBox.innerHTML = `
+        <div style="background:rgba(25,25,25,0.9);
+                    border:1px solid #d4af37;
+                    border-radius:8px;
+                    padding:10px;
+                    margin-top:6px;
+                    word-break:break-all;
+                    color:#ffd700;
+                    font-family:monospace;
+                    font-size:0.9rem;
+                    line-height:1.3;">
+          🔐 ${hash}
+        </div>
+        <p style="font-size:0.75rem;color:#aaa;margin-top:4px;">
+          Origem: ${origem || doc.origem || "local"}
+        </p>`;
+    } else {
+      hashBox.innerHTML = `<div style="color:#999;">⚠️ Nenhum hash de prova neste registro.</div>`;
+    }
+  }
+}
+
+// 🔍 Busca doc local pelo CID
+async function findLocalDocByCid(cid) {
+  const all = await localDB.allDocs({ include_docs: true });
+  const docs = all.rows.map(r => r.doc).filter(d => d && (d.cid === cid || (d._id && d._id.includes(cid))));
+  if (!docs.length) return null;
+  docs.sort((a,b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+  return docs[0];
+}
+
+// 🔄 Escuta alterações em tempo real
+function startChangeListener(cid) {
+  localDB.changes({ live: true, since: 'now', include_docs: true })
+    .on('change', c => {
+      if (c.doc && (c.doc.cid === cid || c.doc._id.includes(cid))) {
+        console.log('🔄 Atualização detectada:', c.doc);
+        atualizarUI(c.doc, 'pouch-change');
+      }
+    });
+}
+
+// 🚀 Carrega perfil completo
+async function carregarPerfil() {
+  const cid = getCID();
+  if (!cid) {
+    atualizarUI(null);
+    return;
+  }
+
+  try {
+    const doc = await findLocalDocByCid(cid);
+    if (doc) {
+      console.log('✅ Documento local encontrado:', doc);
+      atualizarUI(doc, 'pouch-local');
+      startChangeListener(cid);
+    } else {
+      console.warn('⚠️ Nenhum doc local encontrado. Verifique se o login persistiu o CID.');
+      atualizarUI(null);
+    }
+  } catch (err) {
+    console.error('💥 Erro ao carregar perfil:', err);
+    atualizarUI(null);
+  }
+}
+
+// 🏁 Inicializa ao carregar
+window.addEventListener("DOMContentLoaded", carregarPerfil);
+</script>
+
+            <!-- Conteúdo do Perfil -->
+            <div class="profile-content">
+                <!-- Áreas de Atuação -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-seedling"></i> Áreas de Atuação</h3>
+                    </div>
+                    <div class="areas-grid" id="areasGrid">
+                        <!-- Áreas serão adicionadas dinamicamente aqui -->
+                        <div class="area-card add-area" id="addAreaBtn">
+                            <div class="area-icon">+</div>
+                            <div class="area-name">Adicionar Área</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Certificações -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-certificate"></i> Certificações</h3>
+                    </div>
+                    <div class="certifications-grid">
+                        <a href="https://www.example.com/certificacao/fabricacao" class="certification-card" target="_blank">
+                            <div class="certification-icon">🏭</div>
+                            <div class="certification-name">Obrigatórios para Fabricação</div>
+                            <div class="certification-status status-active">Ativo</div>
+                        </a>
+                        <a href="https://www.example.com/certificacao/exportacao" class="certification-card" target="_blank">
+                            <div class="certification-icon">🚢</div>
+                            <div class="certification-name">Obrigatórios para Exportação</div>
+                            <div class="certification-status status-active">Ativo</div>
+                        </a>
+                        <a href="https://www.example.com/certificacao/europa" class="certification-card" target="_blank">
+                            <div class="certification-icon">
+                                <div class="eu-star">★</div>
+                            </div>
+                            <div class="certification-name">Padrão Europa / Internacional</div>
+                            <div class="certification-status status-active">Ativo</div>
+                        </a>
+                        <a href="https://www.example.com/certificacao/esg" class="certification-card" target="_blank">
+                            <div class="certification-icon">🌱</div>
+                            <div class="certification-name">Bônus de Qualidade / ESG</div>
+                            <div class="certification-status status-pending">Pendente</div>
+                        </a>
+                        <a href="https://www.example.com/certificacao/exigencias" class="certification-card" target="_blank">
+                            <div class="certification-icon">⚠️</div>
+                            <div class="certification-name">Exigências (Ativas ou Pendentes)</div>
+                            <div class="certification-status status-required">2 Pendentes</div>
+                        </a>
+                        <div class="certification-card add-certification" id="addCertificationBtn">
+                            <div class="certification-icon">
+                                <i class="fas fa-signature"></i>
+                            </div>
+                            <div class="certification-name">Assinatura Digital</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- História -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-book"></i> História</h3>
+                        <button class="save-history-btn" id="saveHistoryBtn">Salvar</button>
+                    </div>
+                    <div class="history-content" id="historyContent" contenteditable="true">
+                        <p>Minha jornada na agricultura começou há mais de 20 anos, quando herdei a fazenda do meu avô. Desde então, tenho me dedicado ao cultivo sustentável e à produção de alimentos de qualidade.</p>
+                        <p>Comecei com pequenas plantações de milho e feijão, e ao longo dos anos fui diversificando a produção. Hoje, além dos grãos, cultivo frutas, hortaliças e tenho uma pequena criação de gado.</p>
+                        <p>Acredito na agricultura familiar e no comércio justo. Minha missão é produzir alimentos saudáveis enquanto preservo o meio ambiente para as futuras gerações.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Upload de Foto -->
+    <div class="modal" id="avatarModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Alterar Foto de Perfil</h3>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="image-preview" id="imagePreview">
+                <img id="previewImage" src="" alt="Pré-visualização">
+            </div>
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" class="file-input" accept="image/jpeg, image/png">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text">Clique ou arraste uma imagem aqui</div>
+                <div class="upload-hint">Formatos: JPG, PNG (máx. 5MB)</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelUpload">Cancelar</button>
+                <button class="btn" id="confirmUpload" disabled>Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Informações -->
+    <div class="edit-modal" id="editInfoModal">
+        <div class="edit-modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar Informações</h3>
+                <button class="close-modal" id="closeEditModal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="editEmail">E-mail</label>
+                <input type="email" id="editEmail" value="joao.silva@email.com">
+            </div>
+            <div class="form-group">
+                <label for="editPhone">Telefone</label>
+                <input type="tel" id="editPhone" value="(11) 99999-9999">
+            </div>
+            <div class="form-group">
+                <label for="editAddress">Endereço</label>
+                <input type="text" id="editAddress" value="Rua das Flores, 123 - São Paulo, SP">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelEdit">Cancelar</button>
+                <button class="btn" id="saveEdit">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Assinatura Digital -->
+    <div class="signature-modal" id="signatureModal">
+        <div class="signature-modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Assinatura Digital</h3>
+                <button class="close-modal" id="closeSignatureModal">&times;</button>
+            </div>
+            <p style="margin-bottom: 20px; text-align: center;">Desenhe sua assinatura no campo abaixo:</p>
+            <canvas id="signaturePad" class="signature-pad" width="540" height="200"></canvas>
+            <div class="signature-actions">
+                <button class="btn btn-secondary" id="clearSignature">Limpar</button>
+                <button class="btn" id="saveSignature">Salvar Assinatura</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar Área -->
+    <div class="area-modal" id="areaModal">
+        <div class="area-modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Adicionar Área de Atuação</h3>
+                <button class="close-modal" id="closeAreaModal">&times;</button>
+            </div>
+            <p style="margin-bottom: 20px; text-align: center;">Selecione uma área para adicionar:</p>
+            <div class="area-options">
+                <div class="area-option" data-area="agro" data-icon="🌾">
+                    <div class="area-option-icon">🌾</div>
+                    <div class="area-option-name">Agro</div>
+                </div>
+                <div class="area-option" data-area="agropecuaria" data-icon="🐑">
+                    <div class="area-option-icon">🐑</div>
+                    <div class="area-option-name">Agropecuária</div>
+                </div>
+                <div class="area-option" data-area="pescado" data-icon="🐟">
+                    <div class="area-option-icon">🐟</div>
+                    <div class="area-option-name">Pescado</div>
+                </div>
+                <div class="area-option" data-area="biocombustiveis" data-icon="🌿">
+                    <div class="area-option-icon">🌿</div>
+                    <div class="area-option-name">Biocombustíveis</div>
+                </div>
+                <div class="area-option" data-area="transporte" data-icon="🚚">
+                    <div class="area-option-icon">🚚</div>
+                    <div class="area-option-name">Transporte</div>
+                </div>
+                <div class="area-option" data-area="vida" data-icon="💠">
+                    <div class="area-option-icon">💠</div>
+                    <div class="area-option-name">Vida</div>
+                </div>
+                <div class="area-option" data-area="comprador" data-icon="💰">
+                    <div class="area-option-icon">💰</div>
+                    <div class="area-option-name">Comprador</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelArea">Cancelar</button>
+                <button class="btn" id="addArea">Adicionar Área</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos do DOM
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationsPanel = document.getElementById('notificationsPanel');
+        const profileAvatar = document.getElementById('profileAvatar');
+        const avatarModal = document.getElementById('avatarModal');
+        const closeModal = document.getElementById('closeModal');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        const cancelUpload = document.getElementById('cancelUpload');
+        const confirmUpload = document.getElementById('confirmUpload');
+        
+        // Elementos para edição de informações
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const editInfoModal = document.getElementById('editInfoModal');
+        const closeEditModal = document.getElementById('closeEditModal');
+        const cancelEdit = document.getElementById('cancelEdit');
+        const saveEdit = document.getElementById('saveEdit');
+        const editEmail = document.getElementById('editEmail');
+        const editPhone = document.getElementById('editPhone');
+        const editAddress = document.getElementById('editAddress');
+        
+        // Elementos para assinatura digital
+        const addCertificationBtn = document.getElementById('addCertificationBtn');
+        const signatureModal = document.getElementById('signatureModal');
+        const closeSignatureModal = document.getElementById('closeSignatureModal');
+        const clearSignature = document.getElementById('clearSignature');
+        const saveSignature = document.getElementById('saveSignature');
+        const signatureCanvas = document.getElementById('signaturePad');
+        
+        // Elementos para história
+        const saveHistoryBtn = document.getElementById('saveHistoryBtn');
+        const historyContent = document.getElementById('historyContent');
+        
+        // Elementos para áreas de atuação
+        const addAreaBtn = document.getElementById('addAreaBtn');
+        const areasGrid = document.getElementById('areasGrid');
+        const areaModal = document.getElementById('areaModal');
+        const closeAreaModal = document.getElementById('closeAreaModal');
+        const cancelArea = document.getElementById('cancelArea');
+        const addArea = document.getElementById('addArea');
+        const areaOptions = document.querySelectorAll('.area-option');
+        
+        // Elementos para ZKP
+        const zkpHash = document.getElementById('zkpHash');
+        
+        // Array para armazenar as áreas de atuação
+        let userAreas = [];
+        
+        // Alternar painel de notificações
+        notificationBell.addEventListener('click', function() {
+            notificationsPanel.style.display = notificationsPanel.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        // Fechar painel de notificações ao clicar fora
+        document.addEventListener('click', function(event) {
+            if (!notificationBell.contains(event.target) && !notificationsPanel.contains(event.target)) {
+                notificationsPanel.style.display = 'none';
+            }
+        });
+        
+        // Abrir modal de upload de foto
+        profileAvatar.addEventListener('click', function() {
+            avatarModal.style.display = 'flex';
+            resetUploadModal();
+        });
+        
+        // Fechar modal
+        closeModal.addEventListener('click', function() {
+            avatarModal.style.display = 'none';
+        });
+        
+        cancelUpload.addEventListener('click', function() {
+            avatarModal.style.display = 'none';
+        });
+        
+        // Fechar modal ao clicar fora
+        avatarModal.addEventListener('click', function(event) {
+            if (event.target === avatarModal) {
+                avatarModal.style.display = 'none';
+            }
+        });
+        
+        // Abrir seletor de arquivos ao clicar na área de upload
+        uploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // Permitir arrastar e soltar arquivos
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary-gold)';
+            uploadArea.style.backgroundColor = 'rgba(212, 175, 55, 0.05)';
+        });
+        
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+            uploadArea.style.backgroundColor = 'transparent';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+        
+        // Processar seleção de arquivo
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            
+            if (file) {
+                // Verificar tipo de arquivo
+                if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
+                    alert('Por favor, selecione uma imagem nos formatos JPG ou PNG.');
+                    return;
+                }
+                
+                // Verificar tamanho do arquivo (máx. 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('A imagem deve ter no máximo 5MB.');
+                    return;
+                }
+                
+                // Criar preview da imagem
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    confirmUpload.disabled = false;
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Confirmar upload
+        confirmUpload.addEventListener('click', function() {
+            if (fileInput.files.length) {
+                // Aqui você enviaria a imagem para o servidor
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    // Atualizar a foto de perfil
+                    const profileImg = profileAvatar.querySelector('img');
+                    profileImg.src = e.target.result;
+                    
+                    // Fechar modal
+                    avatarModal.style.display = 'none';
+                    
+                    // Mostrar mensagem de sucesso
+                    alert('Foto de perfil atualizada com sucesso!');
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Resetar modal
+        function resetUploadModal() {
+            fileInput.value = '';
+            imagePreview.style.display = 'none';
+            confirmUpload.disabled = true;
+            uploadArea.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+            uploadArea.style.backgroundColor = 'transparent';
+        }
+        
+        // Editar informações do perfil
+        editProfileBtn.addEventListener('click', function() {
+            editInfoModal.style.display = 'flex';
+        });
+        
+        closeEditModal.addEventListener('click', function() {
+            editInfoModal.style.display = 'none';
+        });
+        
+        cancelEdit.addEventListener('click', function() {
+            editInfoModal.style.display = 'none';
+        });
+        
+        saveEdit.addEventListener('click', function() {
+            // Atualizar informações na interface
+            document.querySelector('[data-field="email"] .info-value').textContent = editEmail.value;
+            document.querySelector('[data-field="phone"] .info-value').textContent = editPhone.value;
+            document.querySelector('[data-field="address"] .info-value').textContent = editAddress.value;
+            
+            // Fechar modal
+            editInfoModal.style.display = 'none';
+            
+            // Mostrar mensagem de sucesso
+            alert('Informações atualizadas com sucesso!');
+        });
+        
+        // Fechar modal de edição ao clicar fora
+        editInfoModal.addEventListener('click', function(event) {
+            if (event.target === editInfoModal) {
+                editInfoModal.style.display = 'none';
+            }
+        });
+        
+        // Salvar história
+        saveHistoryBtn.addEventListener('click', function() {
+            // Aqui você salvaria a história no servidor
+            alert('História salva com sucesso!');
+        });
+        
+        // Assinatura digital
+        addCertificationBtn.addEventListener('click', function() {
+            signatureModal.style.display = 'flex';
+            initSignaturePad();
+        });
+        
+        closeSignatureModal.addEventListener('click', function() {
+            signatureModal.style.display = 'none';
+        });
+        
+        // Fechar modal de assinatura ao clicar fora
+        signatureModal.addEventListener('click', function(event) {
+            if (event.target === signatureModal) {
+                signatureModal.style.display = 'none';
+            }
+        });
+        
+        clearSignature.addEventListener('click', function() {
+            const ctx = signatureCanvas.getContext('2d');
+            ctx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+        });
+        
+        saveSignature.addEventListener('click', function() {
+            // Aqui você salvaria a assinatura
+            alert('Assinatura digital salva com sucesso!');
+            signatureModal.style.display = 'none';
+        });
+        
+        // Inicializar a área de assinatura
+        function initSignaturePad() {
+            const canvas = signatureCanvas;
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            
+            // Ajustar o canvas para a tela
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            // Configurar o contexto
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Eventos do mouse
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Eventos de toque
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+            
+            function handleTouch(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }
+            
+            function startDrawing(e) {
+                isDrawing = true;
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+                
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            }
+            
+            function stopDrawing() {
+                isDrawing = false;
+            }
+        }
+        
+        // Áreas de atuação - funcionalidades
+        let selectedArea = null;
+        
+        // Abrir modal para adicionar área
+        addAreaBtn.addEventListener('click', function() {
+            areaModal.style.display = 'flex';
+            selectedArea = null;
+            
+            // Remover seleção anterior
+            areaOptions.forEach(option => {
+                option.classList.remove('selected');
+            });
+        });
+        
+        closeAreaModal.addEventListener('click', function() {
+            areaModal.style.display = 'none';
+        });
+        
+        cancelArea.addEventListener('click', function() {
+            areaModal.style.display = 'none';
+        });
+        
+        // Fechar modal de área ao clicar fora
+        areaModal.addEventListener('click', function(event) {
+            if (event.target === areaModal) {
+                areaModal.style.display = 'none';
+            }
+        });
+        
+        // Selecionar área
+        areaOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remover seleção anterior
+                areaOptions.forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Selecionar nova área
+                this.classList.add('selected');
+                selectedArea = {
+                    id: this.getAttribute('data-area'),
+                    name: this.querySelector('.area-option-name').textContent,
+                    icon: this.getAttribute('data-icon')
+                };
+            });
+        });
+        
+        // Adicionar área selecionada
+        addArea.addEventListener('click', function() {
+            if (selectedArea) {
+                // Verificar se a área já existe
+                if (userAreas.some(area => area.id === selectedArea.id)) {
+                    alert('Esta área já foi adicionada!');
+                    return;
+                }
+                
+                // Adicionar à lista de áreas do usuário
+                userAreas.push(selectedArea);
+                
+                // Atualizar a interface
+                updateAreasGrid();
+                
+                // Fechar modal
+                areaModal.style.display = 'none';
+                
+                // Mostrar mensagem de sucesso
+                alert(`Área "${selectedArea.name}" adicionada com sucesso!`);
+            } else {
+                alert('Por favor, selecione uma área para adicionar.');
+            }
+        });
+        
+        // Atualizar a grid de áreas
+        function updateAreasGrid() {
+            // Limpar a grid (exceto o botão de adicionar)
+            areasGrid.innerHTML = '';
+            
+            // Adicionar as áreas do usuário
+            userAreas.forEach(area => {
+                const areaCard = document.createElement('div');
+                areaCard.className = 'area-card';
+                areaCard.setAttribute('data-area', area.id);
+                
+                areaCard.innerHTML = `
+                    <button class="remove-area">&times;</button>
+                    <div class="area-icon">${area.icon}</div>
+                    <div class="area-name">${area.name}</div>
+                `;
+                
+                // Adicionar evento de remoção
+                const removeBtn = areaCard.querySelector('.remove-area');
+                removeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    removeArea(area.id);
+                });
+                
+                // Adicionar evento de clique para abrir site
+                areaCard.addEventListener('click', function() {
+                    window.open(`https://www.example.com/${area.id}`, '_blank');
+                });
+                
+                areasGrid.appendChild(areaCard);
+            });
+            
+            // Adicionar o botão de adicionar no final
+            areasGrid.appendChild(addAreaBtn);
+        }
+        
+        // Remover área
+        function removeArea(areaId) {
+            if (confirm('Tem certeza que deseja remover esta área?')) {
+                userAreas = userAreas.filter(area => area.id !== areaId);
+                updateAreasGrid();
+                alert('Área removida com sucesso!');
+            }
+        }
+        
+        // Inicializar a grid de áreas
+        updateAreasGrid();
+    </script>
+</body>
+</html>

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokenização Universal - Terra Dourada</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        :root {
+            --primary-gold: #d4af37;
+            --dark-gold: #b8941f;
+            --dark-bg: #0a0f0a;
+            --card-bg: #1a1f1a;
+            --light-text: #f5f5f5;
+            --accent-green: #4CAF50;
+            --accent-blue: #2a9fd6;
+            --accent-orange: #FF9800;
+            --warning-color: #ff6b6b;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background-color: rgba(10, 15, 10, 0.95);
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            color: var(--primary-gold);
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-left: 10px;
+        }
+        
+        /* Menu de usuário */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .notification-icon, .user-profile {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .notification-icon {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .user-profile {
+            background: var(--primary-gold);
+            color: var(--dark-bg);
+            font-weight: 600;
+        }
+        
+        .notification-icon:hover, .user-profile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--warning-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Banner do Marketplace */
+        .marketplace-banner {
+            background: linear-gradient(45deg, var(--accent-blue), #2a9fd6);
+            color: var(--dark-bg);
+            padding: 15px 0;
+            text-align: center;
+            font-weight: 600;
+            margin-top: 80px;
+            box-shadow: 0 3px 10px rgba(42, 159, 214, 0.3);
+        }
+        
+        /* Abas do Ecossistema */
+        .ecosystem-tabs {
+            background: var(--card-bg);
+            padding: 0;
+        }
+        
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 20px 0;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 150px;
+            text-decoration: none;
+            color: var(--light-text);
+        }
+        
+        .tab.active {
+            background: var(--primary-gold);
+            color: var(--dark-bg);
+            transform: translateY(-2px);
+        }
+        
+        .tab:hover {
+            background: var(--primary-gold);
+            color: var(--dark-bg);
+            text-decoration: none;
+        }
+        
+        .tab.warning {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: rgba(255, 107, 107, 0.3);
+        }
+        
+        .tab.warning:hover, .tab.warning.active {
+            background: var(--warning-color);
+            color: var(--dark-bg);
+        }
+        
+        /* Produtos por Setor */
+        .produtos-setor {
+            padding: 40px 0;
+            background: var(--dark-bg);
+            display: none;
+        }
+        
+        .produtos-setor.active {
+            display: block;
+        }
+        
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .produto-card {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.9), rgba(40, 45, 40, 0.9));
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            cursor: pointer;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .produto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary-gold);
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .produto-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .produto-card h3 {
+            color: var(--light-text);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+        
+        .produto-card p {
+            color: rgba(245, 245, 245, 0.7);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Minhas Transações - Nova Versão */
+        .transacoes-section {
+            padding: 40px 0;
+            background: var(--dark-bg);
+            display: none;
+        }
+        
+        .transacoes-section.active {
+            display: block;
+        }
+        
+        .transactions-container {
+            margin-top: 30px;
+        }
+        
+        .transactions-header {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            margin-bottom: 25px;
+        }
+        
+        .transactions-title {
+            color: var(--primary-gold);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .transactions-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            color: var(--light-text);
+        }
+        
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .transaction-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            color: var(--light-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary-gold);
+            color: var(--dark-bg);
+        }
+        
+        .transactions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        
+        .transaction-item {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.9), rgba(40, 45, 40, 0.9));
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .transaction-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary-gold);
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .transaction-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--light-text);
+        }
+        
+        .transaction-status {
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .status-in-progress {
+            background: rgba(255, 152, 0, 0.2);
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+        }
+        
+        .status-completed {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+        
+        .status-pending {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--warning-color);
+            border: 1px solid var(--warning-color);
+        }
+        
+        .transaction-details {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .transaction-participants {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .participant-badge {
+            padding: 5px 12px;
+            background: rgba(42, 159, 214, 0.2);
+            border: 1px solid var(--accent-blue);
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        
+        .transaction-hash {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 15px;
+            word-break: break-all;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+        
+        .transaction-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .transaction-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .transaction-value {
+            font-weight: 600;
+            color: var(--primary-gold);
+            font-size: 1.1rem;
+        }
+        
+        /* Mensagem de em desenvolvimento */
+        .dev-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .dev-message i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary-gold);
+        }
+        
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .tabs-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tab {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .produtos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .transactions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .transactions-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: 100%;
+            }
+            
+            .transaction-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .transaction-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span>🌍</span>
+                    <h1>TERRA DOURADA</h1>
+                </div>
+                
+                <div class="user-menu">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <div class="notification-badge">3</div>
+                    </div>
+                    <div class="user-profile">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner do Marketplace -->
+    <div class="marketplace-banner">
+        <i class="fas fa-store"></i> MARKETPLACE - TOKENIZAÇÃO DE ATIVOS
+    </div>
+
+    <!-- Abas do Ecossistema -->
+    <section class="ecosystem-tabs">
+        <div class="container">
+            <div class="tabs-container">
+                <div class="tab active" data-setor="agropecuaria">🐑 Agropecuária</div>
+                <div class="tab" data-setor="agro">🌾 Agro</div>
+                <div class="tab" data-setor="pescado">🐟 Pescado</div>
+                <div class="tab" data-setor="biocombustiveis">🌿 Biocombustíveis</div>
+                <div class="tab" data-setor="vida">💠 Vida</div>
+                <div class="tab" data-setor="manufaturado">⚙️ Manufaturado</div>
+                <div class="tab" data-setor="transacoes">📊 Minhas Transações</div>
+                <div class="tab warning" data-setor="carbono">♻️ Rastreamento de Carbono Evitado</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agropecuária -->
+    <section class="produtos-setor active" id="agropecuaria">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--primary-gold);">
+                🐑 Produtos Agropecuários
+            </h2>
+            <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 30px;">
+                Selecione um produto para ver detalhes
+            </p>
+            
+            <div class="produtos-grid">
+                <!-- ... (produtos agropecuários permanecem iguais) ... -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Agro -->
+    <section class="produtos-setor" id="agro">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--primary-gold);">
+                🌾 Produtos Agrícolas
+            </h2>
+            <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 30px;">
+                Selecione um produto para ver detalhes
+            </p>
+            
+            <div class="produtos-grid">
+                <!-- ... (produtos agrícolas permanecem iguais) ... -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Pescado -->
+    <section class="produtos-setor" id="pescado">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--primary-gold);">
+                🐟 Produtos do Pescado
+            </h2>
+            <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 30px;">
+                Selecione um produto para ver detalhes
+            </p>
+            
+            <div class="produtos-grid">
+                <!-- ... (produtos pescado permanecem iguais) ... -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Biocombustíveis -->
+    <section class="produtos-setor" id="biocombustiveis">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--primary-gold);">
+                🌿 Biocombustíveis
+            </h2>
+            <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 30px;">
+                Selecione um produto para ver detalhes
+            </p>
+            
+            <div class="produtos-grid">
+                <!-- ... (biocombustíveis permanecem iguais) ... -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Vida -->
+    <section class="produtos-setor" id="vida">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--primary-gold);">
+                💠 Produtos da Vida
+            </h2>
+            <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 30px;">
+                Selecione um produto para ver detalhes
+            </p>
+            
+            <div class="produtos-grid">
+                <!-- ... (produtos vida permanecem iguais) ... -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Manufaturado -->
+    <section class="produtos-setor" id="manufaturado">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--primary-gold);">
+                ⚙️ Produtos Manufaturados
+            </h2>
+            <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 30px;">
+                Selecione um produto para ver detalhes
+            </p>
+            
+            <div class="dev-message">
+                <i class="fas fa-tools"></i>
+                <h3>Seção em Desenvolvimento</h3>
+                <p>Esta funcionalidade estará disponível em breve</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Minhas Transações - Nova Versão -->
+    <section class="transacoes-section" id="transacoes">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--primary-gold);">
+                📊 Minhas Transações
+            </h2>
+            <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 30px;">
+                Gerencie e acompanhe suas tokenizações
+            </p>
+            
+            <div class="transactions-container">
+                <div class="transactions-header">
+                    <h3 class="transactions-title"><i class="fas fa-exchange-alt"></i> Minhas Transações</h3>
+                    <div class="transactions-controls">
+                        <input type="text" class="search-box" placeholder="Buscar transação...">
+                        <div class="transaction-filters">
+                            <button class="filter-btn active">Todas</button>
+                            <button class="filter-btn">Pendentes</button>
+                            <button class="filter-btn">Em Andamento</button>
+                            <button class="filter-btn">Concluídas</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="transactions-grid">
+                    <!-- Transação 1 -->
+                    <a href="http://localhost:3000/transacao/7B3F9A2E4C8D1F6A" class="transaction-item">
+                        <div class="transaction-header">
+                            <div class="transaction-title">Milho Premium - 1000kg</div>
+                            <div class="transaction-status status-in-progress">Em Andamento</div>
+                        </div>
+                        <div class="transaction-details">
+                            Entrega para São Paulo - Centro
+                        </div>
+                        <div class="transaction-participants">
+                            <span class="participant-badge">🌾 Produtor</span>
+                            <span class="participant-badge">🚚 Transportador</span>
+                            <span class="participant-badge">🛒 Comprador</span>
+                        </div>
+                        <div class="transaction-hash">#TRX-7B3F9A2E4C8D1F6A</div>
+                        <div class="transaction-meta">
+                            <div class="transaction-date">
+                                <i class="far fa-clock"></i>
+                                <span>Iniciada: 15/11/2023</span>
+                            </div>
+                            <div class="transaction-value">R$ 12.450,00</div>
+                        </div>
+                    </a>
+
+                    <!-- Transação 2 -->
+                    <a href="http://localhost:3000/transacao/9E2A5B7C1D8F3E7B" class="transaction-item">
+                        <div class="transaction-header">
+                            <div class="transaction-title">Soja Orgânica - 500kg</div>
+                            <div class="transaction-status status-completed">Concluída</div>
+                        </div>
+                        <div class="transaction-details">
+                            Entrega concluída para Minas Gerais
+                        </div>
+                        <div class="transaction-participants">
+                            <span class="participant-badge">🌾 Produtor</span>
+                            <span class="participant-badge">🚚 Transportador</span>
+                            <span class="participant-badge">🛒 Comprador</span>
+                        </div>
+                        <div class="transaction-hash">#TRX-9E2A5B7C1D8F3E7B</div>
+                        <div class="transaction-meta">
+                            <div class="transaction-date">
+                                <i class="far fa-clock"></i>
+                                <span>Concluída: 10/11/2023</span>
+                            </div>
+                            <div class="transaction-value">R$ 8.750,00</div>
+                        </div>
+                    </a>
+
+                    <!-- Transação 3 -->
+                    <a href="http://localhost:3000/transacao/4C8D1F6A9E2A5B7C" class="transaction-item">
+                        <div class="transaction-header">
+                            <div class="transaction-title">Café Especial - 200kg</div>
+                            <div class="transaction-status status-pending">Aguardando</div>
+                        </div>
+                        <div class="transaction-details">
+                            Aguardando confirmação do transportador
+                        </div>
+                        <div class="transaction-participants">
+                            <span class="participant-badge">🌾 Produtor</span>
+                            <span class="participant-badge">🚚 Transportador</span>
+                            <span class="participant-badge">🛒 Comprador</span>
+                        </div>
+                        <div class="transaction-hash">#TRX-4C8D1F6A9E2A5B7C</div>
+                        <div class="transaction-meta">
+                            <div class="transaction-date">
+                                <i class="far fa-clock"></i>
+                                <span>Iniciada: 14/11/2023</span>
+                            </div>
+                            <div class="transaction-value">R$ 15.200,00</div>
+                        </div>
+                    </a>
+
+                    <!-- Transação 4 -->
+                    <a href="http://localhost:3000/transacao/1D8F3E7B4C9A2E5F" class="transaction-item">
+                        <div class="transaction-header">
+                            <div class="transaction-title">Trigo - 1500kg</div>
+                            <div class="transaction-status status-in-progress">Em Andamento</div>
+                        </div>
+                        <div class="transaction-details">
+                            Em transporte para Rio de Janeiro
+                        </div>
+                        <div class="transaction-participants">
+                            <span class="participant-badge">🌾 Produtor</span>
+                            <span class="participant-badge">🚚 Transportador</span>
+                            <span class="participant-badge">🛒 Comprador</span>
+                        </div>
+                        <div class="transaction-hash">#TRX-1D8F3E7B4C9A2E5F</div>
+                        <div class="transaction-meta">
+                            <div class="transaction-date">
+                                <i class="far fa-clock"></i>
+                                <span>Iniciada: 12/11/2023</span>
+                            </div>
+                            <div class="transaction-value">R$ 18.900,00</div>
+                        </div>
+                    </a>
+
+                    <!-- Transação 5 -->
+                    <a href="http://localhost:3000/transacao/5A7B3C9D2E8F1A4B" class="transaction-item">
+                        <div class="transaction-header">
+                            <div class="transaction-title">Etanol - 5000 litros</div>
+                            <div class="transaction-status status-completed">Concluída</div>
+                        </div>
+                        <div class="transaction-details">
+                            Entrega para distribuidora em Goiás
+                        </div>
+                        <div class="transaction-participants">
+                            <span class="participant-badge">🌾 Produtor</span>
+                            <span class="participant-badge">🚚 Transportador</span>
+                            <span class="participant-badge">🏭 Indústria</span>
+                        </div>
+                        <div class="transaction-hash">#TRX-5A7B3C9D2E8F1A4B</div>
+                        <div class="transaction-meta">
+                            <div class="transaction-date">
+                                <i class="far fa-clock"></i>
+                                <span>Concluída: 08/11/2023</span>
+                            </div>
+                            <div class="transaction-value">R$ 22.500,00</div>
+                        </div>
+                    </a>
+
+                    <!-- Transação 6 -->
+                    <a href="http://localhost:3000/transacao/8E3F7A1C5B9D2E4F" class="transaction-item">
+                        <div class="transaction-header">
+                            <div class="transaction-title">Mel Orgânico - 100kg</div>
+                            <div class="transaction-status status-in-progress">Em Andamento</div>
+                        </div>
+                        <div class="transaction-details">
+                            Processamento e embalagem
+                        </div>
+                        <div class="transaction-participants">
+                            <span class="participant-badge">🐝 Apicultor</span>
+                            <span class="participant-badge">🏭 Processador</span>
+                            <span class="participant-badge">🛒 Comprador</span>
+                        </div>
+                        <div class="transaction-hash">#TRX-8E3F7A1C5B9D2E4F</div>
+                        <div class="transaction-meta">
+                            <div class="transaction-date">
+                                <i class="far fa-clock"></i>
+                                <span>Iniciada: 16/11/2023</span>
+                            </div>
+                            <div class="transaction-value">R$ 9.800,00</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Carbono -->
+    <section class="produtos-setor" id="carbono">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--warning-color);">
+                ♻️ Rastreamento de Carbono Evitado
+            </h2>
+            <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 30px;">
+                Sistema de monitoramento de emissões evitadas
+            </p>
+            
+            <div class="dev-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Funcionalidade em Fase Experimental</h3>
+                <p>Esta seção está em desenvolvimento e sujeita a alterações</p>
+                <p style="margin-top: 20px; font-size: 0.9rem;">
+                    O sistema de rastreamento de carbono evitado permite monitorar e validar<br>
+                    as emissões de gases de efeito estufa que foram evitadas através de<br>
+                    práticas sustentáveis em toda a cadeia produtiva.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Controle das abas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const setor = this.getAttribute('data-setor');
+                
+                // Atualizar abas
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Mostrar seção correspondente
+                document.querySelectorAll('.produtos-setor, .transacoes-section').forEach(sec => {
+                    sec.classList.remove('active');
+                });
+                
+                const secao = document.getElementById(setor);
+                if (secao) {
+                    secao.classList.add('active');
+                }
+            });
+        });
+
+        // Controle dos filtros
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Aqui você pode adicionar lógica para filtrar as transações
+                const filter = this.textContent;
+                console.log(`Filtro aplicado: ${filter}`);
+            });
+        });
+
+        // Busca de transações
+        const searchBox = document.querySelector('.search-box');
+        searchBox.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            console.log(`Buscando: ${searchTerm}`);
+            // Aqui você pode adicionar lógica para filtrar as transações
+        });
+    </script>
+</body>
+</html>
