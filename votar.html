@@ -551,7 +551,11 @@ function abrirTelaConfirmacao(candidatoId, nome, imagem) {
   // ✅ VERIFICAR TRAVA ANTES DE ABRIR CONFIRMAÇÃO
   if (voted || localStorage.getItem(VOTO_REALIZADO_KEY)) {
     alert("Você já votou nesta sessão!");
-    window.location.href = "obrigado.html";
+    
+    // ✅ CORREÇÃO: Redireciona com ID da eleição
+    const urlParams = new URLSearchParams(window.location.search);
+    const ELEICAO_ATUAL_ID = urlParams.get('eleicao') || 'eleicao_geral';
+    window.location.href = "obrigado.html?eleicao=" + ELEICAO_ATUAL_ID;
     return;
   }
   
@@ -603,14 +607,18 @@ async function capturarPrint() {
 }
 
 // ==============================
-// CONFIRMAR VOTO (FINAL) - VERSÃO COM TRAVA
+// CONFIRMAR VOTO (FINAL) - VERSÃO COM TRAVA E REDIRECIONAMENTO CORRETO
 // ==============================
 async function confirmarVoto(candidatoId) {
   // ✅ TRAVA CRÍTICA: Impede múltiplos votos
   if (voted || localStorage.getItem(VOTO_REALIZADO_KEY)) {
     debug("❌ Tentativa de voto duplicado bloqueada!");
     alert("Você já votou nesta sessão!");
-    window.location.href = "obrigado.html";
+    
+    // ✅ CORREÇÃO: Redireciona com ID da eleição
+    const urlParams = new URLSearchParams(window.location.search);
+    const ELEICAO_ATUAL_ID = urlParams.get('eleicao') || 'eleicao_geral';
+    window.location.href = "obrigado.html?eleicao=" + ELEICAO_ATUAL_ID;
     return;
   }
   
@@ -718,9 +726,9 @@ async function confirmarVoto(candidatoId) {
 
     debug("✅ Voto registrado com sucesso!");
     
-    // ✅ REDIRECIONA APÓS VOTO CONFIRMADO
+    // ✅ CORREÇÃO: REDIRECIONA COM ID DA ELEIÇÃO
     setTimeout(() => {
-      window.location.href = "obrigado.html";
+      window.location.href = "obrigado.html?eleicao=" + ELEICAO_ATUAL_ID;
     }, 1200);
 
   } catch (err) {
@@ -743,9 +751,9 @@ async function confirmarVoto(candidatoId) {
 
     debug("💾 Voto offline salvo COM HASH E eleicao_id nos dois bancos!");
     
-    // ✅ MESMO OFFLINE, REDIRECIONA E MANTÉM TRAVA
+    // ✅ CORREÇÃO: REDIRECIONA COM ID DA ELEIÇÃO MESMO OFFLINE
     setTimeout(() => {
-      window.location.href = "obrigado.html";
+      window.location.href = "obrigado.html?eleicao=" + ELEICAO_ATUAL_ID;
     }, 1200);
   }
 }
@@ -757,7 +765,11 @@ document.addEventListener("DOMContentLoaded", function() {
   // ✅ VERIFICAR SE JÁ VOTOU AO CARREGAR A PÁGINA
   if (localStorage.getItem(VOTO_REALIZADO_KEY)) {
     debug("⚠️ Usuário já votou nesta sessão - redirecionando...");
-    window.location.href = "obrigado.html";
+    
+    // ✅ CORREÇÃO: Redireciona com ID da eleição
+    const urlParams = new URLSearchParams(window.location.search);
+    const ELEICAO_ATUAL_ID = urlParams.get('eleicao') || 'eleicao_geral';
+    window.location.href = "obrigado.html?eleicao=" + ELEICAO_ATUAL_ID;
     return;
   }
   
