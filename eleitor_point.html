@@ -26,7 +26,6 @@
       padding-bottom: 20px;
     }
     
-    /* Botões do Header */
     .botoes-header {
       display: flex;
       justify-content: center;
@@ -71,7 +70,6 @@
       box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
     }
     
-    /* Quadrado Principal */
     .quadrado-principal {
       background: #1a1a1a;
       border: 2px solid #d4af37;
@@ -100,7 +98,6 @@
       margin-bottom: 30px;
     }
     
-    /* Métodos de Identificação */
     .metodos-identificacao {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -125,7 +122,6 @@
       margin-bottom: 10px;
     }
     
-    /* Formulários */
     .form-container {
       max-width: 500px;
       margin: 0 auto;
@@ -149,7 +145,6 @@
       font-size: 1rem;
     }
     
-    /* Upload e Câmera */
     .upload-area {
       border: 2px dashed #d4af37;
       border-radius: 10px;
@@ -195,7 +190,6 @@
       display: none;
     }
     
-    /* Botões */
     .btn-confirmar {
       background: rgba(86, 171, 47, 0.2);
       border: 1px solid #56ab2f;
@@ -211,7 +205,6 @@
       background: rgba(86, 171, 47, 0.4);
     }
     
-    /* Resultado */
     .resultado-container {
       background: rgba(212,175,55,0.1);
       border: 1px solid #d4af37;
@@ -228,14 +221,12 @@
       margin: 15px 0;
     }
     
-    /* Seções */
     .secao {
       margin-bottom: 40px;
       padding-bottom: 30px;
       border-bottom: 1px solid rgba(212,175,55,0.2);
     }
 
-    /* Scanner */
     .scanner-active {
       border-color: #56ab2f !important;
       background: rgba(86, 171, 47, 0.1) !important;
@@ -248,7 +239,6 @@
       border-left: 4px solid #d4af37;
     }
 
-    /* Modal Config API */
     .modal {
       display: none;
       position: fixed;
@@ -289,7 +279,6 @@
       color: #d4af37;
     }
 
-    /* Loading */
     .loading {
       display: none;
       position: fixed;
@@ -316,7 +305,6 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Segunda Autorização (Presencial) */
     #segunda-autorizacao {
       display: none;
       background: rgba(212,175,55,0.05);
@@ -326,7 +314,6 @@
       margin-top: 20px;
     }
 
-    /* Status de Compartilhamento */
     .status-compartilhamento {
       margin-top: 15px;
       padding: 12px;
@@ -340,33 +327,25 @@
 </head>
 <body>
 
-<!-- Loading Overlay -->
 <div id="loading" class="loading">
   <div class="loading-spinner"></div>
-  <p id="loading-message" style="margin-top: 20px; color: #d4af37;">Validando...</p>
+  <p id="loading-message" style="margin-top: 20px; color: #d4af37;"></p>
 </div>
 
 <div class="container">
   <header>
     <h1>🔐 Autorizar Votos</h1>
-    <p id="info-eleicao">Carregando informações da eleição...</p>
+    <p id="info-eleicao"></p>
     
-    <!-- BOTÕES DO HEADER - APENAS ADICIONEI O BOTÃO DE COMPARTILHAR AQUI -->
     <div class="botoes-header">
-      <button onclick="abrirConfigAPI()" class="btn-header">
-        ⚙️ Configurar API
-      </button>
-      
-      <button onclick="compartilharLink()" class="btn-compartilhar-header">
-        📤 Compartilhar Link
-      </button>
+      <button onclick="abrirConfigAPI()" class="btn-header">⚙️ Configurar API</button>
+      <button onclick="compartilharLink()" class="btn-compartilhar-header">📤 Compartilhar Link</button>
     </div>
     
-    <div id="api-status" class="api-status nao-configurada">⚠️ API: Não Configurada</div>
+    <div id="api-status" class="api-status nao-configurada"></div>
     <div id="status-compartilhamento" class="status-compartilhamento"></div>
   </header>
 
-  <!-- Modal Config API -->
   <div id="modal-config-api" class="modal">
     <div class="modal-content">
       <h3 style="color: #d4af37; margin-bottom: 20px;">⚙️ Configurar API do Cliente</h3>
@@ -411,15 +390,11 @@
     </div>
   </div>
 
-  <!-- QUADRADO PRINCIPAL -->
   <div id="quadrado-principal" class="quadrado-principal">
-    <div class="icone-grande" id="icone-tipo">🌐</div>
-    <h2 class="titulo-quadrado" id="titulo-tipo">AUTORIZAR VOTO ONLINE</h2>
-    <p class="descricao-quadrado" id="descricao-tipo">
-      Identifique o eleitor para gerar autorização de voto
-    </p>
+    <div class="icone-grande" id="icone-tipo"></div>
+    <h2 class="titulo-quadrado" id="titulo-tipo"></h2>
+    <p class="descricao-quadrado" id="descricao-tipo"></p>
     
-    <!-- PASSO 1: Identificação -->
     <div class="secao">
       <h3>1️⃣ Escolher Método de Identificação</h3>
       <div class="metodos-identificacao">
@@ -450,22 +425,18 @@
       </div>
     </div>
 
-    <!-- PASSO 2: Formulário de Identificação -->
     <div id="form-identificacao" class="secao" style="display: none;">
       <h3>2️⃣ Validar Identificação</h3>
-      <div id="formulario-identificacao">
-        <!-- Formulário dinâmico aparece aqui -->
-      </div>
+      <div id="formulario-identificacao"></div>
     </div>
 
-    <!-- SEGUNDA AUTORIZAÇÃO (APENAS PRESENCIAL) -->
     <div id="segunda-autorizacao">
       <h3>🔒 Segunda Autorização (Presencial)</h3>
       <p>Confirmação adicional requerida para voto presencial</p>
       <div class="form-group">
         <label for="confirmacao-mesario">Confirmação do Mesário</label>
         <select id="confirmacao-mesario">
-          <option value="">Selecione...</option>
+          <option value=""></option>
           <option value="documento_verificado">✅ Documento verificado</option>
           <option value="identidade_confirmada">✅ Identidade confirmada</option>
           <option value="eleitor_apto">✅ Eleitor apto para votar</option>
@@ -474,17 +445,15 @@
       <button onclick="validarSegundaAutorizacao()" class="btn-confirmar">✅ Confirmar Autorização</button>
     </div>
 
-    <!-- BOTÃO FINAL -->
     <div id="botao-autorizar" style="display: none;">
       <button onclick="autorizarVoto()" class="btn-confirmar">🎫 AUTORIZAR VOTO</button>
     </div>
 
-    <!-- RESULTADO -->
     <div id="resultado-autorizacao" style="display: none;">
       <div class="resultado-container">
         <h3>✅ Voto Autorizado!</h3>
         <div class="codigo-identificador" id="codigo-autorizacao"></div>
-        <p id="mensagem-autorizacao">Redirecionando para votação...</p>
+        <p id="mensagem-autorizacao"></p>
         <button onclick="irParaVotacao()" class="btn-confirmar">🗳️ IR PARA VOTAÇÃO</button>
       </div>
     </div>
@@ -492,11 +461,9 @@
 </div>
 
 <script>
-// Banco de dados
 const dbAutorizacoes = new PouchDB('terra_dourada_autorizacoes');
 const dbEleicoes = new PouchDB('terra_dourada_eleicoes');
 
-// Variáveis globais
 let electionId = null;
 let eleicaoAtual = null;
 let metodoIdentificacaoAtual = null;
@@ -506,7 +473,6 @@ let qrScannerActive = false;
 let barcodeScannerActive = false;
 let segundaAutorizacaoAprovada = false;
 
-// Sistema de Configuração de API do Cliente
 let API_CONFIG = {
   baseURL: '',
   token: '',
@@ -519,26 +485,18 @@ let API_CONFIG = {
   configurado: false
 };
 
-// ✅ CORREÇÃO: Apenas esta linha foi modificada
 document.addEventListener("DOMContentLoaded", async function() {
   const urlParams = new URLSearchParams(window.location.search);
-  
-  // ✅ CORREÇÃO: Pegar ID da eleição de 'eleicao' OU 'id'
   electionId = urlParams.get('eleicao') || urlParams.get('id');
-  
-  console.log('🆔 ID da Eleição capturado:', electionId);
   
   if (electionId) {
     await carregarInfoEleicao();
   } else {
-    console.error('❌ Nenhum ID de eleição encontrado na URL!');
     document.getElementById('info-eleicao').textContent = '❌ Erro: Nenhuma eleição especificada';
   }
   
   carregarConfigAPI();
 });
-
-// ========== SISTEMA DE CONFIGURAÇÃO DA API ==========
 
 function carregarConfigAPI() {
   const configSalva = localStorage.getItem('api_config_cliente');
@@ -615,7 +573,6 @@ function atualizarStatusAPI() {
   }
 }
 
-// Função para chamar API do cliente
 async function chamarAPICliente(endpoint, dados) {
   if (!API_CONFIG.configurado) {
     throw new Error('API do cliente não configurada');
@@ -637,12 +594,9 @@ async function chamarAPICliente(endpoint, dados) {
   });
 }
 
-// ========== BOTÃO DE COMPARTILHAR LINK (NOVO) ==========
-
 async function compartilharLink() {
   const statusElement = document.getElementById('status-compartilhamento');
   
-  // Texto para compartilhar
   const textoCompartilhar = `✅ AUTORIZAÇÃO DE VOTO - TERRA DOURADA
 
 Sistema seguro de autorização de votos.
@@ -655,7 +609,6 @@ Data: ${new Date().toLocaleDateString('pt-BR')}
 
 Sistema Terra Dourada - Votação Segura e Transparente`;
 
-  // Verifica se a Web Share API está disponível (mobile)
   if (navigator.share) {
     try {
       statusElement.textContent = '📤 Abrindo opções de compartilhamento...';
@@ -673,15 +626,12 @@ Sistema Terra Dourada - Votação Segura e Transparente`;
       }, 3000);
       
     } catch (error) {
-      console.log('❌ Compartilhamento cancelado:', error);
       statusElement.textContent = 'ℹ️ Compartilhamento cancelado';
       setTimeout(() => {
         statusElement.style.display = 'none';
       }, 2000);
     }
-  } 
-  // Fallback para desktop ou navegadores sem Web Share API
-  else {
+  } else {
     mostrarOpcoesCompartilhamentoFallback(textoCompartilhar, window.location.href);
   }
 }
@@ -689,7 +639,6 @@ Sistema Terra Dourada - Votação Segura e Transparente`;
 function mostrarOpcoesCompartilhamentoFallback(texto, url) {
   const statusElement = document.getElementById('status-compartilhamento');
   
-  // Cria um menu de opções de compartilhamento
   const opcoes = `
     <div style="text-align: center; margin: 15px 0;">
       <p style="color: #d4af37; margin-bottom: 15px;"><strong>Compartilhar link via:</strong></p>
@@ -722,7 +671,6 @@ function mostrarOpcoesCompartilhamentoFallback(texto, url) {
   statusElement.style.display = 'block';
 }
 
-// Funções de fallback para compartilhamento
 function compartilharWhatsApp(texto) {
   const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
   window.open(url, '_blank');
@@ -750,7 +698,6 @@ function copiarLink(url) {
       statusElement.style.display = 'none';
     }, 2000);
   }).catch(() => {
-    // Fallback para navegadores antigos
     const textArea = document.createElement('textarea');
     textArea.value = url;
     document.body.appendChild(textArea);
@@ -765,8 +712,6 @@ function copiarLink(url) {
     }, 2000);
   });
 }
-
-// ========== FUNÇÕES PRINCIPAIS (TODAS ORIGINAIS) ==========
 
 async function carregarInfoEleicao() {
   try {
@@ -785,7 +730,6 @@ async function carregarInfoEleicao() {
     }
     
   } catch (error) {
-    console.error('❌ Erro ao carregar eleição:', error);
     document.getElementById('info-eleicao').textContent = 'Erro ao carregar eleição';
   }
 }
@@ -801,8 +745,6 @@ function selecionarMetodoIdentificacao(metodo) {
   document.getElementById('form-identificacao').style.display = 'block';
   document.getElementById('formulario-identificacao').innerHTML = gerarFormularioIdentificacao(metodo);
 }
-
-// ========== FUNÇÕES DE VALIDAÇÃO COMPLETAS ==========
 
 function gerarFormularioIdentificacao(metodo) {
   switch(metodo) {
@@ -966,8 +908,6 @@ function gerarFormularioIdentificacao(metodo) {
       `;
   }
 }
-
-// ========== SCANNERS REAIS ==========
 
 async function iniciarScannerQR() {
   try {
@@ -1161,8 +1101,6 @@ function iniciarCapturaBiometria() {
   }, 200);
 }
 
-// ========== VALIDAÇÕES ==========
-
 async function validarIdentificacao() {
   const cpf = document.getElementById('identificacao').value.replace(/\D/g, '');
   const nome = document.getElementById('nome').value;
@@ -1315,13 +1253,11 @@ function validarReconhecimentoFacial() {
   prosseguirParaProximaEtapa();
 }
 
-// ========== FLUXO PRINCIPAL ==========
-
 function prosseguirParaProximaEtapa() {
   if (eleicaoAtual && eleicaoAtual.tipo === 'presencial') {
     document.getElementById('segunda-autorizacao').style.display = 'block';
   } else {
-    document.getElementById('botao-autorizacao').style.display = 'block';
+    document.getElementById('botao-autorizar').style.display = 'block';
   }
 }
 
@@ -1334,7 +1270,7 @@ function validarSegundaAutorizacao() {
   }
   
   segundaAutorizacaoAprovada = true;
-  document.getElementById('botao-autorizacao').style.display = 'block';
+  document.getElementById('botao-autorizar').style.display = 'block';
   document.getElementById('segunda-autorizacao').style.background = 'rgba(86, 171, 47, 0.1)';
   document.getElementById('segunda-autorizacao').style.borderColor = '#56ab2f';
 }
@@ -1371,14 +1307,12 @@ function autorizarVoto() {
   }
   
   document.getElementById('resultado-autorizacao').style.display = 'block';
-  document.getElementById('botao-autorizacao').style.display = 'none';
+  document.getElementById('botao-autorizar').style.display = 'none';
 }
 
 function irParaVotacao() {
   window.location.href = `votar.html?eleicao=${electionId}&token=${dadosEleitorAtual.identificacao}`;
 }
-
-// ========== FUNÇÕES AUXILIARES ==========
 
 function formatarCPF(input) {
   let value = input.value.replace(/\D/g, '');
