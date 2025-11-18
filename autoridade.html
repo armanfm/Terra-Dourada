@@ -338,10 +338,28 @@
       text-shadow: 0 0 8px #d4af37;
       z-index: 2000;
     }
+
+    /* Info do usuário */
+    .user-info {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(212,175,55,0.1);
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-size: 0.9rem;
+      color: #d4af37;
+    }
   </style>
 </head>
 
 <body>
+
+<!-- Informação do usuário logado -->
+<div class="user-info" id="userInfo">
+  <i class="fas fa-user"></i> Carregando...
+</div>
 
 <div class="container">
   <header>
@@ -445,11 +463,48 @@
 <script>
 // Banco de dados
 const dbEleicoes = new PouchDB('terra_dourada_eleicoes');
+const dbConfig = new PouchDB('terra_dourada_config');
 
 // Variáveis
 let photoBase64 = null;
 let electionData = null;
 let tipoEleicao = 'online'; // Padrão: online
+let usuarioLogado = null; // ⭐⭐ NOVA VARIÁVEL: usuário atual
+
+// ⭐⭐ FUNÇÃO NOVA: Identificar usuário logado
+async function identificarUsuarioLogado() {
+  try {
+    console.log('🔍 Identificando usuário logado...');
+    
+    // Primeiro tenta do localStorage (mais rápido)
+    const usuarioData = JSON.parse(localStorage.getItem("usuario_data") || '{}');
+    if (usuarioData.email) {
+      console.log('✅ Usuário do localStorage:', usuarioData.email);
+      return usuarioData;
+    }
+    
+    // Se não tiver no localStorage, tenta do PouchDB
+    const conta = await dbConfig.get('dono_da_sala');
+    console.log('✅ Usuário do PouchDB:', conta.email);
+    return conta;
+    
+  } catch (error) {
+    console.error('❌ Erro ao identificar usuário:', error);
+    
+    // Se não conseguir identificar, redireciona para login
+    alert('Sessão expirada. Faça login novamente.');
+    window.location.href = 'login.html';
+    return null;
+  }
+}
+
+// ⭐⭐ FUNÇÃO NOVA: Atualizar info do usuário na tela
+function atualizarInfoUsuario(usuario) {
+  const userInfo = document.getElementById('userInfo');
+  if (usuario && userInfo) {
+    userInfo.innerHTML = `<i class="fas fa-user"></i> ${usuario.name || usuario.email} (${usuario.provider})`;
+  }
+}
 
 // --- CONTROLE DE ABAS ---
 function showTab(tab) {
@@ -478,23 +533,38 @@ function selecionarTipo(tipo, element) {
   element.classList.add('selecionado');
 }
 
-// --- CARREGAR ELEIÇÕES ---
+// ⭐⭐ MODIFICADA: Carregar apenas eleições do usuário logado
 async function carregarEleicoes() {
   try {
+    if (!usuarioLogado) {
+      console.error('❌ Usuário não identificado');
+      return;
+    }
+
     const res = await dbEleicoes.allDocs({ include_docs: true });
     const cont = document.getElementById('eleicoes-list');
 
-    if (res.rows.length === 0) {
+    // ⭐⭐ FILTRAR apenas eleições do usuário logado
+    const eleicoesDoUsuario = res.rows.filter(row => 
+      row.doc.ownerId === usuarioLogado.email || row.doc.ownerEmail === usuarioLogado.email
+    );
+
+    console.log(`📊 Eleições encontradas: ${res.rows.length}, Do usuário: ${eleicoesDoUsuario.length}`);
+
+    if (eleicoesDoUsuario.length === 0) {
       cont.innerHTML = `
         <div class="empty-state">
           <h3>Nenhuma eleição cadastrada</h3>
           <p>Clique em "Nova Eleição" para criar sua primeira eleição</p>
+          <p style="margin-top: 10px; font-size: 0.8rem; color: #666;">
+            Usuário: ${usuarioLogado.email}
+          </p>
         </div>
       `;
       return;
     }
 
-    cont.innerHTML = res.rows.map(r => {
+    cont.innerHTML = eleicoesDoUsuario.map(r => {
       const eleicao = r.doc;
       const status = eleicao.status === 'ativa' ? 'status-ativa' : 'status-inativa';
       const statusText = eleicao.status === 'ativa' ? 'Ativa' : 'Inativa';
@@ -589,8 +659,14 @@ function fecharTelaConfirmacao() {
   electionData = null;
 }
 
-// --- CONFIRMAR ELEIÇÃO ---
+// ⭐⭐ MODIFICADA: Vincular eleição ao usuário logado
 async function confirmarEleicao() {
+  if (!usuarioLogado) {
+    alert('Erro: Usuário não identificado. Faça login novamente.');
+    window.location.href = 'login.html';
+    return;
+  }
+
   document.getElementById("processando").style.display = "flex";
 
   try {
@@ -601,7 +677,7 @@ async function confirmarEleicao() {
     // Criar ID único
     const electionId = `election_${Date.now()}`;
     
-    // Criar documento da eleição
+    // ⭐⭐ CRIAR documento da eleição VINCULADO ao usuário
     const election = {
       _id: electionId,
       name: electionData.name,
@@ -612,13 +688,18 @@ async function confirmarEleicao() {
       screenshot_hash: hashPrint,
       status: 'ativa',
       createdAt: new Date().toISOString(),
-      candidateCount: 0
+      candidateCount: 0,
+      // ⭐⭐ CAMPOS NOVOS: Vincular ao usuário
+      ownerId: usuarioLogado.email, // ID único do usuário
+      ownerEmail: usuarioLogado.email,
+      ownerName: usuarioLogado.name,
+      ownerProvider: usuarioLogado.provider
     };
     
     // Salvar no banco de dados
     await dbEleicoes.put(election);
     
-    console.log("💾 Eleição criada:", election);
+    console.log("💾 Eleição criada para usuário:", usuarioLogado.email, election);
 
     document.getElementById("processando").style.display = "none";
     
@@ -666,9 +747,20 @@ async function capturarPrint() {
   return canvas.toDataURL("image/png");
 }
 
-// --- INICIALIZAÇÃO ---
-document.addEventListener("DOMContentLoaded", () => {
-  carregarEleicoes();
+// ⭐⭐ MODIFICADA: Inicialização com identificação do usuário
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log('🚀 Iniciando Painel de Autoridade...');
+  
+  // Identificar usuário logado
+  usuarioLogado = await identificarUsuarioLogado();
+  
+  if (usuarioLogado) {
+    console.log('✅ Usuário identificado:', usuarioLogado.email);
+    atualizarInfoUsuario(usuarioLogado);
+    carregarEleicoes();
+  } else {
+    console.error('❌ Não foi possível identificar o usuário');
+  }
 });
 </script>
 </body>
