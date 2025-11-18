@@ -26,6 +26,51 @@
       padding-bottom: 20px;
     }
     
+    /* Botões do Header */
+    .botoes-header {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-header {
+      background: rgba(212,175,55,0.2);
+      border: 1px solid #d4af37;
+      color: #d4af37;
+      padding: 10px 20px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-header:hover {
+      background: rgba(212,175,55,0.4);
+    }
+    
+    .btn-compartilhar-header {
+      background: linear-gradient(135deg, #d4af37, #f7ef8a);
+      border: none;
+      color: #050703;
+      padding: 10px 20px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 0.9rem;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-compartilhar-header:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+    
     /* Quadrado Principal */
     .quadrado-principal {
       background: #1a1a1a;
@@ -280,6 +325,17 @@
       padding: 30px;
       margin-top: 20px;
     }
+
+    /* Status de Compartilhamento */
+    .status-compartilhamento {
+      margin-top: 15px;
+      padding: 12px;
+      background: rgba(86, 171, 47, 0.1);
+      border: 1px solid #56ab2f;
+      border-radius: 10px;
+      color: #56ab2f;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -294,8 +350,20 @@
   <header>
     <h1>🔐 Autorizar Votos</h1>
     <p id="info-eleicao">Carregando informações da eleição...</p>
-    <button onclick="abrirConfigAPI()" class="btn-confirmar" style="margin-top: 10px;">⚙️ Configurar API</button>
+    
+    <!-- BOTÕES DO HEADER - APENAS ADICIONEI O BOTÃO DE COMPARTILHAR AQUI -->
+    <div class="botoes-header">
+      <button onclick="abrirConfigAPI()" class="btn-header">
+        ⚙️ Configurar API
+      </button>
+      
+      <button onclick="compartilharLink()" class="btn-compartilhar-header">
+        📤 Compartilhar Link
+      </button>
+    </div>
+    
     <div id="api-status" class="api-status nao-configurada">⚠️ API: Não Configurada</div>
+    <div id="status-compartilhamento" class="status-compartilhamento"></div>
   </header>
 
   <!-- Modal Config API -->
@@ -569,7 +637,136 @@ async function chamarAPICliente(endpoint, dados) {
   });
 }
 
-// ========== FUNÇÕES PRINCIPAIS ==========
+// ========== BOTÃO DE COMPARTILHAR LINK (NOVO) ==========
+
+async function compartilharLink() {
+  const statusElement = document.getElementById('status-compartilhamento');
+  
+  // Texto para compartilhar
+  const textoCompartilhar = `✅ AUTORIZAÇÃO DE VOTO - TERRA DOURADA
+
+Sistema seguro de autorização de votos.
+Acesse o link abaixo para autorizar votos:
+
+🔗 ${window.location.href}
+
+Eleição: ${eleicaoAtual ? eleicaoAtual.name : 'Sistema de Votação'}
+Data: ${new Date().toLocaleDateString('pt-BR')}
+
+Sistema Terra Dourada - Votação Segura e Transparente`;
+
+  // Verifica se a Web Share API está disponível (mobile)
+  if (navigator.share) {
+    try {
+      statusElement.textContent = '📤 Abrindo opções de compartilhamento...';
+      statusElement.style.display = 'block';
+      
+      await navigator.share({
+        title: '✅ Autorização de Voto - Terra Dourada',
+        text: textoCompartilhar,
+        url: window.location.href,
+      });
+      
+      statusElement.textContent = '✅ Link compartilhado com sucesso!';
+      setTimeout(() => {
+        statusElement.style.display = 'none';
+      }, 3000);
+      
+    } catch (error) {
+      console.log('❌ Compartilhamento cancelado:', error);
+      statusElement.textContent = 'ℹ️ Compartilhamento cancelado';
+      setTimeout(() => {
+        statusElement.style.display = 'none';
+      }, 2000);
+    }
+  } 
+  // Fallback para desktop ou navegadores sem Web Share API
+  else {
+    mostrarOpcoesCompartilhamentoFallback(textoCompartilhar, window.location.href);
+  }
+}
+
+function mostrarOpcoesCompartilhamentoFallback(texto, url) {
+  const statusElement = document.getElementById('status-compartilhamento');
+  
+  // Cria um menu de opções de compartilhamento
+  const opcoes = `
+    <div style="text-align: center; margin: 15px 0;">
+      <p style="color: #d4af37; margin-bottom: 15px;"><strong>Compartilhar link via:</strong></p>
+      
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+        <button onclick="compartilharWhatsApp('${texto.replace(/'/g, "\\'")}')" 
+                style="background: #25D366; color: white; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+          📱 WhatsApp
+        </button>
+        
+        <button onclick="compartilharEmail('${texto.replace(/'/g, "\\'")}')" 
+                style="background: #EA4335; color: white; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+          📧 Gmail
+        </button>
+        
+        <button onclick="compartilharTelegram('${texto.replace(/'/g, "\\'")}')" 
+                style="background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+          ✈️ Telegram
+        </button>
+        
+        <button onclick="copiarLink('${url.replace(/'/g, "\\'")}')" 
+                style="background: #d4af37; color: #050703; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+          📋 Copiar Link
+        </button>
+      </div>
+    </div>
+  `;
+  
+  statusElement.innerHTML = opcoes;
+  statusElement.style.display = 'block';
+}
+
+// Funções de fallback para compartilhamento
+function compartilharWhatsApp(texto) {
+  const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+  window.open(url, '_blank');
+  document.getElementById('status-compartilhamento').style.display = 'none';
+}
+
+function compartilharEmail(texto) {
+  const assunto = '✅ Autorização de Voto - Terra Dourada';
+  const url = `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
+  window.location.href = url;
+  document.getElementById('status-compartilhamento').style.display = 'none';
+}
+
+function compartilharTelegram(texto) {
+  const url = `https://t.me/share/url?text=${encodeURIComponent(texto)}`;
+  window.open(url, '_blank');
+  document.getElementById('status-compartilhamento').style.display = 'none';
+}
+
+function copiarLink(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    const statusElement = document.getElementById('status-compartilhamento');
+    statusElement.innerHTML = '<div style="color: #56ab2f; text-align: center;">✅ Link copiado para a área de transferência!</div>';
+    setTimeout(() => {
+      statusElement.style.display = 'none';
+    }, 2000);
+  }).catch(() => {
+    // Fallback para navegadores antigos
+    const textArea = document.createElement('textarea');
+    textArea.value = url;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    const statusElement = document.getElementById('status-compartilhamento');
+    statusElement.innerHTML = '<div style="color: #56ab2f; text-align: center;">✅ Link copiado para a área de transferência!</div>';
+    setTimeout(() => {
+      statusElement.style.display = 'none';
+    }, 2000);
+  });
+}
+
+// ========== FUNÇÕES PRINCIPAIS (TODAS ORIGINAIS) ==========
 
 async function carregarInfoEleicao() {
   try {
@@ -1124,7 +1321,7 @@ function prosseguirParaProximaEtapa() {
   if (eleicaoAtual && eleicaoAtual.tipo === 'presencial') {
     document.getElementById('segunda-autorizacao').style.display = 'block';
   } else {
-    document.getElementById('botao-autorizar').style.display = 'block';
+    document.getElementById('botao-autorizacao').style.display = 'block';
   }
 }
 
@@ -1137,7 +1334,7 @@ function validarSegundaAutorizacao() {
   }
   
   segundaAutorizacaoAprovada = true;
-  document.getElementById('botao-autorizar').style.display = 'block';
+  document.getElementById('botao-autorizacao').style.display = 'block';
   document.getElementById('segunda-autorizacao').style.background = 'rgba(86, 171, 47, 0.1)';
   document.getElementById('segunda-autorizacao').style.borderColor = '#56ab2f';
 }
@@ -1174,7 +1371,7 @@ function autorizarVoto() {
   }
   
   document.getElementById('resultado-autorizacao').style.display = 'block';
-  document.getElementById('botao-autorizar').style.display = 'none';
+  document.getElementById('botao-autorizacao').style.display = 'none';
 }
 
 function irParaVotacao() {
