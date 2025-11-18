@@ -330,6 +330,14 @@ async function carregarDadosVoto() {
   const dbCandidatos = new PouchDB('terra_dourada_candidatos');
   
   try {
+    // DEBUG: Mostra todos os candidatos do banco
+    const todosCandidatos = await dbCandidatos.allDocs({ include_docs: true });
+    debugInfo("====== TODOS OS CANDIDATOS NO BANCO ======");
+    todosCandidatos.rows.forEach(candidato => {
+      debugInfo(`📋 ${candidato.doc._id}: ${candidato.doc.nome} - Foto: ${candidato.doc.foto || 'NÃO'}`);
+    });
+    debugInfo("===========================================");
+
     // 1. PRIMEIRO: Tenta pegar do localStorage (mais rápido)
     const candidatoIdLocal = localStorage.getItem("voto_candidato");
     const cidPinataLocal = localStorage.getItem("voto_cid");
@@ -404,7 +412,7 @@ async function carregarDadosVoto() {
 }
 
 // ==============================
-// CARREGAR CANDIDATO POR ID - CORRIGIDO
+// CARREGAR CANDIDATO POR ID - BUSCANDO FOTO DO CADASTRO
 // ==============================
 async function carregarCandidatoPorId(candidatoId, usouBackend, cidPinata, dadosVoto = null) {
   debugInfo("👤 Buscando candidato ID: " + candidatoId);
@@ -416,27 +424,32 @@ async function carregarCandidatoPorId(candidatoId, usouBackend, cidPinata, dados
     const candidatosResult = await dbCandidatos.allDocs({ include_docs: true });
     debugInfo("📋 Total de candidatos no DB: " + candidatosResult.rows.length);
     
+    // ⭐⭐ CORREÇÃO: Mostra todos os candidatos para debug
+    candidatosResult.rows.forEach(row => {
+      debugInfo("📝 Candidato no DB: " + row.doc._id + " - " + row.doc.nome + " - Foto: " + (row.doc.foto ? "SIM" : "NÃO"));
+    });
+    
     // Procura o candidato pelo ID
     const candidatoEncontrado = candidatosResult.rows.find(row => row.doc._id === candidatoId);
     
     if (candidatoEncontrado) {
       const candidato = candidatoEncontrado.doc;
       debugInfo("🎯 Candidato encontrado: " + candidato.nome);
-      debugInfo("🎯 Foto do candidato: " + (candidato.foto ? candidato.foto : "NÃO"));
+      debugInfo("🎯 Foto do candidato: " + (candidato.foto ? candidato.foto : "NÃO TEM FOTO"));
       
-      // ⭐⭐ CORREÇÃO: Chama a função correta
+      // ⭐⭐ CORREÇÃO: Passa o candidato COMPLETO (com foto) para a interface
       atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVoto);
     } else {
       debugInfo("❌ Candidato não encontrado no DB, usando fallback");
       
       // Fallback: usa dados do voto se disponível
       const candidatoFallback = {
+        _id: candidatoId,
         nome: dadosVoto?.candidato_nome || "Candidato Escolhido",
-        foto: null,
+        foto: null, // ⭐⭐ Não tem foto no fallback
         partido: dadosVoto?.candidato_partido || ""
       };
       
-      // ⭐⭐ CORREÇÃO: Chama a função correta
       atualizarInterfaceCandidato(candidatoFallback, usouBackend, cidPinata, dadosVoto);
     }
   } catch (error) {
@@ -444,17 +457,17 @@ async function carregarCandidatoPorId(candidatoId, usouBackend, cidPinata, dados
     
     // Fallback de emergência
     const candidatoFallback = {
+      _id: candidatoId,
       nome: "Seu Candidato",
       foto: null
     };
     
-    // ⭐⭐ CORREÇÃO: Chama a função correta
     atualizarInterfaceCandidato(candidatoFallback, usouBackend, cidPinata, dadosVoto);
   }
 }
 
 // ==============================
-// ATUALIZAR INTERFACE - CORREÇÃO COMPLETA
+// ATUALIZAR INTERFACE - CARREGANDO FOTO DO CANDIDATO
 // ==============================
 function atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVoto) {
   const fotoContainer = document.getElementById("fotoContainer");
@@ -462,66 +475,46 @@ function atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVot
   const statusElement = document.getElementById("statusVoto");
 
   debugInfo("🎨 Atualizando interface: " + candidato.nome);
+  debugInfo("🖼️ Foto disponível: " + (candidato.foto ? candidato.foto : "NÃO"));
 
   // Atualiza nome
   nomeElement.textContent = candidato.nome;
 
-  // ⭐⭐ CORREÇÃO COMPLETA: Carregamento de foto
+  // ⭐⭐ CORREÇÃO: Carrega a foto do candidato se existir
   if (candidato.foto) {
-    debugInfo("🖼️ Tentando carregar foto: " + candidato.foto);
+    debugInfo("📸 Tentando carregar foto do candidato...");
     
-    // Cria a imagem
     const img = new Image();
     img.className = "foto-candidato";
     img.alt = candidato.nome;
     
-    // Adiciona timestamp para evitar cache
-    const fotoUrl = candidato.foto + (candidato.foto.includes('?') ? '&' : '?') + 't=' + Date.now();
-    img.src = fotoUrl;
+    // Usa a foto original do cadastro do candidato
+    img.src = candidato.foto;
     
-    debugInfo("📸 URL da foto: " + fotoUrl);
-    
-    // Quando carregar com sucesso
     img.onload = function() {
-      debugInfo("✅ Foto carregada com sucesso!");
+      debugInfo("✅ Foto do candidato carregada com sucesso!");
       fotoContainer.innerHTML = '';
       fotoContainer.appendChild(img);
     };
     
-    // Se der erro
     img.onerror = function() {
-      debugInfo("❌ Erro ao carregar foto, tentando fallback...");
-      
-      // Tenta sem timestamp
-      const imgFallback = new Image();
-      imgFallback.className = "foto-candidato";
-      imgFallback.alt = candidato.nome;
-      imgFallback.src = candidato.foto;
-      
-      imgFallback.onload = function() {
-        debugInfo("✅ Foto carregada no fallback!");
-        fotoContainer.innerHTML = '';
-        fotoContainer.appendChild(imgFallback);
-      };
-      
-      imgFallback.onerror = function() {
-        debugInfo("❌ Fallback também falhou, usando ícone");
+      debugInfo("❌ Erro ao carregar foto do candidato, usando ícone");
+      // Se a foto não carregar, usa ícone baseado no tipo de voto
+      if (candidato._id === "branco" || candidato.nome.includes("BRANCO")) {
+        fotoContainer.innerHTML = '<div class="foto-vazia">⚪</div>';
+      } else {
         fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
-      };
-      
-      fotoContainer.innerHTML = '';
-      fotoContainer.appendChild(imgFallback);
+      }
     };
     
-    // Coloca a imagem imediatamente (mostra loading)
+    // Coloca a imagem imediatamente
     fotoContainer.innerHTML = '';
     fotoContainer.appendChild(img);
     
   } else {
-    debugInfo("📷 Sem foto, usando ícone");
-    
-    // Se for voto em branco
-    if (candidato.nome === "VOTO EM BRANCO" || candidatoId === "branco") {
+    debugInfo("📷 Candidato não tem foto cadastrada");
+    // Candidato sem foto - usa ícone
+    if (candidato._id === "branco" || candidato.nome.includes("BRANCO")) {
       fotoContainer.innerHTML = '<div class="foto-vazia">⚪</div>';
     } else {
       fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
@@ -537,7 +530,6 @@ function atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVot
     statusElement.className = 'status offline';
   }
 
-  // Atualiza botão
   atualizarBotaoComprovante(usouBackend, cidPinata);
 }
 
