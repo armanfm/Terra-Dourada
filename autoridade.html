@@ -56,7 +56,7 @@
       background: rgba(212,175,55,0.1);
     }
     
-    /* NOVO BOTÃO P2P SOCIAL - VERDE */
+    /* BOTÃO P2P SOCIAL - VERDE */
     .tab-p2p {
       background: transparent;
       border: 1px solid #56ab2f;
@@ -72,6 +72,24 @@
     }
     .tab-p2p.active {
       background: rgba(86, 171, 47, 0.2);
+    }
+
+    /* BOTÃO EDITAR PERFIL - AZUL */
+    .tab-perfil {
+      background: transparent;
+      border: 1px solid #2d8cf0;
+      color: #2d8cf0;
+      padding: 12px 25px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: .3s;
+      font-size: 1rem;
+    }
+    .tab-perfil:hover {
+      background: rgba(45, 140, 240, 0.1);
+    }
+    .tab-perfil.active {
+      background: rgba(45, 140, 240, 0.2);
     }
 
     /* Conteúdo principal */
@@ -153,7 +171,7 @@
       margin-bottom: 8px;
       color: #d4af37;
     }
-    input, textarea {
+    input, textarea, select {
       width: 100%; 
       padding: 12px;
       border-radius: 8px; 
@@ -167,6 +185,33 @@
       resize: vertical;
       min-height: 80px;
     }
+    
+    /* ESTILOS ESPECÍFICOS PARA PERFIL */
+    .input-with-gps {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .input-with-gps input {
+      flex: 1;
+    }
+    .gps-button {
+      background: #56ab2f;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 15px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      white-space: nowrap;
+    }
+    .gps-button:hover {
+      background: #478c25;
+    }
+    .gps-button i {
+      margin-right: 5px;
+    }
+    
     .photo-upload {
       display: flex;
       flex-direction: column;
@@ -174,9 +219,9 @@
       margin-bottom: 20px;
     }
     .photo-preview {
-      width: 200px;
+      width: 150px;
       height: 150px;
-      border-radius: 10px;
+      border-radius: 50%;
       border: 2px solid #d4af37;
       background-color: #1a1a1a;
       margin-bottom: 15px;
@@ -389,7 +434,9 @@
   <div class="tabs">
     <button class="tab active" onclick="showTab('eleicoes')">🗳️ Minhas Eleições</button>
     <button class="tab" onclick="showTab('cadastro')">➕ Nova Eleição</button>
-    <!-- NOVO BOTÃO P2P SOCIAL -->
+    <!-- BOTÃO EDITAR PERFIL -->
+    <button class="tab-perfil" onclick="showTab('perfil')">👤 Editar Perfil</button>
+    <!-- BOTÃO P2P SOCIAL -->
     <button class="tab-p2p" onclick="irParaRedeSocial()">🌐 P2P Social</button>
   </div>
 
@@ -423,7 +470,7 @@
           <input type="text" id="electionName" placeholder="Ex: Eleições Municipais 2024">
         </div>
 
-        <!-- NOVO CAMPO: Tipo da Eleição -->
+        <!-- Campo: Tipo da Eleição -->
         <div class="form-group">
           <label>Tipo da Eleição</label>
           <div class="tipo-eleicao">
@@ -456,6 +503,53 @@
       </div>
     </div>
 
+    <!-- NOVA ABA: EDITAR PERFIL -->
+    <div id="tab-perfil" style="display: none;">
+      <h2 style="text-align: center; color: #2d8cf0; margin-bottom: 30px;">👤 Editar Perfil</h2>
+      
+      <div class="form-container">
+        <!-- Foto de Perfil -->
+        <div class="photo-upload">
+          <div class="photo-preview" id="perfilPhotoPreview">
+            <i class="fas fa-user"></i>
+          </div>
+          <label for="perfilPhotoInput">
+            <i class="fas fa-camera"></i> Alterar Foto
+          </label>
+          <input type="file" id="perfilPhotoInput" accept="image/*">
+        </div>
+        
+        <div class="form-group">
+          <label for="perfilNome"><i class="fas fa-signature"></i> Nome Completo</label>
+          <input type="text" id="perfilNome" placeholder="Seu nome completo">
+        </div>
+        
+        <div class="form-group">
+          <label for="perfilEmail"><i class="fas fa-envelope"></i> Email</label>
+          <input type="email" id="perfilEmail" readonly style="background: #2a2a2a;">
+        </div>
+        
+        <div class="form-group">
+          <label for="perfilTelefone"><i class="fas fa-phone"></i> Telefone</label>
+          <input type="tel" id="perfilTelefone" placeholder="(00) 00000-0000">
+        </div>
+        
+        <div class="form-group">
+          <label for="perfilLocalizacao"><i class="fas fa-map-marker-alt"></i> Localização</label>
+          <div class="input-with-gps">
+            <input type="text" id="perfilLocalizacao" placeholder="Cidade, Estado">
+            <button type="button" class="gps-button" onclick="obterLocalizacaoGPS()">
+              <i class="fas fa-location-arrow"></i> GPS
+            </button>
+          </div>
+        </div>
+        
+        <button class="submit-btn" onclick="salvarPerfil()">
+          💾 SALVAR PERFIL
+        </button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -484,14 +578,16 @@
 // Banco de dados
 const dbEleicoes = new PouchDB('terra_dourada_eleicoes');
 const dbConfig = new PouchDB('terra_dourada_config');
+const dbPerfis = new PouchDB('terra_dourada_perfis'); // NOVO: Banco para perfis
 
 // Variáveis
 let photoBase64 = null;
+let perfilPhotoBase64 = null; // NOVO: Foto do perfil
 let electionData = null;
-let tipoEleicao = 'online'; // Padrão: online
-let usuarioLogado = null; // ⭐⭐ NOVA VARIÁVEL: usuário atual
+let tipoEleicao = 'online';
+let usuarioLogado = null;
 
-// ⭐⭐ FUNÇÃO NOVA: Ir para Rede Social P2P
+// FUNÇÃO: Ir para Rede Social P2P
 function irParaRedeSocial() {
   if (!usuarioLogado) {
     alert('Erro: Usuário não identificado. Faça login novamente.');
@@ -499,39 +595,34 @@ function irParaRedeSocial() {
     return;
   }
   
-  // Redirecionar para rede_social.html com o ID do usuário
   const userId = encodeURIComponent(usuarioLogado.email);
   window.location.href = `rede_social.html?user_id=${userId}`;
 }
 
-// ⭐⭐ FUNÇÃO NOVA: Identificar usuário logado
+// FUNÇÃO: Identificar usuário logado
 async function identificarUsuarioLogado() {
   try {
     console.log('🔍 Identificando usuário logado...');
     
-    // Primeiro tenta do localStorage (mais rápido)
     const usuarioData = JSON.parse(localStorage.getItem("usuario_data") || '{}');
     if (usuarioData.email) {
       console.log('✅ Usuário do localStorage:', usuarioData.email);
       return usuarioData;
     }
     
-    // Se não tiver no localStorage, tenta do PouchDB
     const conta = await dbConfig.get('dono_da_sala');
     console.log('✅ Usuário do PouchDB:', conta.email);
     return conta;
     
   } catch (error) {
     console.error('❌ Erro ao identificar usuário:', error);
-    
-    // Se não conseguir identificar, redireciona para login
     alert('Sessão expirada. Faça login novamente.');
     window.location.href = 'login.html';
     return null;
   }
 }
 
-// ⭐⭐ FUNÇÃO NOVA: Atualizar info do usuário na tela
+// FUNÇÃO: Atualizar info do usuário na tela
 function atualizarInfoUsuario(usuario) {
   const userInfo = document.getElementById('userInfo');
   if (usuario && userInfo) {
@@ -544,6 +635,7 @@ function showTab(tab) {
   // Atualizar abas
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-p2p').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-perfil').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('[id^="tab-"]').forEach(c => c.style.display = 'none');
 
   // Ativar aba atual
@@ -554,20 +646,24 @@ function showTab(tab) {
   if (tab === 'eleicoes') {
     carregarEleicoes();
   }
+  
+  // Carregar dados do perfil se for a aba de perfil
+  if (tab === 'perfil') {
+    carregarDadosPerfil();
+  }
 }
 
-// --- NOVA FUNÇÃO: Selecionar Tipo ---
+// FUNÇÃO: Selecionar Tipo
 function selecionarTipo(tipo, element) {
   tipoEleicao = tipo;
   
-  // Atualizar interface
   document.querySelectorAll('.tipo-option').forEach(opt => {
     opt.classList.remove('selecionado');
   });
   element.classList.add('selecionado');
 }
 
-// ⭐⭐ MODIFICADA: Carregar apenas eleições do usuário logado
+// FUNÇÃO: Carregar eleições do usuário
 async function carregarEleicoes() {
   try {
     if (!usuarioLogado) {
@@ -578,7 +674,6 @@ async function carregarEleicoes() {
     const res = await dbEleicoes.allDocs({ include_docs: true });
     const cont = document.getElementById('eleicoes-list');
 
-    // ⭐⭐ FILTRAR apenas eleições do usuário logado
     const eleicoesDoUsuario = res.rows.filter(row => 
       row.doc.ownerId === usuarioLogado.email || row.doc.ownerEmail === usuarioLogado.email
     );
@@ -625,12 +720,12 @@ async function carregarEleicoes() {
   }
 }
 
-// --- ABRIR PAINEL DA ELEIÇÃO ---
+// FUNÇÃO: Abrir painel da eleição
 function abrirPainelEleicao(eleicaoId) {
   window.location.href = `painel_eleicao.html?id=${eleicaoId}`;
 }
 
-// --- UPLOAD DE FOTO ---
+// --- UPLOAD DE FOTO ELEIÇÃO ---
 document.getElementById('photoInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (file) {
@@ -643,13 +738,159 @@ document.getElementById('photoInput').addEventListener('change', function(e) {
   }
 });
 
+// --- NOVO: UPLOAD DE FOTO PERFIL ---
+document.getElementById('perfilPhotoInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      perfilPhotoBase64 = event.target.result;
+      document.getElementById('perfilPhotoPreview').innerHTML = `<img src="${perfilPhotoBase64}" alt="Foto de perfil">`;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// --- NOVO: Obter localização por GPS ---
+function obterLocalizacaoGPS() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.address) {
+              const cidade = data.address.city || data.address.town || data.address.village;
+              const estado = data.address.state;
+              if (cidade && estado) {
+                document.getElementById('perfilLocalizacao').value = `${cidade}, ${estado}`;
+              } else {
+                document.getElementById('perfilLocalizacao').value = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+              }
+            }
+          })
+          .catch(error => {
+            console.error('Erro ao obter localização:', error);
+            document.getElementById('perfilLocalizacao').value = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+          });
+      },
+      function(error) {
+        alert('Erro ao obter localização: ' + error.message);
+      }
+    );
+  } else {
+    alert('Geolocalização não é suportada pelo seu navegador.');
+  }
+}
+
+// --- NOVO: Formatação automática do telefone ---
+document.getElementById('perfilTelefone').addEventListener('input', function(e) {
+  let value = e.target.value.replace(/\D/g, '');
+  
+  if (value.length <= 10) {
+    value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+  } else {
+    value = value.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+  }
+  
+  e.target.value = value;
+});
+
+// --- NOVO: Carregar dados do perfil ---
+async function carregarDadosPerfil() {
+  if (!usuarioLogado) return;
+  
+  try {
+    const perfilId = `perfil_${usuarioLogado.email}`;
+    
+    try {
+      const perfil = await dbPerfis.get(perfilId);
+      
+      // Preencher campos com dados salvos
+      document.getElementById('perfilNome').value = perfil.nome || '';
+      document.getElementById('perfilEmail').value = perfil.email || usuarioLogado.email;
+      document.getElementById('perfilTelefone').value = perfil.telefone || '';
+      document.getElementById('perfilLocalizacao').value = perfil.localizacao || '';
+      
+      if (perfil.foto) {
+        perfilPhotoBase64 = perfil.foto;
+        document.getElementById('perfilPhotoPreview').innerHTML = `<img src="${perfil.foto}" alt="Foto de perfil">`;
+      }
+      
+    } catch (error) {
+      // Perfil não existe ainda, usar dados básicos
+      if (error.name === 'not_found') {
+        document.getElementById('perfilEmail').value = usuarioLogado.email;
+        document.getElementById('perfilNome').value = usuarioLogado.name || '';
+      }
+    }
+    
+  } catch (error) {
+    console.error('Erro ao carregar perfil:', error);
+  }
+}
+
+// --- NOVO: Salvar perfil ---
+async function salvarPerfil() {
+  if (!usuarioLogado) {
+    alert('Erro: Usuário não identificado.');
+    return;
+  }
+
+  const nome = document.getElementById('perfilNome').value.trim();
+  const telefone = document.getElementById('perfilTelefone').value.trim();
+  const localizacao = document.getElementById('perfilLocalizacao').value.trim();
+
+  // Validação
+  if (!nome) {
+    alert('Por favor, preencha seu nome completo.');
+    return;
+  }
+
+  if (!telefone) {
+    alert('Por favor, preencha seu telefone.');
+    return;
+  }
+
+  try {
+    const perfilId = `perfil_${usuarioLogado.email}`;
+    
+    // Preparar dados do perfil
+    const perfil = {
+      _id: perfilId,
+      nome: nome,
+      email: usuarioLogado.email,
+      telefone: telefone,
+      localizacao: localizacao,
+      foto: perfilPhotoBase64,
+      atualizadoEm: new Date().toISOString(),
+      provider: usuarioLogado.provider
+    };
+
+    // Salvar no banco de dados
+    await dbPerfis.put(perfil);
+    
+    console.log('💾 Perfil salvo:', perfil);
+    alert('✅ Perfil salvo com sucesso!');
+    
+    // Atualizar info do usuário
+    atualizarInfoUsuario({...usuarioLogado, name: nome});
+    
+  } catch (error) {
+    console.error('Erro ao salvar perfil:', error);
+    alert('Erro ao salvar perfil. Tente novamente.');
+  }
+}
+
 // --- CRIAR ELEIÇÃO ---
 function criarEleicao() {
   const name = document.getElementById('electionName').value.trim();
   const position = document.getElementById('position').value.trim();
   const description = document.getElementById('description').value.trim();
   
-  // Validação
   if (!name || !position) {
     alert('Por favor, preencha pelo menos o nome e os cargos da eleição.');
     return;
@@ -660,7 +901,6 @@ function criarEleicao() {
     return;
   }
   
-  // Preparar dados
   electionData = {
     name: name,
     tipo: tipoEleicao,
@@ -669,7 +909,6 @@ function criarEleicao() {
     photo: photoBase64
   };
   
-  // Abrir tela de confirmação
   abrirTelaConfirmacao(electionData);
 }
 
@@ -693,7 +932,7 @@ function fecharTelaConfirmacao() {
   electionData = null;
 }
 
-// ⭐⭐ MODIFICADA: Vincular eleição ao usuário logado
+// FUNÇÃO: Confirmar eleição
 async function confirmarEleicao() {
   if (!usuarioLogado) {
     alert('Erro: Usuário não identificado. Faça login novamente.');
@@ -704,14 +943,11 @@ async function confirmarEleicao() {
   document.getElementById("processando").style.display = "flex";
 
   try {
-    // Capturar screenshot da confirmação
     const printBase64 = await capturarPrint();
     const hashPrint = await sha256Base64(printBase64);
     
-    // Criar ID único
     const electionId = `election_${Date.now()}`;
     
-    // ⭐⭐ CRIAR documento da eleição VINCULADO ao usuário
     const election = {
       _id: electionId,
       name: electionData.name,
@@ -723,14 +959,12 @@ async function confirmarEleicao() {
       status: 'ativa',
       createdAt: new Date().toISOString(),
       candidateCount: 0,
-      // ⭐⭐ CAMPOS NOVOS: Vincular ao usuário
-      ownerId: usuarioLogado.email, // ID único do usuário
+      ownerId: usuarioLogado.email,
       ownerEmail: usuarioLogado.email,
       ownerName: usuarioLogado.name,
       ownerProvider: usuarioLogado.provider
     };
     
-    // Salvar no banco de dados
     await dbEleicoes.put(election);
     
     console.log("💾 Eleição criada para usuário:", usuarioLogado.email, election);
@@ -756,7 +990,6 @@ async function confirmarEleicao() {
     // Voltar para a aba de eleições e recarregar
     showTab('eleicoes');
     
-    // Mostrar mensagem de sucesso
     alert('🎉 Eleição criada com sucesso!');
     
   } catch (error) {
@@ -781,11 +1014,10 @@ async function capturarPrint() {
   return canvas.toDataURL("image/png");
 }
 
-// ⭐⭐ MODIFICADA: Inicialização com identificação do usuário
+// INICIALIZAÇÃO
 document.addEventListener("DOMContentLoaded", async () => {
   console.log('🚀 Iniciando Painel de Autoridade...');
   
-  // Identificar usuário logado
   usuarioLogado = await identificarUsuarioLogado();
   
   if (usuarioLogado) {
