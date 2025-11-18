@@ -375,6 +375,9 @@ const cid = localStorage.getItem("user_cid") || ("cid_" + Math.random().toString
 let candidatoSelecionado = null;
 let numeroDigitado = '';
 
+// ✅ TRAVA EXTRA NO localStorage
+const VOTO_REALIZADO_KEY = `voto_realizado_${cid}`;
+
 function debug(msg) {
   const box = document.getElementById("debugBox");
   box.style.display = "block";
@@ -382,20 +385,26 @@ function debug(msg) {
 }
 
 // ==============================
-// CARREGAR CANDIDATOS DO BANCO
+// CARREGAR CANDIDATOS DO BANCO - VERSÃO CORRIGIDA
 // ==============================
 async function carregarCandidatos() {
   try {
     debug("📥 Carregando candidatos do banco...");
     
+    // ✅ OBTER ID DA ELEIÇÃO ATUAL DA URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const ELEICAO_ATUAL_ID = urlParams.get('eleicao') || 'eleicao_geral';
+    
+    debug(`🗳️ Buscando candidatos da eleição: ${ELEICAO_ATUAL_ID}`);
+    
     const resultado = await dbCandidatos.allDocs({ include_docs: true });
     
-    // Filtrar apenas candidatos ativos
+    // ✅ FILTRAR CANDIDATOS APENAS DA ELEIÇÃO ATUAL
     todosCandidatos = resultado.rows
-      .filter(row => row.doc.ativo !== false)
+      .filter(row => row.doc.ativo !== false && row.doc.eleicao_id === ELEICAO_ATUAL_ID)
       .map(row => row.doc);
     
-    debug(`✅ ${todosCandidatos.length} candidatos carregados`);
+    debug(`✅ ${todosCandidatos.length} candidatos carregados da eleição ${ELEICAO_ATUAL_ID}`);
     
     atualizarInterfaceCandidatos();
     atualizarContadores();
@@ -411,7 +420,8 @@ async function carregarCandidatos() {
         partido: "PSDB",
         numero: "45",
         foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-        ativo: true
+        ativo: true,
+        eleicao_id: "eleicao_geral"
       },
       {
         _id: "candidato_2", 
@@ -419,15 +429,8 @@ async function carregarCandidatos() {
         partido: "PT",
         numero: "13",
         foto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
-        ativo: true
-      },
-      {
-        _id: "candidato_3", 
-        nome: "Maria Oliveira",
-        partido: "PDT",
-        numero: "12",
-        foto: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop",
-        ativo: true
+        ativo: true,
+        eleicao_id: "eleicao_geral"
       }
     ];
     
@@ -545,8 +548,10 @@ function atualizarContadores() {
 // Funções para a tela de confirmação
 // ==============================
 function abrirTelaConfirmacao(candidatoId, nome, imagem) {
-  if (voted) {
-    alert("Você já votou!");
+  // ✅ VERIFICAR TRAVA ANTES DE ABRIR CONFIRMAÇÃO
+  if (voted || localStorage.getItem(VOTO_REALIZADO_KEY)) {
+    alert("Você já votou nesta sessão!");
+    window.location.href = "obrigado.html";
     return;
   }
   
@@ -559,6 +564,11 @@ function abrirTelaConfirmacao(candidatoId, nome, imagem) {
   
   // Configurar o botão de confirmação
   const confirmButton = document.getElementById('confirmVoteButton');
+  confirmButton.disabled = false;
+  confirmButton.textContent = "Sim, confirmar voto";
+  confirmButton.style.opacity = "1";
+  confirmButton.style.cursor = "pointer";
+  
   confirmButton.onclick = function() {
     confirmarVoto(candidatoSelecionado);
   };
@@ -593,10 +603,27 @@ async function capturarPrint() {
 }
 
 // ==============================
-// CONFIRMAR VOTO (FINAL)
+// CONFIRMAR VOTO (FINAL) - VERSÃO COM TRAVA
 // ==============================
 async function confirmarVoto(candidatoId) {
-  if (voted) return alert("Você já votou!");
+  // ✅ TRAVA CRÍTICA: Impede múltiplos votos
+  if (voted || localStorage.getItem(VOTO_REALIZADO_KEY)) {
+    debug("❌ Tentativa de voto duplicado bloqueada!");
+    alert("Você já votou nesta sessão!");
+    window.location.href = "obrigado.html";
+    return;
+  }
+  
+  // ✅ TRAVA IMEDIATA - marca como já votou ANTES de processar
+  voted = true;
+  localStorage.setItem(VOTO_REALIZADO_KEY, "true");
+  
+  // ✅ DESABILITA BOTÃO DE CONFIRMAÇÃO IMEDIATAMENTE
+  const confirmButton = document.getElementById('confirmVoteButton');
+  confirmButton.disabled = true;
+  confirmButton.textContent = "Processando...";
+  confirmButton.style.opacity = "0.6";
+  confirmButton.style.cursor = "not-allowed";
 
   document.getElementById("processando").style.display = "flex";
   document.getElementById("somFIM").play();
@@ -608,30 +635,51 @@ async function confirmarVoto(candidatoId) {
     candidato = todosCandidatos.find(c => c._id === candidatoId);
     if (!candidato) {
       alert("Candidato não encontrado!");
+      // ✅ LIBERA A TRAVA SE HOUVE ERRO
+      voted = false;
+      localStorage.removeItem(VOTO_REALIZADO_KEY);
+      confirmButton.disabled = false;
+      confirmButton.textContent = "Sim, confirmar voto";
+      confirmButton.style.opacity = "1";
+      confirmButton.style.cursor = "pointer";
+      document.getElementById("processando").style.display = "none";
       return;
     }
   }
 
-  // ✅ SEMPRE CAPTURA SCREENSHOT
-  const printBase64 = await capturarPrint();
-  const hashPrint = await sha256Base64(printBase64);
-  debug("📸 Screenshot capturada. Hash: " + hashPrint);
+  // ✅ OBTER ID DA ELEIÇÃO ATUAL DA URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const ELEICAO_ATUAL_ID = urlParams.get('eleicao') || 'eleicao_geral';
+  
+  debug(`🗳️ Eleição ID: ${ELEICAO_ATUAL_ID}`);
 
-  // Payload FINAL
-  const payload = {
-    nome_produtor: cid,
-    candidato_id: candidatoId,
-    candidato_nome: candidato ? candidato.nome : 'VOTO EM BRANCO',
-    candidato_partido: candidato ? candidato.partido : 'BRANCO',
-    candidato_numero: candidato ? candidato.numero : '000',
-    screenshot_hash: hashPrint,
-    tipo: "voto_presidencial",
-    timestamp: new Date().toISOString()
-  };
-
-  debug("📤 Enviando JSON:\n" + JSON.stringify(payload, null, 2));
-
+  let hashPrint = '';
+  
   try {
+    // ✅ SEMPRE CAPTURA SCREENSHOT (com timeout de segurança)
+    const printBase64 = await Promise.race([
+      capturarPrint(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout captura screenshot")), 5000))
+    ]);
+    
+    hashPrint = await sha256Base64(printBase64);
+    debug("📸 Screenshot capturada. Hash: " + hashPrint);
+
+    // Payload FINAL - ✅ AGORA COM eleicao_id
+    const payload = {
+      nome_produtor: cid,
+      candidato_id: candidatoId,
+      candidato_nome: candidato ? candidato.nome : 'VOTO EM BRANCO',
+      candidato_partido: candidato ? candidato.partido : 'BRANCO',
+      candidato_numero: candidato ? candidato.numero : '000',
+      eleicao_id: ELEICAO_ATUAL_ID, // ✅ CRÍTICO: ID da eleição
+      screenshot_hash: hashPrint,
+      tipo: "voto_presidencial",
+      timestamp: new Date().toISOString()
+    };
+
+    debug("📤 Enviando JSON:\n" + JSON.stringify(payload, null, 2));
+
     const res = await fetch("http://127.0.0.1:8085/enviar_voto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -643,12 +691,13 @@ async function confirmarVoto(candidatoId) {
 
     const cidPinata = data.IpfsHash;
 
-    // ✅ SALVA NOS DOIS BANCOS (COM HASH)
+    // ✅ SALVA NOS DOIS BANCOS (COM HASH E eleicao_id)
     await db.put({
       _id: cid + "_" + Date.now(),
       eleitor: cid,
       candidato_id: candidatoId,
       candidato_nome: candidato ? candidato.nome : 'VOTO EM BRANCO',
+      eleicao_id: ELEICAO_ATUAL_ID, // ✅ CRÍTICO: ID da eleição
       cid_pinata: cidPinata,
       screenshot_hash: hashPrint,
       resposta_backend: data,
@@ -660,24 +709,30 @@ async function confirmarVoto(candidatoId) {
       eleitor: cid,
       candidato_id: candidatoId,
       candidato_nome: candidato ? candidato.nome : 'VOTO EM BRANCO',
+      eleicao_id: ELEICAO_ATUAL_ID, // ✅ CRÍTICO: ID da eleição
       cid_pinata: cidPinata,
       screenshot_hash: hashPrint,
       resposta_backend: data,
       timestamp: new Date().toISOString()
     });
 
-    voted = true;
-    setTimeout(() => window.location.href = "obrigado.html", 1200);
+    debug("✅ Voto registrado com sucesso!");
+    
+    // ✅ REDIRECIONA APÓS VOTO CONFIRMADO
+    setTimeout(() => {
+      window.location.href = "obrigado.html";
+    }, 1200);
 
   } catch (err) {
     debug("❌ Erro no envio: " + err.message);
 
-    // ✅ SALVA OFFLINE NOS DOIS BANCOS COM HASH
+    // ✅ SALVA OFFLINE NOS DOIS BANCOS COM HASH E eleicao_id
     const docOffline = {
       _id: cid + "_" + Date.now(),
       eleitor: cid,
       candidato_id: candidatoId,
       candidato_nome: candidato ? candidato.nome : 'VOTO EM BRANCO',
+      eleicao_id: ELEICAO_ATUAL_ID, // ✅ CRÍTICO: ID da eleição
       screenshot_hash: hashPrint,
       erro: "sem_conexao_backend",
       timestamp: new Date().toISOString()
@@ -686,10 +741,12 @@ async function confirmarVoto(candidatoId) {
     await db.put(docOffline);
     await db2.put(docOffline);
 
-    debug("💾 Voto offline salvo COM HASH nos dois bancos!");
-    voted = true;
-
-    setTimeout(() => window.location.href = "obrigado.html", 1200);
+    debug("💾 Voto offline salvo COM HASH E eleicao_id nos dois bancos!");
+    
+    // ✅ MESMO OFFLINE, REDIRECIONA E MANTÉM TRAVA
+    setTimeout(() => {
+      window.location.href = "obrigado.html";
+    }, 1200);
   }
 }
 
@@ -697,6 +754,13 @@ async function confirmarVoto(candidatoId) {
 // INICIALIZAÇÃO
 // ==============================
 document.addEventListener("DOMContentLoaded", function() {
+  // ✅ VERIFICAR SE JÁ VOTOU AO CARREGAR A PÁGINA
+  if (localStorage.getItem(VOTO_REALIZADO_KEY)) {
+    debug("⚠️ Usuário já votou nesta sessão - redirecionando...");
+    window.location.href = "obrigado.html";
+    return;
+  }
+  
   carregarCandidatos();
 });
 </script>
