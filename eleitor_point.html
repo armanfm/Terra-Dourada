@@ -323,9 +323,36 @@
       color: #56ab2f;
       display: none;
     }
+
+    .user-info {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(212,175,55,0.1);
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-size: 0.9rem;
+      color: #d4af37;
+    }
+
+    .access-denied {
+      text-align: center;
+      padding: 60px 20px;
+      color: #ff4444;
+    }
+    .access-denied h2 {
+      margin-bottom: 20px;
+    }
   </style>
 </head>
+
 <body>
+
+<!-- Informação do usuário logado -->
+<div class="user-info" id="userInfo">
+  <i class="fas fa-user"></i> Carregando...
+</div>
 
 <div id="loading" class="loading">
   <div class="loading-spinner"></div>
@@ -346,123 +373,138 @@
     <div id="status-compartilhamento" class="status-compartilhamento"></div>
   </header>
 
-  <div id="modal-config-api" class="modal">
-    <div class="modal-content">
-      <h3 style="color: #d4af37; margin-bottom: 20px;">⚙️ Configurar API do Cliente</h3>
-      
-      <div class="form-group">
-        <label>URL Base da API</label>
-        <input type="text" id="api-base-url">
-      </div>
-      
-      <div class="form-group">
-        <label>Token de Autenticação</label>
-        <input type="password" id="api-token">
-      </div>
-      
-      <h4 style="color: #d4af37; margin: 20px 0 10px 0;">Endpoints Personalizados</h4>
-      
-      <div class="form-group">
-        <label>Validação de Eleitor</label>
-        <input type="text" id="endpoint-validar">
-      </div>
-      
-      <div class="form-group">
-        <label>Validação por Código</label>
-        <input type="text" id="endpoint-codigo">
-      </div>
-      
-      <div class="form-group">
-        <label>Validação Biométrica</label>
-        <input type="text" id="endpoint-biometria">
-      </div>
-
-      <div class="form-group">
-        <label>Validação Facial</label>
-        <input type="text" id="endpoint-facial">
-      </div>
-      
-      <div style="display: flex; gap: 10px; margin-top: 20px;">
-        <button onclick="salvarConfigAPI()" class="btn-confirmar">💾 Salvar Configuração</button>
-        <button onclick="fecharConfigAPI()" class="btn-confirmar">❌ Fechar</button>
-        <button onclick="testarConexaoAPI()" class="btn-confirmar">🔍 Testar Conexão</button>
-      </div>
-    </div>
+  <!-- Tela de acesso negado -->
+  <div id="access-denied" class="access-denied" style="display: none;">
+    <h2>❌ ACESSO NEGADO</h2>
+    <p>Esta eleição pertence a outro usuário.</p>
+    <p>Você não tem permissão para autorizar votos nesta eleição.</p>
+    <button onclick="window.location.href = 'autoridade.html'" class="btn-confirmar">
+      🏠 Voltar ao Painel
+    </button>
   </div>
 
-  <div id="quadrado-principal" class="quadrado-principal">
-    <div class="icone-grande" id="icone-tipo"></div>
-    <h2 class="titulo-quadrado" id="titulo-tipo"></h2>
-    <p class="descricao-quadrado" id="descricao-tipo"></p>
-    
-    <div class="secao">
-      <h3>1️⃣ Escolher Método de Identificação</h3>
-      <div class="metodos-identificacao">
-        <div class="metodo-id" onclick="selecionarMetodoIdentificacao('identificacao-unica')">
-          <div class="icone">🆔</div>
-          <span>Identificação Única</span>
+  <!-- Conteúdo principal (só mostra se tiver acesso) -->
+  <div id="conteudo-principal" style="display: none;">
+    <div id="modal-config-api" class="modal">
+      <div class="modal-content">
+        <h3 style="color: #d4af37; margin-bottom: 20px;">⚙️ Configurar API do Cliente</h3>
+        
+        <div class="form-group">
+          <label>URL Base da API</label>
+          <input type="text" id="api-base-url">
         </div>
-        <div class="metodo-id" onclick="selecionarMetodoIdentificacao('codigo-barras')">
-          <div class="icone">📊</div>
-          <span>Código de Barras</span>
+        
+        <div class="form-group">
+          <label>Token de Autenticação</label>
+          <input type="password" id="api-token">
         </div>
-        <div class="metodo-id" onclick="selecionarMetodoIdentificacao('qr-code')">
-          <div class="icone">🔲</div>
-          <span>QR Code</span>
+        
+        <h4 style="color: #d4af37; margin: 20px 0 10px 0;">Endpoints Personalizados</h4>
+        
+        <div class="form-group">
+          <label>Validação de Eleitor</label>
+          <input type="text" id="endpoint-validar">
         </div>
-        <div class="metodo-id" onclick="selecionarMetodoIdentificacao('documento-foto')">
-          <div class="icone">📄</div>
-          <span>Foto do Documento</span>
+        
+        <div class="form-group">
+          <label>Validação por Código</label>
+          <input type="text" id="endpoint-codigo">
         </div>
-        <div class="metodo-id" onclick="selecionarMetodoIdentificacao('biometria')">
-          <div class="icone">👆</div>
-          <span>Biometria</span>
+        
+        <div class="form-group">
+          <label>Validação Biométrica</label>
+          <input type="text" id="endpoint-biometria">
         </div>
-        <div class="metodo-id" onclick="selecionarMetodoIdentificacao('reconhecimento-facial')">
-          <div class="icone">📷</div>
-          <span>Reconhecimento Facial</span>
+
+        <div class="form-group">
+          <label>Validação Facial</label>
+          <input type="text" id="endpoint-facial">
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button onclick="salvarConfigAPI()" class="btn-confirmar">💾 Salvar Configuração</button>
+          <button onclick="fecharConfigAPI()" class="btn-confirmar">❌ Fechar</button>
+          <button onclick="testarConexaoAPI()" class="btn-confirmar">🔍 Testar Conexão</button>
         </div>
       </div>
     </div>
 
-    <div id="form-identificacao" class="secao" style="display: none;">
-      <h3>2️⃣ Validar Identificação</h3>
-      <div id="formulario-identificacao"></div>
-    </div>
-
-    <div id="segunda-autorizacao">
-      <h3>🔒 Segunda Autorização (Presencial)</h3>
-      <p>Confirmação adicional requerida para voto presencial</p>
-      <div class="form-group">
-        <label for="confirmacao-mesario">Confirmação do Mesário</label>
-        <select id="confirmacao-mesario">
-          <option value=""></option>
-          <option value="documento_verificado">✅ Documento verificado</option>
-          <option value="identidade_confirmada">✅ Identidade confirmada</option>
-          <option value="eleitor_apto">✅ Eleitor apto para votar</option>
-        </select>
+    <div id="quadrado-principal" class="quadrado-principal">
+      <div class="icone-grande" id="icone-tipo"></div>
+      <h2 class="titulo-quadrado" id="titulo-tipo"></h2>
+      <p class="descricao-quadrado" id="descricao-tipo"></p>
+      
+      <div class="secao">
+        <h3>1️⃣ Escolher Método de Identificação</h3>
+        <div class="metodos-identificacao">
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('identificacao-unica')">
+            <div class="icone">🆔</div>
+            <span>Identificação Única</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('codigo-barras')">
+            <div class="icone">📊</div>
+            <span>Código de Barras</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('qr-code')">
+            <div class="icone">🔲</div>
+            <span>QR Code</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('documento-foto')">
+            <div class="icone">📄</div>
+            <span>Foto do Documento</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('biometria')">
+            <div class="icone">👆</div>
+            <span>Biometria</span>
+          </div>
+          <div class="metodo-id" onclick="selecionarMetodoIdentificacao('reconhecimento-facial')">
+            <div class="icone">📷</div>
+            <span>Reconhecimento Facial</span>
+          </div>
+        </div>
       </div>
-      <button onclick="validarSegundaAutorizacao()" class="btn-confirmar">✅ Confirmar Autorização</button>
-    </div>
 
-    <div id="botao-autorizar" style="display: none;">
-      <button onclick="autorizarVoto()" class="btn-confirmar">🎫 AUTORIZAR VOTO</button>
-    </div>
+      <div id="form-identificacao" class="secao" style="display: none;">
+        <h3>2️⃣ Validar Identificação</h3>
+        <div id="formulario-identificacao"></div>
+      </div>
 
-    <div id="resultado-autorizacao" style="display: none;">
-      <div class="resultado-container">
-        <h3>✅ Voto Autorizado!</h3>
-        <div class="codigo-identificador" id="codigo-autorizacao"></div>
-        <p id="mensagem-autorizacao"></p>
-        <button onclick="irParaVotacao()" class="btn-confirmar">🗳️ IR PARA VOTAÇÃO</button>
+      <div id="segunda-autorizacao">
+        <h3>🔒 Segunda Autorização (Presencial)</h3>
+        <p>Confirmação adicional requerida para voto presencial</p>
+        <div class="form-group">
+          <label for="confirmacao-mesario">Confirmação do Mesário</label>
+          <select id="confirmacao-mesario">
+            <option value=""></option>
+            <option value="documento_verificado">✅ Documento verificado</option>
+            <option value="identidade_confirmada">✅ Identidade confirmada</option>
+            <option value="eleitor_apto">✅ Eleitor apto para votar</option>
+          </select>
+        </div>
+        <button onclick="validarSegundaAutorizacao()" class="btn-confirmar">✅ Confirmar Autorização</button>
+      </div>
+
+      <div id="botao-autorizar" style="display: none;">
+        <button onclick="autorizarVoto()" class="btn-confirmar">🎫 AUTORIZAR VOTO</button>
+      </div>
+
+      <div id="resultado-autorizacao" style="display: none;">
+        <div class="resultado-container">
+          <h3>✅ Voto Autorizado!</h3>
+          <div class="codigo-identificador" id="codigo-autorizacao"></div>
+          <p id="mensagem-autorizacao"></p>
+          <button onclick="irParaVotacao()" class="btn-confirmar">🗳️ IR PARA VOTAÇÃO</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+// ⭐⭐ BANCOS DE DADOS
 const dbAutorizacoes = new PouchDB('terra_dourada_autorizacoes');
 const dbEleicoes = new PouchDB('terra_dourada_eleicoes');
+const dbConfig = new PouchDB('terra_dourada_config');
 
 let electionId = null;
 let eleicaoAtual = null;
@@ -472,6 +514,7 @@ let stream = null;
 let qrScannerActive = false;
 let barcodeScannerActive = false;
 let segundaAutorizacaoAprovada = false;
+let usuarioLogado = null;
 
 let API_CONFIG = {
   baseURL: '',
@@ -485,18 +528,102 @@ let API_CONFIG = {
   configurado: false
 };
 
+// ⭐⭐ FUNÇÃO NOVA: Identificar usuário logado
+async function identificarUsuarioLogado() {
+  try {
+    console.log('🔍 Identificando usuário logado...');
+    
+    // Do localStorage
+    const usuarioData = JSON.parse(localStorage.getItem("usuario_data") || '{}');
+    if (usuarioData.email) {
+      console.log('✅ Usuário do localStorage:', usuarioData.email);
+      return usuarioData;
+    }
+    
+    // Do PouchDB
+    const conta = await dbConfig.get('dono_da_sala');
+    console.log('✅ Usuário do PouchDB:', conta.email);
+    return conta;
+    
+  } catch (error) {
+    console.error('❌ Erro ao identificar usuário:', error);
+    return null;
+  }
+}
+
+// ⭐⭐ FUNÇÃO NOVA: Atualizar info do usuário na tela
+function atualizarInfoUsuario(usuario) {
+  const userInfo = document.getElementById('userInfo');
+  if (usuario && userInfo) {
+    userInfo.innerHTML = `<i class="fas fa-user"></i> ${usuario.name || usuario.email} (${usuario.provider})`;
+  }
+}
+
+// ⭐⭐ FUNÇÃO NOVA: Verificar acesso à eleição
+async function verificarAcessoEleicao() {
+  try {
+    if (!usuarioLogado) {
+      console.error('❌ Usuário não identificado');
+      return false;
+    }
+
+    console.log('🔐 Verificando acesso à eleição:', electionId);
+    
+    const eleicao = await dbEleicoes.get(electionId);
+    console.log('📊 Dados da eleição:', eleicao);
+    
+    // ✅ VERIFICAR: se a eleição pertence ao usuário
+    if (eleicao.ownerId !== usuarioLogado.email && eleicao.ownerEmail !== usuarioLogado.email) {
+      console.log('❌ Acesso negado! Eleição pertence a outro usuário.');
+      return false;
+    }
+    
+    console.log('✅ Acesso permitido! Eleição pertence ao usuário.');
+    return true;
+    
+  } catch (error) {
+    console.error('❌ Erro ao verificar acesso:', error);
+    return false;
+  }
+}
+
+// ⭐⭐ MODIFICADA: Inicialização com verificação de acesso
 document.addEventListener("DOMContentLoaded", async function() {
+  // Identificar usuário primeiro
+  usuarioLogado = await identificarUsuarioLogado();
+  
+  if (!usuarioLogado) {
+    mostrarAcessoNegado('Usuário não identificado. Faça login novamente.');
+    return;
+  }
+  
+  atualizarInfoUsuario(usuarioLogado);
+  
   const urlParams = new URLSearchParams(window.location.search);
   electionId = urlParams.get('eleicao') || urlParams.get('id');
   
   if (electionId) {
-    await carregarInfoEleicao();
+    // ✅ VERIFICAR acesso antes de carregar
+    const acessoPermitido = await verificarAcessoEleicao();
+    if (acessoPermitido) {
+      document.getElementById('conteudo-principal').style.display = 'block';
+      await carregarInfoEleicao();
+    } else {
+      mostrarAcessoNegado('Esta eleição pertence a outro usuário.');
+    }
   } else {
-    document.getElementById('info-eleicao').textContent = '❌ Erro: Nenhuma eleição especificada';
+    mostrarAcessoNegado('Nenhuma eleição especificada na URL.');
   }
   
   carregarConfigAPI();
 });
+
+// ⭐⭐ FUNÇÃO NOVA: Mostrar tela de acesso negado
+function mostrarAcessoNegado(mensagem) {
+  document.getElementById('access-denied').style.display = 'block';
+  document.getElementById('access-denied').querySelector('p').textContent = mensagem;
+  document.getElementById('conteudo-principal').style.display = 'none';
+}
 
 function carregarConfigAPI() {
   const configSalva = localStorage.getItem('api_config_cliente');
@@ -1275,7 +1402,8 @@ function validarSegundaAutorizacao() {
   document.getElementById('segunda-autorizacao').style.borderColor = '#56ab2f';
 }
 
-function autorizarVoto() {
+// ⭐⭐ MODIFICADA: Autorizar voto vinculando ao usuário
+async function autorizarVoto() {
   if (!dadosEleitorAtual) return;
   
   if (eleicaoAtual && eleicaoAtual.tipo === 'presencial' && !segundaAutorizacaoAprovada) {
@@ -1286,9 +1414,13 @@ function autorizarVoto() {
   const token = 'auth_' + Math.random().toString(36).substr(2, 16);
   const codigo = `AUTH-${token.substr(5, 8).toUpperCase()}`;
   
-  dbAutorizacoes.put({
+  // ✅ CORREÇÃO: Salvar com vínculo ao usuário
+  await dbAutorizacoes.put({
     _id: token,
     electionId: electionId,
+    // ✅ NOVO: Vincular ao usuário
+    ownerId: usuarioLogado.email,
+    ownerEmail: usuarioLogado.email,
     tipoEleicao: eleicaoAtual ? eleicaoAtual.tipo : 'online',
     metodoIdentificacao: dadosEleitorAtual.metodo,
     dadosEleitor: dadosEleitorAtual,
