@@ -253,9 +253,26 @@ button:hover {
   border-radius: 10px;
   margin-top: 12px;
 }
+
+.user-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(212,175,55,0.1);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 10px;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  color: #d4af37;
+}
 </style>
 </head>
 <body>
+
+<!-- Informação do usuário logado -->
+<div class="user-info" id="userInfo">
+  <i class="fas fa-user"></i> Carregando...
+</div>
 
 <h1>🎛️ Painel Completo — Terra Dourada</h1>
 <div class="subtitle">Sincronização, Auditoria e Controle Total da Urna</div>
@@ -358,6 +375,8 @@ button:hover {
 // ==============================
 const dbVotos = new PouchDB('terra_dourada_votos_local');
 const dbAutorizacoes = new PouchDB('terra_dourada_autorizacoes');
+const dbEleicoes = new PouchDB('terra_dourada_eleicoes');
+const dbConfig = new PouchDB('terra_dourada_config');
 const IPFS_GATEWAY = "https://ipfs.io/ipfs/";
 let LOGS = [];
 
@@ -367,6 +386,84 @@ const candidatosHashes = {
   candidato_2: "1c3c978eae25037d6e7383b9f9b51b84a20dc2bdb0551434c1a5388d97f1c065",
   branco: "hash_voto_branco_123456789"
 };
+
+// ⭐⭐ NOVO: Identificar usuário logado
+async function identificarUsuarioLogado() {
+  try {
+    console.log('🔍 Identificando usuário logado...');
+    
+    // Do localStorage
+    const usuarioData = JSON.parse(localStorage.getItem("usuario_data") || '{}');
+    if (usuarioData.email) {
+      console.log('✅ Usuário do localStorage:', usuarioData.email);
+      return usuarioData;
+    }
+    
+    // Do PouchDB
+    const conta = await dbConfig.get('dono_da_sala');
+    console.log('✅ Usuário do PouchDB:', conta.email);
+    return conta;
+    
+  } catch (error) {
+    console.error('❌ Erro ao identificar usuário:', error);
+    return null;
+  }
+}
+
+// ⭐⭐ NOVO: Atualizar info do usuário na tela
+function atualizarInfoUsuario(usuario) {
+  const userInfo = document.getElementById('userInfo');
+  if (usuario && userInfo) {
+    userInfo.innerHTML = `<i class="fas fa-user"></i> ${usuario.name || usuario.email} (${usuario.provider})`;
+  }
+}
+
+// ⭐⭐ NOVO: Buscar eleições do usuário logado
+async function buscarEleicoesUsuario() {
+  try {
+    const usuarioLogado = await identificarUsuarioLogado();
+    if (!usuarioLogado) return [];
+    
+    const todasEleicoes = await dbEleicoes.allDocs({ include_docs: true });
+    const eleicoesDoUsuario = todasEleicoes.rows.filter(row => 
+      row.doc.ownerId === usuarioLogado.email || row.doc.ownerEmail === usuarioLogado.email
+    );
+    
+    console.log(`🏛️ Eleições do usuário: ${eleicoesDoUsuario.length}`);
+    return eleicoesDoUsuario.map(row => row.doc._id);
+    
+  } catch (error) {
+    console.error('Erro ao buscar eleições do usuário:', error);
+    return [];
+  }
+}
+
+// ⭐⭐ NOVO: Filtrar votos apenas das eleições do usuário
+async function filtrarVotosUsuario() {
+  try {
+    const idsEleicoesUsuario = await buscarEleicoesUsuario();
+    
+    // Se não tem eleições, retorna array vazio
+    if (idsEleicoesUsuario.length === 0) {
+      return [];
+    }
+    
+    const todosVotos = await dbVotos.allDocs({ include_docs: true });
+    
+    // ✅ FILTRAR: Apenas votos das eleições do usuário
+    const votosDoUsuario = todosVotos.rows.filter(row => {
+      const voto = row.doc;
+      return voto.eleicao_id && idsEleicoesUsuario.includes(voto.eleicao_id);
+    });
+    
+    console.log(`🗳️ Votos do usuário: ${votosDoUsuario.length} de ${todosVotos.rows.length}`);
+    return votosDoUsuario;
+    
+  } catch (error) {
+    console.error('Erro ao filtrar votos:', error);
+    return [];
+  }
+}
 
 // ==============================
 // FUNÇÕES AUXILIARES - CORRIGIDAS
@@ -451,11 +548,12 @@ function abrirTab(tabName) {
 // ==============================
 async function atualizarDashboard() {
   try {
-    const allVotos = await dbVotos.allDocs({ include_docs: true });
+    // ✅ CORREÇÃO: Usar apenas votos do usuário
+    const votosDoUsuario = await filtrarVotosUsuario();
     
     // Processa votos e busca nomes reais dos eleitores
     const votosComInfo = await Promise.all(
-      allVotos.rows.map(async (row) => {
+      votosDoUsuario.map(async (row) => {
         const voto = row.doc;
         const eleitorNome = await getEleitorInfo(voto);
         return {
@@ -532,8 +630,9 @@ async function atualizarDashboard() {
 // ==============================
 async function reenviarPendentes() {
   try {
-    const all = await dbVotos.allDocs({ include_docs: true });
-    const pendentes = all.rows.map(r => r.doc).filter(doc => doc.erro === "sem_conexao_backend");
+    // ✅ CORREÇÃO: Usar apenas votos do usuário
+    const votosDoUsuario = await filtrarVotosUsuario();
+    const pendentes = votosDoUsuario.map(r => r.doc).filter(doc => doc.erro === "sem_conexao_backend");
     
     if (pendentes.length === 0) {
       log('Nenhum voto pendente para sincronizar', 'warning');
@@ -602,10 +701,11 @@ async function reenviarPendentes() {
 // EXPORTAR DADOS - CORRIGIDO
 // ==============================
 async function exportarDados() {
-  const all = await dbVotos.allDocs({ include_docs: true });
+  // ✅ CORREÇÃO: Usar apenas votos do usuário
+  const votosDoUsuario = await filtrarVotosUsuario();
   
   const dadosExportar = await Promise.all(
-    all.rows.map(async (row) => {
+    votosDoUsuario.map(async (row) => {
       const doc = row.doc;
       const eleitor = await getEleitorInfo(doc);
       const candidato = getCandidatoInfo(doc);
@@ -618,7 +718,8 @@ async function exportarDados() {
         tipo: "voto_presidencial",
         timestamp: getTimestampInfo(doc),
         status: doc.erro ? "pendente" : "enviado",
-        cid: getCIDInfo(doc)
+        cid: getCIDInfo(doc),
+        eleicao_id: doc.eleicao_id || "N/A"
       };
     })
   );
@@ -637,13 +738,14 @@ async function exportarDados() {
 }
 
 // ==============================
-// LIMPAR ENVIADOS
+// LIMPAR ENVIADOS - CORRIGIDO
 // ==============================
 async function limparEnviados() {
   if (!confirm('Tem certeza que deseja limpar os votos já enviados?')) return;
   
-  const all = await dbVotos.allDocs({ include_docs: true });
-  const enviados = all.rows.map(r => r.doc).filter(doc => doc.cid_pinata && !doc.erro);
+  // ✅ CORREÇÃO: Usar apenas votos do usuário
+  const votosDoUsuario = await filtrarVotosUsuario();
+  const enviados = votosDoUsuario.map(r => r.doc).filter(doc => doc.cid_pinata && !doc.erro);
   
   for (let doc of enviados) {
     await dbVotos.remove(doc);
@@ -676,13 +778,14 @@ async function auditarVotos() {
   let totalVotos = 0;
   let validos = 0;
 
-  const result = await dbVotos.allDocs({ include_docs: true });
-  const docs = result.rows;
+  // ✅ CORREÇÃO: Usar apenas votos do usuário
+  const votosDoUsuario = await filtrarVotosUsuario();
+  const docs = votosDoUsuario.map(row => row.doc);
 
   const total = docs.length;
 
   for (let i = 0; i < total; i++) {
-    const row = docs[i].doc;
+    const row = docs[i];
 
     progress.style.width = ((i / total) * 100).toFixed(1) + "%";
 
@@ -754,8 +857,9 @@ async function auditarIPFS(qtd) {
   
   logIPFS("🔍 Carregando votos locais do PouchDB...");
 
-  const all = await dbVotos.allDocs({ include_docs: true });
-  const docs = all.rows.slice(0, qtd).map(r => r.doc);
+  // ✅ CORREÇÃO: Usar apenas votos do usuário
+  const votosDoUsuario = await filtrarVotosUsuario();
+  const docs = votosDoUsuario.slice(0, qtd).map(row => row.doc);
 
   logIPFS(`📦 Total carregado: ${docs.length} votos.`);
 
@@ -894,7 +998,16 @@ function log(msg, tipo = 'info') {
 // ==============================
 // INICIALIZAÇÃO
 // ==============================
-atualizarDashboard();
+document.addEventListener("DOMContentLoaded", async function() {
+  // Identificar e mostrar usuário
+  const usuarioLogado = await identificarUsuarioLogado();
+  if (usuarioLogado) {
+    atualizarInfoUsuario(usuarioLogado);
+  }
+  
+  // Inicializar dashboard
+  atualizarDashboard();
+});
 </script>
 
 </body>
