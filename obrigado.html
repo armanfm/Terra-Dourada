@@ -422,8 +422,9 @@ async function carregarCandidatoPorId(candidatoId, usouBackend, cidPinata, dados
     if (candidatoEncontrado) {
       const candidato = candidatoEncontrado.doc;
       debugInfo("🎯 Candidato encontrado: " + candidato.nome);
-      debugInfo("🎯 Foto do candidato: " + (candidato.foto ? "SIM" : "NÃO"));
+      debugInfo("🎯 Foto do candidato: " + (candidato.foto ? candidato.foto : "NÃO"));
       
+      // ⭐⭐ CORREÇÃO: Chama a função correta
       atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVoto);
     } else {
       debugInfo("❌ Candidato não encontrado no DB, usando fallback");
@@ -435,6 +436,7 @@ async function carregarCandidatoPorId(candidatoId, usouBackend, cidPinata, dados
         partido: dadosVoto?.candidato_partido || ""
       };
       
+      // ⭐⭐ CORREÇÃO: Chama a função correta
       atualizarInterfaceCandidato(candidatoFallback, usouBackend, cidPinata, dadosVoto);
     }
   } catch (error) {
@@ -446,12 +448,13 @@ async function carregarCandidatoPorId(candidatoId, usouBackend, cidPinata, dados
       foto: null
     };
     
+    // ⭐⭐ CORREÇÃO: Chama a função correta
     atualizarInterfaceCandidato(candidatoFallback, usouBackend, cidPinata, dadosVoto);
   }
 }
 
 // ==============================
-// ATUALIZAR INTERFACE - CORRIGIDO
+// ATUALIZAR INTERFACE - CORREÇÃO COMPLETA
 // ==============================
 function atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVoto) {
   const fotoContainer = document.getElementById("fotoContainer");
@@ -463,35 +466,66 @@ function atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVot
   // Atualiza nome
   nomeElement.textContent = candidato.nome;
 
-  // Atualiza foto - CORRIGIDO
+  // ⭐⭐ CORREÇÃO COMPLETA: Carregamento de foto
   if (candidato.foto) {
-    debugInfo("🖼️ Carregando foto: " + candidato.foto);
+    debugInfo("🖼️ Tentando carregar foto: " + candidato.foto);
     
-    const img = document.createElement('img');
+    // Cria a imagem
+    const img = new Image();
     img.className = "foto-candidato";
     img.alt = candidato.nome;
     
-    // Força recarregamento da imagem
-    img.src = candidato.foto + '?t=' + new Date().getTime();
+    // Adiciona timestamp para evitar cache
+    const fotoUrl = candidato.foto + (candidato.foto.includes('?') ? '&' : '?') + 't=' + Date.now();
+    img.src = fotoUrl;
     
+    debugInfo("📸 URL da foto: " + fotoUrl);
+    
+    // Quando carregar com sucesso
     img.onload = function() {
-      debugInfo("✅ Foto carregada com sucesso");
+      debugInfo("✅ Foto carregada com sucesso!");
       fotoContainer.innerHTML = '';
       fotoContainer.appendChild(img);
     };
     
+    // Se der erro
     img.onerror = function() {
-      debugInfo("❌ Erro ao carregar foto, usando fallback");
-      fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
+      debugInfo("❌ Erro ao carregar foto, tentando fallback...");
+      
+      // Tenta sem timestamp
+      const imgFallback = new Image();
+      imgFallback.className = "foto-candidato";
+      imgFallback.alt = candidato.nome;
+      imgFallback.src = candidato.foto;
+      
+      imgFallback.onload = function() {
+        debugInfo("✅ Foto carregada no fallback!");
+        fotoContainer.innerHTML = '';
+        fotoContainer.appendChild(imgFallback);
+      };
+      
+      imgFallback.onerror = function() {
+        debugInfo("❌ Fallback também falhou, usando ícone");
+        fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
+      };
+      
+      fotoContainer.innerHTML = '';
+      fotoContainer.appendChild(imgFallback);
     };
     
-    // Coloca a imagem imediatamente
+    // Coloca a imagem imediatamente (mostra loading)
     fotoContainer.innerHTML = '';
     fotoContainer.appendChild(img);
     
   } else {
     debugInfo("📷 Sem foto, usando ícone");
-    fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
+    
+    // Se for voto em branco
+    if (candidato.nome === "VOTO EM BRANCO" || candidatoId === "branco") {
+      fotoContainer.innerHTML = '<div class="foto-vazia">⚪</div>';
+    } else {
+      fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
+    }
   }
 
   // Atualiza status
