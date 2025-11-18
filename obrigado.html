@@ -13,16 +13,17 @@
     display:flex;
     justify-content:center;
     align-items:center;
-    height:100vh;
+    min-height:100vh;
     text-align:center;
     padding:20px;
+    margin:0;
   }
   .box {
     background:#111;
     padding:40px;
     border-radius:20px;
     border:1px solid #d4af37;
-    width:380px;
+    width:420px;
     box-shadow:0 0 20px rgba(212,175,55,0.35);
     animation: fadeIn 0.6s ease-out;
   }
@@ -34,88 +35,462 @@
     color:#d4af37;
     margin-bottom:15px;
   }
-  #foto {
-    width:160px;
-    height:160px;
-    border-radius:50%;
-    border:2px solid #d4af37;
-    margin-top:15px;
-    object-fit:cover;
+
+  /* ANEL DOURADO LINDÃO ✨ */
+  .foto-container {
+    width: 180px;
+    height: 180px;
+    margin: 20px auto;
+    position: relative;
   }
+  
+  .anel-dourado {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #d4af37, #f5e6a4, #d4af37);
+    padding: 6px;
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.6); }
+    50% { box-shadow: 0 0 35px rgba(212, 175, 55, 0.9); }
+    100% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.6); }
+  }
+  
+  .foto-candidato {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #0a0f0a;
+    background: #1a1f1a;
+  }
+  
+  .foto-vazia {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #1a1f1a;
+    border: 3px solid #0a0f0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #d4af37;
+    font-size: 3rem;
+  }
+
   #nome {
     font-size:1.3rem;
     margin-top:10px;
     color:#f5f5f5;
   }
   button {
-    margin-top:25px;
+    margin-top:15px;
     padding:12px 30px;
-    background:transparent;
-    border:1px solid #d4af37;
     border-radius:25px;
-    color:#d4af37;
     cursor:pointer;
     font-size:1rem;
     display:block;
     width:100%;
-  }
-  button:hover {
-    background:rgba(212,175,55,0.15);
-  }
-  #provaBtn {
-    background:#d4af37;
-    color:#000;
+    transition:0.3s;
     border:none;
     font-weight:bold;
   }
-  #provaBtn:hover {
+  
+  /* Botão ATIVO (com Pinata) */
+  #provaBtn.ativo {
+    background:#d4af37;
+    color:#000;
+  }
+  #provaBtn.ativo:hover {
     background:#b9962c;
+  }
+  
+  /* Botão INATIVO (sem Pinata) */
+  #provaBtn.inativo {
+    background:#666;
+    color:#999;
+    cursor:not-allowed;
+  }
+  
+  .btn-voltar {
+    background:transparent;
+    border:1px solid #d4af37;
+    color:#d4af37;
+  }
+  .btn-voltar:hover {
+    background:rgba(212,175,55,0.15);
+  }
+  
+  /* Propaganda de auditoria */
+  .audit-info {
+    background:rgba(212,175,55,0.1);
+    border:1px solid #d4af37;
+    border-radius:15px;
+    padding:20px;
+    margin:20px 0;
+    text-align:left;
+  }
+  .audit-info h3 {
+    color:#d4af37;
+    margin-top:0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .tech-badges {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin:15px 0;
+  }
+  .badge {
+    background:rgba(86,171,47,0.2);
+    border:1px solid #56ab2f;
+    color:#56ab2f;
+    padding:5px 10px;
+    border-radius:15px;
+    font-size:0.8rem;
+    font-weight:bold;
+  }
+  .benefits {
+    font-size:0.9rem;
+    color:#ccc;
+    line-height:1.4;
+    padding-left:20px;
+    margin:15px 0;
+  }
+  .benefits li {
+    margin:8px 0;
+  }
+  
+  /* Status do voto */
+  .status {
+    padding:12px;
+    border-radius:10px;
+    margin:15px 0;
+    font-weight:bold;
+    text-align:center;
+  }
+  .status.online {
+    background:rgba(86,171,47,0.2);
+    border:1px solid #56ab2f;
+    color:#56ab2f;
+  }
+  .status.offline {
+    background:rgba(255,165,0,0.2);
+    border:1px solid #ffa500;
+    color:#ffa500;
+  }
+
+  /* Bloqueio de navegação */
+  .blocked-message {
+    background:rgba(255,68,68,0.1);
+    border:1px solid #ff4444;
+    border-radius:10px;
+    padding:10px;
+    margin:10px 0;
+    color:#ff4444;
+    font-size:0.9rem;
+  }
+
+  /* Tooltip para botão inativo */
+  .tooltip {
+    position:relative;
+    display:inline-block;
+    width:100%;
+  }
+  .tooltip .tooltiptext {
+    visibility:hidden;
+    width:200px;
+    background:#333;
+    color:#fff;
+    text-align:center;
+    border-radius:6px;
+    padding:8px;
+    position:absolute;
+    z-index:1;
+    bottom:125%;
+    left:50%;
+    margin-left:-100px;
+    opacity:0;
+    transition:opacity 0.3s;
+    font-size:0.8rem;
+  }
+  .tooltip:hover .tooltiptext {
+    visibility:visible;
+    opacity:1;
   }
 </style>
 </head>
 
 <body>
 <div class="box">
-  <h1>✔️ Voto Registrado</h1>
+  <h1>✔️ Voto Computado com Sucesso</h1>
 
-  <img id="foto">
-  <div id="nome"></div>
+  <!-- ANEL DOURADO ✨ -->
+  <div class="foto-container">
+    <div class="anel-dourado">
+      <div id="fotoContainer">
+        <div class="foto-vazia">✓</div>
+      </div>
+    </div>
+  </div>
 
-  <button id="provaBtn">Ver Comprovante no IPFS</button>
+  <div id="nome">Carregando candidato...</div>
+
+  <!-- Status do voto -->
+  <div id="statusVoto" class="status">Verificando status...</div>
+
+  <!-- Mensagem de bloqueio -->
+  <div class="blocked-message">
+    ⚠️ <strong>Sessão Finalizada</strong> - Não é possível voltar ou votar novamente
+  </div>
+
+  <!-- Botão do comprovante (SEMPRE VISÍVEL) -->
+  <div class="tooltip">
+    <button id="provaBtn" class="inativo">🔗 Ver Comprovante no IPFS</button>
+    <span class="tooltiptext" id="tooltipText">Comprovante disponível apenas para votos com conexão ativa</span>
+  </div>
+
+  <!-- Propaganda de auditoria -->
+  <div class="audit-info">
+    <h3>🔒 Seu voto é 100% Auditável</h3>
+    
+    <div class="tech-badges">
+      <div class="badge">📸 Screenshot Hash</div>
+      <div class="badge">🔗 IPFS Pinata</div>
+      <div class="badge">🔍 ZK-Proof</div>
+      <div class="badge">⛓️ Solana</div>
+    </div>
+    
+    <ul class="benefits">
+      <li>✅ <strong>Imutável:</strong> Hash SHA-256 garante integridade do comprovante visual</li>
+      <li>✅ <strong>Transparente:</strong> Comprovante distribuído via IPFS Pinata</li>
+      <li>✅ <strong>Verificável:</strong> Qualquer auditor pode verificar a autenticidade</li>
+      <li>✅ <strong>Privacidade:</strong> Zero-Knowledge Proof protege sua identidade</li>
+      <li>✅ <strong>Blockchain:</strong> Registro imutável na Solana para audit trail</li>
+    </ul>
+    
+    <div style="text-align:center; margin-top:15px; font-size:0.9rem; color:#d4af37;">
+      🌐 <strong>Terra Dourada</strong> - Eleições transparentes e cryptographicamente auditáveis
+    </div>
+  </div>
+
+  <button class="btn-voltar" onclick="sairDoSistema()">🚪 Finalizar Sessão</button>
 </div>
 
 <script>
-window.onload = function () {
+// ==============================
+// BLOQUEIO TOTAL DE NAVEGAÇÃO
+// ==============================
 
-  const cid = localStorage.getItem("voto_cid") || null;
-  const candidato = localStorage.getItem("voto_candidato") || "desconhecido";
-
-  const foto = document.getElementById("foto");
-  const nome = document.getElementById("nome");
-
-  if (candidato === "joao") {
-    nome.textContent = "João Silva";
-    foto.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop";
-  } 
-  else if (candidato === "paulo") {
-    nome.textContent = "Paulo Santos";
-    foto.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop";
-  }
-  else {
-    nome.textContent = "Candidato Desconhecido";
-    foto.src = "";
-  }
-
-  document.getElementById("provaBtn").onclick = function () {
-    if (!cid) {
-      alert("Comprovante ainda não registrado");
-      return;
-    }
-    window.open("https://gateway.pinata.cloud/ipfs/" + cid, "_blank");
-  };
-
+// Impede voltar com botão do navegador
+history.pushState(null, null, location.href);
+window.onpopstate = function(event) {
+  history.go(1);
+  alert("❌ Sessão finalizada. Não é possível voltar.");
 };
-</script>
 
+// Impede F5/refresh
+document.onkeydown = function(e) {
+  if (e.key === "F5" || (e.ctrlKey && e.key === "r")) {
+    e.preventDefault();
+    alert("❌ Sessão finalizada. Não é possível recarregar.");
+    return false;
+  }
+};
+
+// Impede menu de contexto (botão direito)
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+  return false;
+});
+
+// ==============================
+// CARREGAR DADOS DO VOTO
+// ==============================
+async function carregarDadosVoto() {
+  console.log("🔍 Iniciando carregamento dos dados do voto...");
+  
+  const db = new PouchDB('terra_dourada_votos_local');
+  const dbCandidatos = new PouchDB('terra_dourada_candidatos');
+  
+  try {
+    const cid = localStorage.getItem("user_cid");
+    console.log("👤 CID do usuário:", cid);
+    
+    if (!cid) {
+      throw new Error("CID do usuário não encontrado");
+    }
+
+    // Busca TODOS os votos
+    const allDocs = await db.allDocs({ include_docs: true });
+    console.log("📊 Total de documentos no DB:", allDocs.rows.length);
+
+    // Filtra votos deste usuário
+    const votosUsuario = allDocs.rows.filter(row => 
+      row.doc.eleitor === cid && row.doc.candidato_id
+    );
+    
+    console.log("🗳️ Votos deste usuário:", votosUsuario.length);
+
+    if (votosUsuario.length > 0) {
+      // Pega o voto mais recente
+      const ultimoVoto = votosUsuario.reduce((latest, current) => {
+        return new Date(current.doc.timestamp) > new Date(latest.doc.timestamp) ? current : latest;
+      });
+      
+      console.log("✅ Último voto encontrado:", ultimoVoto.doc);
+      
+      const dadosVoto = ultimoVoto.doc;
+      const usouBackend = dadosVoto.cid_pinata && !dadosVoto.erro;
+      const cidPinata = dadosVoto.cid_pinata;
+      const candidatoId = dadosVoto.candidato_id;
+      
+      console.log("🔧 Dados do voto:", {
+        usouBackend,
+        cidPinata,
+        candidatoId,
+        nome: dadosVoto.candidato_nome
+      });
+
+      // ATUALIZA BOTÃO DO COMPROVANTE
+      atualizarBotaoComprovante(usouBackend, cidPinata);
+
+      // CARREGA DADOS DO CANDIDATO
+      try {
+        const candidatosResult = await dbCandidatos.allDocs({ include_docs: true });
+        const candidato = candidatosResult.rows.find(row => row.doc._id === candidatoId)?.doc;
+        
+        console.log("👤 Candidato encontrado no DB:", candidato);
+        
+        if (candidato) {
+          atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVoto);
+        } else {
+          // Usa dados do próprio voto
+          const candidatoFallback = {
+            nome: dadosVoto.candidato_nome || "Candidato",
+            foto: null,
+            partido: dadosVoto.candidato_partido || ""
+          };
+          atualizarInterfaceCandidato(candidatoFallback, usouBackend, cidPinata, dadosVoto);
+        }
+      } catch (error) {
+        console.error("❌ Erro ao carregar candidato:", error);
+        // Fallback com dados do voto
+        const candidatoFallback = {
+          nome: dadosVoto.candidato_nome || "Seu Candidato",
+          foto: null
+        };
+        atualizarInterfaceCandidato(candidatoFallback, usouBackend, cidPinata, dadosVoto);
+      }
+      
+    } else {
+      throw new Error("Nenhum voto encontrado para este usuário");
+    }
+    
+  } catch (error) {
+    console.error("❌ Erro geral:", error);
+    // Fallback completo
+    document.getElementById("fotoContainer").innerHTML = '<div class="foto-vazia">✓</div>';
+    document.getElementById("nome").textContent = "Voto Registrado";
+    document.getElementById("statusVoto").innerHTML = '⚠️ <strong>Voto Computado</strong>';
+    document.getElementById("statusVoto").className = 'status offline';
+    
+    // Botão fica inativo no fallback
+    atualizarBotaoComprovante(false, null);
+  }
+}
+
+function atualizarBotaoComprovante(usouBackend, cidPinata) {
+  const provaBtn = document.getElementById("provaBtn");
+  const tooltipText = document.getElementById("tooltipText");
+
+  if (usouBackend && cidPinata) {
+    // ✅ BOTÃO ATIVO (dourado)
+    provaBtn.className = "ativo";
+    provaBtn.innerHTML = "🔗 Ver Comprovante no IPFS";
+    tooltipText.textContent = "Clique para ver seu comprovante no IPFS Pinata";
+    
+    provaBtn.onclick = function () {
+      window.open("https://gateway.pinata.cloud/ipfs/" + cidPinata, "_blank");
+    };
+  } else {
+    // ❌ BOTÃO INATIVO (cinza)
+    provaBtn.className = "inativo";
+    provaBtn.innerHTML = "🔗 Comprovante Indisponível";
+    tooltipText.textContent = "Comprovante disponível apenas para votos com conexão ativa ao backend";
+    
+    provaBtn.onclick = function () {
+      alert("❌ Comprovante indisponível. Este voto foi registrado localmente e será sincronizado quando online.");
+    };
+  }
+}
+
+function atualizarInterfaceCandidato(candidato, usouBackend, cidPinata, dadosVoto) {
+  const fotoContainer = document.getElementById("fotoContainer");
+  const nomeElement = document.getElementById("nome");
+  const statusElement = document.getElementById("statusVoto");
+
+  console.log("🎨 Atualizando interface com candidato:", candidato);
+
+  // Atualiza nome
+  nomeElement.textContent = candidato.nome;
+
+  // Atualiza foto - DENTRO DO ANEL DOURADO ✨
+  if (candidato.foto) {
+    const img = new Image();
+    img.src = candidato.foto;
+    img.alt = candidato.nome;
+    img.className = "foto-candidato";
+    img.onload = function() {
+      fotoContainer.innerHTML = '';
+      fotoContainer.appendChild(img);
+    };
+    img.onerror = function() {
+      fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
+    };
+  } else {
+    fotoContainer.innerHTML = '<div class="foto-vazia">👤</div>';
+  }
+
+  // Atualiza status
+  if (usouBackend && cidPinata) {
+    statusElement.innerHTML = `✅ <strong>Voto Registrado com Auditoria Completa</strong><br>
+                              <small>Hash: ${dadosVoto?.screenshot_hash?.substring(0, 16)}...</small>`;
+    statusElement.className = 'status online';
+  } else {
+    statusElement.innerHTML = `⚠️ <strong>Voto Registrado Localmente</strong><br>
+                              <small>Será sincronizado quando online</small>`;
+    statusElement.className = 'status offline';
+  }
+}
+
+function sairDoSistema() {
+  // Limpa dados sensíveis e redireciona
+  localStorage.removeItem("voto_cid");
+  localStorage.removeItem("voto_candidato");
+  
+  // Redireciona para página inicial
+  window.location.href = "index.html";
+}
+
+// ==============================
+// INICIALIZAÇÃO
+// ==============================
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("🚀 Página Obrigado carregada - Iniciando...");
+  carregarDadosVoto();
+  
+  // Bloqueia saída da página
+  window.onbeforeunload = function() {
+    return "❌ Sua sessão de votação foi finalizada. Tem certeza que deseja sair?";
+  };
+});
+</script>
 </body>
 </html>
