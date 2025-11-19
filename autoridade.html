@@ -92,6 +92,24 @@
       background: rgba(45, 140, 240, 0.2);
     }
 
+    /* BOTÃO GPT ASSISTANT - ROXO */
+    .tab-gpt {
+      background: transparent;
+      border: 1px solid #9c27b0;
+      color: #9c27b0;
+      padding: 12px 25px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: .3s;
+      font-size: 1rem;
+    }
+    .tab-gpt:hover {
+      background: rgba(156, 39, 176, 0.1);
+    }
+    .tab-gpt.active {
+      background: rgba(156, 39, 176, 0.2);
+    }
+
     /* Conteúdo principal */
     .content {
       background: #111;
@@ -438,6 +456,8 @@
     <button class="tab-perfil" onclick="showTab('perfil')">👤 Editar Perfil</button>
     <!-- BOTÃO P2P SOCIAL -->
     <button class="tab-p2p" onclick="irParaRedeSocial()">🌐 P2P Social</button>
+    <!-- NOVO BOTÃO: GPT ASSISTANT -->
+    <button class="tab-gpt" onclick="irParaGPTAssistant()">🤖 GPT Assistant</button>
   </div>
 
   <!-- CONTEÚDO PRINCIPAL -->
@@ -604,6 +624,19 @@ function irParaRedeSocial() {
   window.location.href = `rede_social.html?user_id=${userId}`;
 }
 
+// NOVA FUNÇÃO: Ir para GPT Assistant
+function irParaGPTAssistant() {
+  if (!usuarioLogado) {
+    alert('Erro: Usuário não identificado. Faça login novamente.');
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  // Passar o email do usuário como parâmetro para manter o login
+  const userId = encodeURIComponent(usuarioLogado.email);
+  window.location.href = `index_gpt.html?user_id=${userId}`;
+}
+
 // FUNÇÃO: Identificar usuário logado
 async function identificarUsuarioLogado() {
   try {
@@ -641,6 +674,7 @@ function showTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-p2p').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-perfil').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-gpt').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('[id^="tab-"]').forEach(c => c.style.display = 'none');
 
   // Ativar aba atual
