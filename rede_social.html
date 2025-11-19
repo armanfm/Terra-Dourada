@@ -1229,7 +1229,7 @@
                         <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Foto de perfil" class="profile-avatar">
                         <div class="profile-info">
                             <h3 id="profile-name">Carregando...</h3>
-                            <p id="profile-role">Produtor Rural</p>
+                            <p id="profile-role"></p>
                         </div>
                     </div>
                     <div class="profile-stats">
@@ -1451,7 +1451,7 @@
             };
         }
 
-        // 🔧 FUNÇÃO ATUALIZADA: Preencher perfil com dados do banco
+        // 🔧 FUNÇÃO ATUALIZADA: Preencher perfil com dados do banco (INCLUINDO FOTO)
         async function preencherPerfil() {
             console.log('🎯 Preenchendo perfil...', currentUser);
             
@@ -1470,20 +1470,28 @@
                 console.log('ℹ️ Perfil não encontrado no banco, usando dados básicos');
                 perfilData = {
                     nome: currentUser.name || "Usuário Terra Dourada",
-                    areaAtuacao: "Produtor Rural" // Valor padrão
+                    areaAtuacao: "Produtor Rural", // Valor padrão apenas se não tiver perfil
+                    foto: null // Sem foto por padrão
                 };
             }
             
             // NOME: Pegar do perfilData (do banco) ou do currentUser
             const nome = perfilData.nome || currentUser.name || "Usuário Terra Dourada";
+            
+            // ÁREA DE ATUAÇÃO: SEMPRE usar a do banco, nunca placeholder fixo
             const areaAtuacao = perfilData.areaAtuacao || "Produtor Rural";
             
-            console.log('✅ Definindo dados:', { nome, areaAtuacao });
+            // FOTO: Usar a foto do banco se existir
+            const fotoPerfil = perfilData.foto || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80";
+            
+            console.log('✅ Definindo dados:', { nome, areaAtuacao, temFoto: !!perfilData.foto });
             
             // ATUALIZAR A TELA IMEDIATAMENTE
             const profileName = document.getElementById("profile-name");
             const userName = document.getElementById("user-name");
             const profileRole = document.getElementById("profile-role");
+            const profileAvatar = document.querySelector(".profile-avatar");
+            const userAvatar = document.querySelector(".user-avatar");
             
             if (profileName) {
                 profileName.textContent = nome;
@@ -1496,8 +1504,19 @@
             }
             
             if (profileRole) {
-                profileRole.textContent = areaAtuacao; // Agora usa a área de atuação do banco
-                console.log('✅ Área de atuação atualizada');
+                profileRole.textContent = areaAtuacao; // AGORA SEMPRE usa a área de atuação
+                console.log('✅ Área de atuação atualizada:', areaAtuacao);
+            }
+            
+            // ATUALIZAR FOTOS
+            if (profileAvatar) {
+                profileAvatar.src = fotoPerfil;
+                console.log('✅ Foto do perfil atualizada');
+            }
+            
+            if (userAvatar) {
+                userAvatar.src = fotoPerfil;
+                console.log('✅ Foto do header atualizada');
             }
         }
 
