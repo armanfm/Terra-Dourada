@@ -1379,6 +1379,7 @@
            🌍 Terra Dourada — Feed Social
            ============================================================== */
 
+        // BANCOS DE DADOS
         const postsDB = new PouchDB("terra_dourada_posts_local");
         const remoteDB = new PouchDB("http://admin:senha123@127.0.0.1:5984/terra_dourada_posts");
         postsDB.sync(remoteDB, { live: true, retry: true });
@@ -1388,6 +1389,9 @@
             live: true,
             retry: true
         });
+
+        // NOVO: Banco de perfis para buscar dados do usuário
+        const dbPerfis = new PouchDB('terra_dourada_perfis');
 
         let currentUser = null;
         let userShares = new Map();
@@ -1447,7 +1451,7 @@
             };
         }
 
-        // 🔧 FUNÇÃO CORRIGIDA: Preencher perfil
+        // 🔧 FUNÇÃO ATUALIZADA: Preencher perfil com dados do banco
         async function preencherPerfil() {
             console.log('🎯 Preenchendo perfil...', currentUser);
             
@@ -1456,11 +1460,25 @@
                 return;
             }
             
-            // NOME: Pegar do currentUser (vem do Painel)
-            const nome = currentUser.name || "Usuário Terra Dourada";
-            const produto = "Produtor Rural";
+            // Buscar dados do perfil no PouchDB
+            let perfilData = null;
+            try {
+                const perfilId = `perfil_${currentUser.email}`;
+                perfilData = await dbPerfis.get(perfilId);
+                console.log('✅ Dados do perfil encontrados:', perfilData);
+            } catch (error) {
+                console.log('ℹ️ Perfil não encontrado no banco, usando dados básicos');
+                perfilData = {
+                    nome: currentUser.name || "Usuário Terra Dourada",
+                    areaAtuacao: "Produtor Rural" // Valor padrão
+                };
+            }
             
-            console.log('✅ Definindo nome:', nome);
+            // NOME: Pegar do perfilData (do banco) ou do currentUser
+            const nome = perfilData.nome || currentUser.name || "Usuário Terra Dourada";
+            const areaAtuacao = perfilData.areaAtuacao || "Produtor Rural";
+            
+            console.log('✅ Definindo dados:', { nome, areaAtuacao });
             
             // ATUALIZAR A TELA IMEDIATAMENTE
             const profileName = document.getElementById("profile-name");
@@ -1478,8 +1496,8 @@
             }
             
             if (profileRole) {
-                profileRole.textContent = produto;
-                console.log('✅ Tipo de produtor atualizado');
+                profileRole.textContent = areaAtuacao; // Agora usa a área de atuação do banco
+                console.log('✅ Área de atuação atualizada');
             }
         }
 
