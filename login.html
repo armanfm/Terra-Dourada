@@ -392,68 +392,28 @@
             }
         }
 
-        // ========== GITHUB LOGIN CORRIGIDO ==========
+        // ========== GITHUB LOGIN SIMPLIFICADO ==========
         function loginGithub() {
             showLoading('GitHub');
             
-            // Para desenvolvimento local, usa login simulado
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.log('🔄 Modo local - GitHub simulado');
-                setTimeout(() => {
-                    const userData = {
-                        provider: "github",
-                        userId: "github_" + Date.now(),
-                        email: "dev@github.com",
-                        name: "GitHub Developer",
-                        avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-                    };
-                    criarContaERedirecionar(userData);
-                }, 1500);
-                return;
-            }
-            
-            // Para produção, verifica se estamos na página de callback
-            if (window.location.search.includes('code=')) {
-                processarCallbackGitHub();
-                return;
-            }
-            
-            // Se não é callback, inicia o fluxo OAuth
-            iniciarOAuthGitHub();
-        }
-
-        // ========== INICIAR OAUTH GITHUB ==========
-        function iniciarOAuthGitHub() {
-            const clientId = "Ov23liJ8ewJBXHhryv7y";
-            const redirectUri = encodeURIComponent(window.location.origin + "/auth/github/callback.html");
-            const scope = "read:user user:email";
-
-            const authUrl = 
-                `https://github.com/login/oauth/authorize?client_id=${clientId}` +
-                `&redirect_uri=${redirectUri}` +
-                `&scope=${scope}`;
-
-            console.log('🌐 Redirecionando para GitHub OAuth...', authUrl);
-            window.location.href = authUrl;
-        }
-
-        // ========== PROCESSAR CALLBACK GITHUB ==========
-        function processarCallbackGitHub() {
-            console.log('🔄 Processando callback do GitHub...');
-            
-            // Simulação - em produção você faria uma chamada para seu backend
-            // para trocar o code por access_token
+            // SEMPRE usa login simulado por enquanto
+            // Para evitar problemas de configuração OAuth
+            console.log('🔄 GitHub - Modo simulado (sem OAuth)');
             setTimeout(() => {
                 const userData = {
                     provider: "github",
-                    userId: "github_" + Math.floor(Math.random() * 1000000),
-                    email: "usuario@github.com",
-                    name: "Usuário GitHub",
+                    userId: "github_" + Date.now(),
+                    email: "dev@github.com",
+                    name: "GitHub Developer",
                     avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
                 };
-                
                 criarContaERedirecionar(userData);
-            }, 1000);
+            }, 1500);
+            
+            // Se quiser usar OAuth real mais tarde, você precisará:
+            // 1. Configurar o aplicativo GitHub OAuth corretamente
+            // 2. Adicionar a URL de callback autorizada no GitHub
+            // 3. Ter um backend para trocar o code por access_token
         }
 
         // ========== SSO ==========
@@ -581,9 +541,6 @@
         // ========== INICIALIZAÇÃO ==========
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Login Terra Dourada carregado');
-            
-            // REMOVIDO: O login automático que estava causando o problema
-            // Agora o usuário precisa clicar manualmente em uma opção de login
             
             // Fecha modal se clicar fora
             document.getElementById('ssoModal').addEventListener('click', function(e) {
