@@ -273,16 +273,6 @@
                 </div>
                 <div class="option-arrow">→</div>
             </div>
-
-            <!-- Opção de teste -->
-            <div class="login-option" onclick="testLogin()" style="border-color: #666;">
-                <div class="option-icon">🧪</div>
-                <div class="option-text">
-                    <h3>Modo Teste</h3>
-                    <p>Para desenvolvimento e demonstração</p>
-                </div>
-                <div class="option-arrow">→</div>
-            </div>
         </div>
         
         <div class="info-text">
@@ -334,8 +324,13 @@
                     // Atualiza último login
                     donoExistente.ultimoLogin = new Date().toISOString();
                     donoExistente.provider = userData.provider;
+                    donoExistente.name = userData.name || donoExistente.name;
+                    donoExistente.email = userData.email || donoExistente.email;
+                    donoExistente.avatar = userData.picture || userData.avatar_url || donoExistente.avatar;
+                    
                     await dbConfig.put(donoExistente);
                     
+                    console.log('✅ Conta atualizada com sucesso!', donoExistente);
                     return donoExistente;
                 } catch (err) {
                     // Se não existe, cria a conta
@@ -365,7 +360,7 @@
             }
         }
 
-        // ========== GOOGLE LOGIN CORRIGIDO ==========
+        // ========== GOOGLE LOGIN ==========
         function handleGoogleLogin(response) {
             showLoading('Google');
             
@@ -407,33 +402,61 @@
                 setTimeout(() => {
                     const userData = {
                         provider: "github",
-                        userId: "github_12345",
+                        userId: "github_" + Date.now(),
                         email: "dev@github.com",
                         name: "GitHub Developer",
-                        avatar_url: "https://github.com/github.png"
+                        avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
                     };
                     criarContaERedirecionar(userData);
                 }, 1500);
                 return;
             }
             
-            // Para produção, usa OAuth real
+            // Para produção, verifica se estamos na página de callback
+            if (window.location.search.includes('code=')) {
+                processarCallbackGitHub();
+                return;
+            }
+            
+            // Se não é callback, inicia o fluxo OAuth
+            iniciarOAuthGitHub();
+        }
+
+        // ========== INICIAR OAUTH GITHUB ==========
+        function iniciarOAuthGitHub() {
+            const clientId = "Ov23liJ8ewJBXHhryv7y";
+            const redirectUri = encodeURIComponent(window.location.origin + "/auth/github/callback.html");
+            const scope = "read:user user:email";
+
+            const authUrl = 
+                `https://github.com/login/oauth/authorize?client_id=${clientId}` +
+                `&redirect_uri=${redirectUri}` +
+                `&scope=${scope}`;
+
+            console.log('🌐 Redirecionando para GitHub OAuth...', authUrl);
+            window.location.href = authUrl;
+        }
+
+        // ========== PROCESSAR CALLBACK GITHUB ==========
+        function processarCallbackGitHub() {
+            console.log('🔄 Processando callback do GitHub...');
+            
+            // Simulação - em produção você faria uma chamada para seu backend
+            // para trocar o code por access_token
             setTimeout(() => {
-                const clientId = "Ov23liJ8ewJBXHhryv7y";
-                const redirectUri = encodeURIComponent("https://armanfm.github.io/Terra-Dourada/auth/github/callback.html");
-                const scope = "read:user user:email";
-
-                const authUrl = 
-                    `https://github.com/login/oauth/authorize?client_id=${clientId}` +
-                    `&redirect_uri=${redirectUri}` +
-                    `&scope=${scope}`;
-
-                console.log('🌐 Redirecionando para GitHub OAuth...', authUrl);
-                window.location.href = authUrl;
+                const userData = {
+                    provider: "github",
+                    userId: "github_" + Math.floor(Math.random() * 1000000),
+                    email: "usuario@github.com",
+                    name: "Usuário GitHub",
+                    avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+                };
+                
+                criarContaERedirecionar(userData);
             }, 1000);
         }
 
-        // ========== SSO CORRIGIDO ==========
+        // ========== SSO ==========
         function openSSOModal() {
             const modal = document.getElementById('ssoModal');
             modal.style.display = 'flex';
@@ -476,7 +499,7 @@
 
             console.log(`🔐 Iniciando SSO para: ${dominio}`);
             
-            // Simulação do fluxo SSO com dados mais realistas
+            // Simulação do fluxo SSO
             setTimeout(() => {
                 const userData = {
                     provider: "sso",
@@ -494,20 +517,34 @@
         // ========== FUNÇÃO AUXILIAR: CRIAR CONTA E REDIRECIONAR ==========
         async function criarContaERedirecionar(userData) {
             try {
+                console.log('💾 Salvando dados do usuário:', userData);
+                
                 // 1. Salva no localStorage (para compatibilidade)
                 localStorage.setItem("usuario_logado", "true");
                 localStorage.setItem("usuario_provider", userData.provider);
                 localStorage.setItem("usuario_data", JSON.stringify(userData));
                 localStorage.setItem("usuario_login_time", new Date().toISOString());
                 
-                // 2. SALVA NO BANCO (DONO_DA_SALA)
+                // 2. SALVA NO BANCO (DONO_DA_SALA) - CORRIGIDO
                 const contaCriada = await criarContaUsuario(userData);
-                console.log('💾 Conta salva no banco:', contaCriada);
+                console.log('✅ Conta salva no banco:', contaCriada);
                 
-                // 3. Mostra mensagem de sucesso
+                // 3. Verifica se salvou corretamente
+                try {
+                    const contaVerificada = await dbConfig.get('dono_da_sala');
+                    console.log('🔍 Conta verificada no banco:', contaVerificada);
+                    
+                    if (contaVerificada.email !== userData.email) {
+                        console.warn('⚠️ Possível inconsistência nos dados salvos');
+                    }
+                } catch (err) {
+                    console.error('❌ Erro ao verificar conta:', err);
+                }
+                
+                // 4. Mostra mensagem de sucesso
                 showSuccess();
                 
-                // 4. Redireciona após breve delay
+                // 5. Redireciona após breve delay
                 setTimeout(() => {
                     console.log('🚀 Redirecionando para autoridade.html');
                     window.location.href = "autoridade.html";
@@ -518,23 +555,6 @@
                 hideLoading();
                 alert('Erro ao criar conta: ' + error.message);
             }
-        }
-
-        // ========== MODO TESTE ==========
-        function testLogin() {
-            showLoading('Modo Teste');
-            
-            setTimeout(() => {
-                const userData = {
-                    provider: "teste",
-                    userId: `test_${Date.now()}`,
-                    email: "desenvolvedor@terra-dourada.com",
-                    name: "Desenvolvedor Teste",
-                    company: "Terra Dourada Labs"
-                };
-                
-                criarContaERedirecionar(userData);
-            }, 1000);
         }
 
         // ========== FUNÇÕES DE UI ==========
@@ -562,30 +582,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Login Terra Dourada carregado');
             
-            // Verifica se já está logado
-            try {
-                const usuarioLogado = localStorage.getItem("usuario_logado");
-                const usuarioData = JSON.parse(localStorage.getItem("usuario_data") || '{}');
-                
-                if (usuarioLogado === "true" && usuarioData.email) {
-                    console.log('👤 Usuário já logado:', usuarioData);
-                    document.getElementById('loading').textContent = '🔄 Reconectando...';
-                    document.getElementById('loading').style.display = 'block';
-                    
-                    // Revalida a conta no banco
-                    setTimeout(async () => {
-                        try {
-                            await criarContaUsuario(usuarioData);
-                            window.location.href = "autoridade.html";
-                        } catch (error) {
-                            console.error('Erro ao reconectar:', error);
-                            hideLoading();
-                        }
-                    }, 1000);
-                }
-            } catch (e) {
-                console.log('🔓 Nenhum usuário logado anteriormente');
-            }
+            // REMOVIDO: O login automático que estava causando o problema
+            // Agora o usuário precisa clicar manualmente em uma opção de login
             
             // Fecha modal se clicar fora
             document.getElementById('ssoModal').addEventListener('click', function(e) {
@@ -600,11 +598,23 @@
             try {
                 const conta = await dbConfig.get('dono_da_sala');
                 console.log('📋 Conta atual:', conta);
+                alert('Conta: ' + JSON.stringify(conta, null, 2));
                 return conta;
             } catch (error) {
                 console.log('❌ Nenhuma conta encontrada');
+                alert('Nenhuma conta encontrada no banco');
                 return null;
             }
+        };
+
+        // Função para limpar dados (debug)
+        window.limparLogin = function() {
+            localStorage.clear();
+            dbConfig.destroy().then(function() {
+                console.log('🗑️ Banco limpo');
+                alert('Dados limpos! Recarregue a página.');
+                location.reload();
+            });
         };
     </script>
 </body>
