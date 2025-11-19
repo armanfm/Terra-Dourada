@@ -507,7 +507,7 @@
     <div id="tab-perfil" style="display: none;">
       <h2 style="text-align: center; color: #2d8cf0; margin-bottom: 30px;">👤 Editar Perfil</h2>
       
-      <div class="form-container">
+      <div class="form-container" id="perfilForm">
         <!-- Foto de Perfil -->
         <div class="photo-upload">
           <div class="photo-preview" id="perfilPhotoPreview">
@@ -544,10 +544,10 @@
           </div>
         </div>
         
-       <div class="form-group">
-  <label for="perfilAreaAtuacao"><i class="fas fa-briefcase"></i> Área de Atuação</label>
-  <input type="text" id="perfilAreaAtuacao" placeholder="Ex: Política, Educação, Tecnologia, etc.">
-</div>
+        <div class="form-group">
+          <label for="perfilAreaAtuacao"><i class="fas fa-briefcase"></i> Área de Atuação</label>
+          <input type="text" id="perfilAreaAtuacao" placeholder="Ex: Política, Educação, Tecnologia, etc.">
+        </div>
         
         <button class="submit-btn" onclick="salvarPerfil()">
           💾 SALVAR PERFIL
@@ -804,7 +804,7 @@ document.getElementById('perfilTelefone').addEventListener('input', function(e) 
   e.target.value = value;
 });
 
-// --- NOVO: Carregar dados do perfil ---
+// --- NOVO: Carregar dados do perfil (CORRIGIDO) ---
 async function carregarDadosPerfil() {
   if (!usuarioLogado) return;
   
@@ -826,11 +826,17 @@ async function carregarDadosPerfil() {
         document.getElementById('perfilPhotoPreview').innerHTML = `<img src="${perfil.foto}" alt="Foto de perfil">`;
       }
       
+      // ⭐⭐ IMPORTANTE: Guardar a revisão atual para edição
+      document.getElementById('perfilForm').dataset.rev = perfil._rev;
+      document.getElementById('perfilForm').dataset.existing = 'true';
+      
     } catch (error) {
       // Perfil não existe ainda, usar dados básicos
       if (error.name === 'not_found') {
         document.getElementById('perfilEmail').value = usuarioLogado.email;
         document.getElementById('perfilNome').value = usuarioLogado.name || '';
+        document.getElementById('perfilForm').dataset.existing = 'false';
+        document.getElementById('perfilForm').dataset.rev = '';
       }
     }
     
@@ -839,7 +845,7 @@ async function carregarDadosPerfil() {
   }
 }
 
-// --- NOVO: Salvar perfil ---
+// --- NOVO: Salvar/Editar perfil (CORRIGIDO) ---
 async function salvarPerfil() {
   if (!usuarioLogado) {
     alert('Erro: Usuário não identificado.');
@@ -849,7 +855,7 @@ async function salvarPerfil() {
   const nome = document.getElementById('perfilNome').value.trim();
   const telefone = document.getElementById('perfilTelefone').value.trim();
   const localizacao = document.getElementById('perfilLocalizacao').value.trim();
- const areaAtuacao = document.getElementById('perfilAreaAtuacao').value.trim();
+  const areaAtuacao = document.getElementById('perfilAreaAtuacao').value.trim();
 
   // Validação
   if (!nome) {
@@ -862,10 +868,11 @@ async function salvarPerfil() {
     return;
   }
 
-
-
   try {
     const perfilId = `perfil_${usuarioLogado.email}`;
+    const form = document.getElementById('perfilForm');
+    const isExisting = form.dataset.existing === 'true';
+    const currentRev = form.dataset.rev;
     
     // Preparar dados do perfil
     const perfil = {
@@ -880,10 +887,19 @@ async function salvarPerfil() {
       provider: usuarioLogado.provider
     };
 
-    // Salvar no banco de dados
-    await dbPerfis.put(perfil);
+    // ⭐⭐ IMPORTANTE: Incluir a revisão se for edição
+    if (isExisting && currentRev) {
+      perfil._rev = currentRev;
+    }
+
+    // Salvar/Atualizar no banco de dados
+    const resultado = await dbPerfis.put(perfil);
     
-    console.log('💾 Perfil salvo:', perfil);
+    // ⭐⭐ ATUALIZAR a revisão para próxima edição
+    form.dataset.rev = resultado.rev;
+    form.dataset.existing = 'true';
+    
+    console.log('💾 Perfil salvo/editado:', perfil);
     alert('✅ Perfil salvo com sucesso!');
     
     // Atualizar info do usuário
@@ -891,7 +907,14 @@ async function salvarPerfil() {
     
   } catch (error) {
     console.error('Erro ao salvar perfil:', error);
-    alert('Erro ao salvar perfil. Tente novamente.');
+    
+    // ⭐⭐ TRATAR CONFLITO DE EDIÇÃO
+    if (error.name === 'conflict') {
+      alert('❌ Conflito de edição. O perfil foi modificado por outra sessão. Recarregando dados...');
+      await carregarDadosPerfil(); // Recarregar dados atualizados
+    } else {
+      alert('Erro ao salvar perfil. Tente novamente.');
+    }
   }
 }
 
