@@ -544,6 +544,11 @@
           </div>
         </div>
         
+       <div class="form-group">
+  <label for="perfilAreaAtuacao"><i class="fas fa-briefcase"></i> Área de Atuação</label>
+  <input type="text" id="perfilAreaAtuacao" placeholder="Ex: Política, Educação, Tecnologia, etc.">
+</div>
+        
         <button class="submit-btn" onclick="salvarPerfil()">
           💾 SALVAR PERFIL
         </button>
@@ -814,6 +819,7 @@ async function carregarDadosPerfil() {
       document.getElementById('perfilEmail').value = perfil.email || usuarioLogado.email;
       document.getElementById('perfilTelefone').value = perfil.telefone || '';
       document.getElementById('perfilLocalizacao').value = perfil.localizacao || '';
+      document.getElementById('perfilAreaAtuacao').value = perfil.areaAtuacao || '';
       
       if (perfil.foto) {
         perfilPhotoBase64 = perfil.foto;
@@ -843,6 +849,7 @@ async function salvarPerfil() {
   const nome = document.getElementById('perfilNome').value.trim();
   const telefone = document.getElementById('perfilTelefone').value.trim();
   const localizacao = document.getElementById('perfilLocalizacao').value.trim();
+ const areaAtuacao = document.getElementById('perfilAreaAtuacao').value.trim();
 
   // Validação
   if (!nome) {
@@ -855,6 +862,8 @@ async function salvarPerfil() {
     return;
   }
 
+
+
   try {
     const perfilId = `perfil_${usuarioLogado.email}`;
     
@@ -865,6 +874,7 @@ async function salvarPerfil() {
       email: usuarioLogado.email,
       telefone: telefone,
       localizacao: localizacao,
+      areaAtuacao: areaAtuacao,
       foto: perfilPhotoBase64,
       atualizadoEm: new Date().toISOString(),
       provider: usuarioLogado.provider
