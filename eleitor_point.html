@@ -366,7 +366,7 @@
     
     <div class="botoes-header">
       <button onclick="abrirConfigAPI()" class="btn-header">⚙️ Configurar API</button>
-      <button onclick="compartilharLink()" class="btn-compartilhar-header">📤 Compartilhar Link</button>
+      <button onclick="abrirSalaPublica()" class="btn-compartilhar-header">📤 Sala Pública</button>
     </div>
     
     <div id="api-status" class="api-status nao-configurada"></div>
@@ -376,8 +376,7 @@
   <!-- Tela de acesso negado -->
   <div id="access-denied" class="access-denied" style="display: none;">
     <h2>❌ ACESSO NEGADO</h2>
-    <p>Esta eleição pertence a outro usuário.</p>
-    <p>Você não tem permissão para autorizar votos nesta eleição.</p>
+    <p id="mensagem-acesso-negado">Esta eleição pertence a outro usuário.</p>
     <button onclick="window.location.href = 'autoridade.html'" class="btn-confirmar">
       🏠 Voltar ao Painel
     </button>
@@ -528,6 +527,56 @@ let API_CONFIG = {
   configurado: false
 };
 
+// ⭐⭐ FUNÇÃO NOVA: Abrir sala pública
+function abrirSalaPublica() {
+  window.location.href = `public_eleicao.html`;
+}
+
+// ⭐⭐ FUNÇÃO NOVA: Verificar se é máquina autorizada para eleição presencial
+async function verificarMaquinaAutorizada() {
+  try {
+    console.log('🔍 Verificando se máquina está autorizada...');
+    
+    // 1️⃣ Obter identificador único da máquina
+    const maquinaId = await obterIdMaquina();
+    console.log('🖥️ ID da máquina:', maquinaId);
+    
+    // 2️⃣ Buscar lista de máquinas autorizadas para esta eleição
+    try {
+      const maquinasAutorizadas = await dbEleicoes.get(`maquinas_${electionId}`);
+      console.log('📋 Máquinas autorizadas:', maquinasAutorizadas.maquinas);
+      
+      // 3️⃣ Verificar se esta máquina está na lista
+      const autorizada = maquinasAutorizadas.maquinas.includes(maquinaId);
+      console.log(autorizada ? '✅ Máquina autorizada' : '❌ Máquina não autorizada');
+      
+      return autorizada;
+    } catch (error) {
+      console.log('⚠️ Nenhuma máquina cadastrada para esta eleição');
+      return false;
+    }
+    
+  } catch (error) {
+    console.error('❌ Erro ao verificar máquina:', error);
+    return false;
+  }
+}
+
+// ⭐⭐ FUNÇÃO: Obter ID único da máquina
+async function obterIdMaquina() {
+  // Tentar pegar ID salvo no localStorage
+  let maquinaId = localStorage.getItem('maquina_id');
+  
+  if (!maquinaId) {
+    // Gerar novo ID único para esta máquina
+    maquinaId = 'maq_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+    localStorage.setItem('maquina_id', maquinaId);
+    console.log('🆔 Nova máquina registrada:', maquinaId);
+  }
+  
+  return maquinaId;
+}
+
 // ⭐⭐ FUNÇÃO NOVA: Identificar usuário logado
 async function identificarUsuarioLogado() {
   try {
@@ -587,7 +636,7 @@ async function verificarAcessoEleicao() {
   }
 }
 
-// ⭐⭐ MODIFICADA: Inicialização com verificação de acesso
+// ⭐⭐ MODIFICADA: Inicialização com verificação de acesso E máquina para eleições presenciais
 document.addEventListener("DOMContentLoaded", async function() {
   // Identificar usuário primeiro
   usuarioLogado = await identificarUsuarioLogado();
@@ -606,8 +655,19 @@ document.addEventListener("DOMContentLoaded", async function() {
     // ✅ VERIFICAR acesso antes de carregar
     const acessoPermitido = await verificarAcessoEleicao();
     if (acessoPermitido) {
-      document.getElementById('conteudo-principal').style.display = 'block';
+      // ✅ CARREGAR ELEIÇÃO E VERIFICAR TIPO
       await carregarInfoEleicao();
+      
+      // ⭐⭐ NOVA VERIFICAÇÃO: Se for presencial, verificar máquina
+      if (eleicaoAtual && eleicaoAtual.tipo === 'presencial') {
+        const maquinaAutorizada = await verificarMaquinaAutorizada();
+        if (!maquinaAutorizada) {
+          mostrarAcessoNegado('📍 Voto presencial apenas em locais autorizados. Esta máquina não está cadastrada para esta eleição.');
+          return;
+        }
+      }
+      
+      document.getElementById('conteudo-principal').style.display = 'block';
     } else {
       mostrarAcessoNegado('Esta eleição pertence a outro usuário.');
     }
@@ -620,8 +680,8 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 // ⭐⭐ FUNÇÃO NOVA: Mostrar tela de acesso negado
 function mostrarAcessoNegado(mensagem) {
+  document.getElementById('mensagem-acesso-negado').textContent = mensagem;
   document.getElementById('access-denied').style.display = 'block';
-  document.getElementById('access-denied').querySelector('p').textContent = mensagem;
   document.getElementById('conteudo-principal').style.display = 'none';
 }
 
