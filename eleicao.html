@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terra Dourada - Eleições</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset e Variáveis - Mesmo estilo da página principal */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        :root {
+            --primary-gold: #d4af37;
+            --dark-gold: #b8941f;
+            --earth-brown: #8B4513;
+            --deep-green: #2d5016;
+            --dark-bg: #0a0f0a;
+            --card-bg: #1a1f1a;
+            --light-text: #f5f5f5;
+            --accent-blue: #2a9fd6;
+            --accent-green: #4CAF50;
+            --transparency: rgba(255,255,255,0.1);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        section {
+            padding: 80px 0;
+        }
+        
+        /* Cabeçalho Simplificado */
+        header {
+            background-color: rgba(10, 15, 10, 0.95);
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        header.scrolled {
+            padding: 15px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            color: var(--primary-gold);
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-left: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+            color: var(--primary-gold);
+        }
+        
+        /* Hero Section Removida - Substituída por título simples */
+        .page-header {
+            background-color: var(--dark-bg);
+            padding: 140px 0 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 20%, rgba(45, 80, 22, 0.1) 0%, transparent 50%);
+        }
+        
+        .page-title {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            line-height: 1.2;
+        }
+        
+        .page-title h2 span {
+            color: var(--primary-gold);
+            font-weight: 400;
+            position: relative;
+        }
+        
+        .page-title h2 span::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-gold), transparent);
+        }
+        
+        .page-title p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            line-height: 1.8;
+            color: rgba(245, 245, 245, 0.8);
+        }
+        
+        .btn {
+            display: inline-block;
+            background: transparent;
+            color: var(--primary-gold);
+            padding: 14px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.4s ease;
+            border: 1px solid var(--primary-gold);
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+        
+        .btn:hover {
+            background-color: rgba(212, 175, 55, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2);
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gold);
+            color: var(--dark-bg);
+        }
+        
+        .btn-primary:hover {
+            background: var(--dark-gold);
+        }
+        
+        /* Section Title */
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--light-text);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-gold), transparent);
+        }
+        
+        /* Eleições Section - Agora é a primeira seção */
+        .eleicoes {
+            background-color: var(--dark-bg);
+            padding: 40px 0 80px;
+        }
+        
+        .eleicoes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .eleicao-card {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.8), rgba(40, 45, 40, 0.8));
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .eleicao-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--primary-gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .eleicao-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .eleicao-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .eleicao-status {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .status-ativa {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--accent-green);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .status-em-breve {
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--primary-gold);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .status-encerrada {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+        
+        .eleicao-card h3 {
+            color: var(--light-text);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+        
+        .eleicao-desc {
+            color: rgba(245, 245, 245, 0.8);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        
+        .eleicao-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            color: rgba(245, 245, 245, 0.7);
+        }
+        
+        .eleicao-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        /* Como Funciona Section */
+        .como-funciona {
+            background-color: var(--card-bg);
+        }
+        
+        .passos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+        
+        .passo-card {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        .passo-numero {
+            width: 60px;
+            height: 60px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            font-size: 1.5rem;
+            color: var(--primary-gold);
+            font-weight: 600;
+        }
+        
+        .passo-card h3 {
+            color: var(--light-text);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 400;
+        }
+        
+        .passo-card p {
+            color: rgba(245, 245, 245, 0.8);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+        
+        /* Resultados Section */
+        .resultados {
+            background-color: var(--dark-bg);
+        }
+        
+        .resultados-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .resultado-item {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.8), rgba(40, 45, 40, 0.8));
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .candidato-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .candidato-foto {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            font-size: 1.5rem;
+            color: var(--primary-gold);
+        }
+        
+        .candidato-detalhes h4 {
+            color: var(--light-text);
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .candidato-detalhes p {
+            color: rgba(245, 245, 245, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .votos-info {
+            text-align: right;
+        }
+        
+        .votos-count {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-gold);
+            margin-bottom: 5px;
+        }
+        
+        .votos-percent {
+            color: rgba(245, 245, 245, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        /* Rodapé */
+        footer {
+            background-color: var(--card-bg);
+            color: var(--light-text);
+            padding: 80px 0 40px;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+            margin-bottom: 50px;
+        }
+        
+        .footer-column h3 {
+            color: var(--primary-gold);
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        
+        .footer-column p, .footer-column a {
+            color: rgba(245, 245, 245, 0.7);
+            text-decoration: none;
+            margin-bottom: 12px;
+            display: block;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-column a:hover {
+            color: var(--primary-gold);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary-gold);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            font-size: 0.9rem;
+            color: rgba(245, 245, 245, 0.5);
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .page-header {
+                padding: 120px 0 30px;
+            }
+            
+            .page-title h2 {
+                font-size: 2rem;
+            }
+            
+            .page-title p {
+                font-size: 1rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .eleicao-actions {
+                flex-direction: column;
+            }
+            
+            .resultado-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .votos-info {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho Simplificado -->
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🌍</span>
+                    <h1>TERRA DOURADA</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Header Simples da Página -->
+    <section class="page-header">
+        <div class="container">
+            <div class="page-title">
+                <h2>DEMOCRACIA <span>LÍQUIDA</span></h2>
+                <p>Participe das eleições através do nosso sistema de votação baseado em blockchain.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Eleições Section - Agora é a primeira seção de conteúdo -->
+    <section class="eleicoes" id="eleicoes">
+        <div class="container">
+            <div class="eleicoes-grid">
+                <div class="eleicao-card">
+                    <span class="eleicao-status status-ativa">ATIVA</span>
+                    <h3>Conselho de Governança 2024</h3>
+                    <p class="eleicao-desc">Eleição para os 7 membros do Conselho de Governança que irão liderar as decisões estratégicas da Terra Dourada no próximo ano.</p>
+                    <div class="eleicao-info">
+                        <div><i class="far fa-calendar"></i> Encerra em: 15/12/2023</div>
+                        <div><i class="fas fa-users"></i> 12.543 votantes</div>
+                    </div>
+                    <div class="eleicao-actions">
+                        <a href="votacao.html" class="btn btn-primary">Votar Agora</a>
+                        <a href="detalhes-eleicao.html" class="btn">Ver Detalhes</a>
+                    </div>
+                </div>
+                
+                <div class="eleicao-card">
+                    <span class="eleicao-status status-ativa">ATIVA</span>
+                    <h3>Proposta de Orçamento 2024</h3>
+                    <p class="eleicao-desc">Referendo sobre a alocação de recursos para os diferentes setores da Terra Dourada no próximo ano fiscal.</p>
+                    <div class="eleicao-info">
+                        <div><i class="far fa-calendar"></i> Encerra em: 10/12/2023</div>
+                        <div><i class="fas fa-users"></i> 8.921 votantes</div>
+                    </div>
+                    <div class="eleicao-actions">
+                        <a href="votacao.html" class="btn btn-primary">Votar Agora</a>
+                        <a href="detalhes-eleicao.html" class="btn">Ver Detalhes</a>
+                    </div>
+                </div>
+                
+                <div class="eleicao-card">
+                    <span class="eleicao-status status-em-breve">EM BREVE</span>
+                    <h3>Comitê de Sustentabilidade</h3>
+                    <p class="eleicao-desc">Eleição para o comitê responsável por supervisionar as iniciativas de sustentabilidade e economia circular.</p>
+                    <div class="eleicao-info">
+                        <div><i class="far fa-calendar"></i> Inicia em: 05/01/2024</div>
+                        <div><i class="fas fa-users"></i> Aberto a todos</div>
+                    </div>
+                    <div class="eleicao-actions">
+                        <button class="btn" disabled>Em Breve</button>
+                        <a href="detalhes-eleicao.html" class="btn">Ver Detalhes</a>
+                    </div>
+                </div>
+                
+                <div class="eleicao-card">
+                    <span class="eleicao-status status-encerrada">ENCERRADA</span>
+                    <h3>Alteração no Protocolo AUR</h3>
+                    <p class="eleicao-desc">Votação sobre a proposta de atualização do protocolo da moeda Aureus para melhorar eficiência energética.</p>
+                    <div class="eleicao-info">
+                        <div><i class="far fa-calendar"></i> Encerrada em: 15/11/2023</div>
+                        <div><i class="fas fa-users"></i> 15.234 votantes</div>
+                    </div>
+                    <div class="eleicao-actions">
+                        <a href="resultados.html" class="btn btn-primary">Ver Resultados</a>
+                        <a href="detalhes-eleicao.html" class="btn">Ver Detalhes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Como Funciona Section -->
+    <section class="como-funciona">
+        <div class="container">
+            <div class="section-title">
+                <h2>COMO FUNCIONA</h2>
+            </div>
+            <div class="passos-grid">
+                <div class="passo-card">
+                    <div class="passo-numero">1</div>
+                    <h3>Autenticação</h3>
+                    <p>Faça login com sua identidade digital verificada na blockchain da Terra Dourada.</p>
+                </div>
+                
+                <div class="passo-card">
+                    <div class="passo-numero">2</div>
+                    <h3>Seleção</h3>
+                    <p>Escolha entre as eleições ativas e revise as propostas ou candidatos.</p>
+                </div>
+                
+                <div class="passo-card">
+                    <div class="passo-numero">3</div>
+                    <h3>Votação</h3>
+                    <p>Emita seu voto de forma segura e anônima através do sistema blockchain.</p>
+                </div>
+                
+                <div class="passo-card">
+                    <div class="passo-numero">4</div>
+                    <h3>Verificação</h3>
+                    <p>Acompanhe a apuração em tempo real com total transparência e auditabilidade.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resultados Section -->
+    <section class="resultados">
+        <div class="container">
+            <div class="section-title">
+                <h2>RESULTADOS RECENTES</h2>
+            </div>
+            <div class="resultados-content">
+                <div class="resultado-item">
+                    <div class="candidato-info">
+                        <div class="candidato-foto">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="candidato-detalhes">
+                            <h4>Proposta Aprovada</h4>
+                            <p>Implantação de Sistema de Energia Solar</p>
+                        </div>
+                    </div>
+                    <div class="votos-info">
+                        <div class="votos-count">12.543 votos</div>
+                        <div class="votos-percent">78.5% de aprovação</div>
+                    </div>
+                </div>
+                
+                <div class="resultado-item">
+                    <div class="candidato-info">
+                        <div class="candidato-foto">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="candidato-detalhes">
+                            <h4>Proposta Rejeitada</h4>
+                            <p>Alteração na Taxa de Transação AUR</p>
+                        </div>
+                    </div>
+                    <div class="votos-info">
+                        <div class="votos-count">8.921 votos</div>
+                        <div class="votos-percent">41.2% de aprovação</div>
+                    </div>
+                </div>
+                
+                <div class="resultado-item">
+                    <div class="candidato-info">
+                        <div class="candidato-foto">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="candidato-detalhes">
+                            <h4>Maria Silva</h4>
+                            <p>Eleita para Conselho de Inovação</p>
+                        </div>
+                    </div>
+                    <div class="votos-info">
+                        <div class="votos-count">9.876 votos</div>
+                        <div class="votos-percent">62.1% dos votos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>TERRA DOURADA</h3>
+                    <p>Uma proposta de convívio baseada em transparência radical, verificação perpétua e economia circular.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>LINKS RÁPIDOS</h3>
+                    <a href="index.html">Início</a>
+                    <a href="index.html#manifesto">Manifesto</a>
+                    <a href="index.html#produtos">Produtos</a>
+                    <a href="eleicoes.html">Eleições</a>
+                    <a href="index.html#contato">Contato</a>
+                </div>
+                <div class="footer-column">
+                    <h3>ECOSSISTEMA</h3>
+                    <a href="#">Carteira Digital</a>
+                    <a href="eleicoes.html">Plataforma de Votação</a>
+                    <a href="#">Mercado de Ativos</a>
+                    <a href="#">Documentação</a>
+                </div>
+                <div class="footer-column">
+                    <h3>NEWSLETTER</h3>
+                    <p>Inscreva-se para receber atualizações sobre eleições e novidades.</p>
+                    <form id="newsletterForm">
+                        <div class="form-group">
+                            <input type="email" class="form-control" placeholder="Seu email" required>
+                        </div>
+                        <button type="submit" class="btn">Inscrever-se</button>
+                    </form>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Terra Dourada. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Newsletter form submission
+        document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Inscrição realizada com sucesso!');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
