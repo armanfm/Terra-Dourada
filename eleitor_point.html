@@ -335,24 +335,10 @@
       font-size: 0.9rem;
       color: #d4af37;
     }
-
-    .access-denied {
-      text-align: center;
-      padding: 60px 20px;
-      color: #ff4444;
-    }
-    .access-denied h2 {
-      margin-bottom: 20px;
-    }
   </style>
 </head>
 
 <body>
-
-<!-- Informação do usuário logado -->
-<div class="user-info" id="userInfo">
-  <i class="fas fa-user"></i> Carregando...
-</div>
 
 <div id="loading" class="loading">
   <div class="loading-spinner"></div>
@@ -373,17 +359,8 @@
     <div id="status-compartilhamento" class="status-compartilhamento"></div>
   </header>
 
-  <!-- Tela de acesso negado -->
-  <div id="access-denied" class="access-denied" style="display: none;">
-    <h2>❌ ACESSO NEGADO</h2>
-    <p id="mensagem-acesso-negado">Esta eleição pertence a outro usuário.</p>
-    <button onclick="window.location.href = 'autoridade.html'" class="btn-confirmar">
-      🏠 Voltar ao Painel
-    </button>
-  </div>
-
-  <!-- Conteúdo principal (só mostra se tiver acesso) -->
-  <div id="conteudo-principal" style="display: none;">
+  <!-- Conteúdo principal -->
+  <div id="conteudo-principal">
     <div id="modal-config-api" class="modal">
       <div class="modal-content">
         <h3 style="color: #d4af37; margin-bottom: 20px;">⚙️ Configurar API do Cliente</h3>
@@ -429,9 +406,9 @@
     </div>
 
     <div id="quadrado-principal" class="quadrado-principal">
-      <div class="icone-grande" id="icone-tipo"></div>
-      <h2 class="titulo-quadrado" id="titulo-tipo"></h2>
-      <p class="descricao-quadrado" id="descricao-tipo"></p>
+      <div class="icone-grande" id="icone-tipo">🌐</div>
+      <h2 class="titulo-quadrado" id="titulo-tipo">AUTORIZAR VOTO ONLINE</h2>
+      <p class="descricao-quadrado" id="descricao-tipo">Identifique o eleitor para gerar autorização de voto</p>
       
       <div class="secao">
         <h3>1️⃣ Escolher Método de Identificação</h3>
@@ -468,21 +445,6 @@
         <div id="formulario-identificacao"></div>
       </div>
 
-      <div id="segunda-autorizacao">
-        <h3>🔒 Segunda Autorização (Presencial)</h3>
-        <p>Confirmação adicional requerida para voto presencial</p>
-        <div class="form-group">
-          <label for="confirmacao-mesario">Confirmação do Mesário</label>
-          <select id="confirmacao-mesario">
-            <option value=""></option>
-            <option value="documento_verificado">✅ Documento verificado</option>
-            <option value="identidade_confirmada">✅ Identidade confirmada</option>
-            <option value="eleitor_apto">✅ Eleitor apto para votar</option>
-          </select>
-        </div>
-        <button onclick="validarSegundaAutorizacao()" class="btn-confirmar">✅ Confirmar Autorização</button>
-      </div>
-
       <div id="botao-autorizar" style="display: none;">
         <button onclick="autorizarVoto()" class="btn-confirmar">🎫 AUTORIZAR VOTO</button>
       </div>
@@ -491,7 +453,7 @@
         <div class="resultado-container">
           <h3>✅ Voto Autorizado!</h3>
           <div class="codigo-identificador" id="codigo-autorizacao"></div>
-          <p id="mensagem-autorizacao"></p>
+          <p id="mensagem-autorizacao">Autorização online confirmada!</p>
           <button onclick="irParaVotacao()" class="btn-confirmar">🗳️ IR PARA VOTAÇÃO</button>
         </div>
       </div>
@@ -503,7 +465,6 @@
 // ⭐⭐ BANCOS DE DADOS
 const dbAutorizacoes = new PouchDB('terra_dourada_autorizacoes');
 const dbEleicoes = new PouchDB('terra_dourada_eleicoes');
-const dbConfig = new PouchDB('terra_dourada_config');
 
 let electionId = null;
 let eleicaoAtual = null;
@@ -512,8 +473,6 @@ let dadosEleitorAtual = null;
 let stream = null;
 let qrScannerActive = false;
 let barcodeScannerActive = false;
-let segundaAutorizacaoAprovada = false;
-let usuarioLogado = null;
 
 let API_CONFIG = {
   baseURL: '',
@@ -527,107 +486,23 @@ let API_CONFIG = {
   configurado: false
 };
 
-// ⭐⭐ FUNÇÃO NOVA: Abrir sala pública
+// ⭐⭐ FUNÇÃO: Abrir sala pública
 function abrirSalaPublica() {
   window.location.href = `public_eleicao.html`;
 }
 
-// ⭐⭐ FUNÇÃO NOVA: Identificar usuário logado
-async function identificarUsuarioLogado() {
-  try {
-    console.log('🔍 Identificando usuário logado...');
-    
-    // Do localStorage
-    const usuarioData = JSON.parse(localStorage.getItem("usuario_data") || '{}');
-    if (usuarioData.email) {
-      console.log('✅ Usuário do localStorage:', usuarioData.email);
-      return usuarioData;
-    }
-    
-    // Do PouchDB
-    const conta = await dbConfig.get('dono_da_sala');
-    console.log('✅ Usuário do PouchDB:', conta.email);
-    return conta;
-    
-  } catch (error) {
-    console.error('❌ Erro ao identificar usuário:', error);
-    return null;
-  }
-}
-
-// ⭐⭐ FUNÇÃO NOVA: Atualizar info do usuário na tela
-function atualizarInfoUsuario(usuario) {
-  const userInfo = document.getElementById('userInfo');
-  if (usuario && userInfo) {
-    userInfo.innerHTML = `<i class="fas fa-user"></i> ${usuario.name || usuario.email} (${usuario.provider})`;
-  }
-}
-
-// ⭐⭐ FUNÇÃO NOVA: Verificar acesso à eleição
-async function verificarAcessoEleicao() {
-  try {
-    if (!usuarioLogado) {
-      console.error('❌ Usuário não identificado');
-      return false;
-    }
-
-    console.log('🔐 Verificando acesso à eleição:', electionId);
-    
-    const eleicao = await dbEleicoes.get(electionId);
-    console.log('📊 Dados da eleição:', eleicao);
-    
-    // ✅ VERIFICAR: se a eleição pertence ao usuário
-    if (eleicao.ownerId !== usuarioLogado.email && eleicao.ownerEmail !== usuarioLogado.email) {
-      console.log('❌ Acesso negado! Eleição pertence a outro usuário.');
-      return false;
-    }
-    
-    console.log('✅ Acesso permitido! Eleição pertence ao usuário.');
-    return true;
-    
-  } catch (error) {
-    console.error('❌ Erro ao verificar acesso:', error);
-    return false;
-  }
-}
-
-// ⭐⭐ MODIFICADA: Inicialização SEM verificação de máquinas
+// ⭐⭐ MODIFICADA: Inicialização SEM verificação de acesso - TOTALMENTE LIVRE
 document.addEventListener("DOMContentLoaded", async function() {
-  // Identificar usuário primeiro
-  usuarioLogado = await identificarUsuarioLogado();
-  
-  if (!usuarioLogado) {
-    mostrarAcessoNegado('Usuário não identificado. Faça login novamente.');
-    return;
-  }
-  
-  atualizarInfoUsuario(usuarioLogado);
-  
   const urlParams = new URLSearchParams(window.location.search);
   electionId = urlParams.get('eleicao') || urlParams.get('id');
   
   if (electionId) {
-    // ✅ VERIFICAR acesso antes de carregar
-    const acessoPermitido = await verificarAcessoEleicao();
-    if (acessoPermitido) {
-      document.getElementById('conteudo-principal').style.display = 'block';
-      await carregarInfoEleicao();
-    } else {
-      mostrarAcessoNegado('Esta eleição pertence a outro usuário.');
-    }
-  } else {
-    mostrarAcessoNegado('Nenhuma eleição especificada na URL.');
+    // ✅ ACESSO TOTALMENTE LIVRE - sem verificação de usuário
+    await carregarInfoEleicao();
   }
   
   carregarConfigAPI();
 });
-
-// ⭐⭐ FUNÇÃO NOVA: Mostrar tela de acesso negado
-function mostrarAcessoNegado(mensagem) {
-  document.getElementById('mensagem-acesso-negado').textContent = mensagem;
-  document.getElementById('access-denied').style.display = 'block';
-  document.getElementById('conteudo-principal').style.display = 'none';
-}
 
 function carregarConfigAPI() {
   const configSalva = localStorage.getItem('api_config_cliente');
@@ -847,21 +722,9 @@ function copiarLink(url) {
 async function carregarInfoEleicao() {
   try {
     eleicaoAtual = await dbEleicoes.get(electionId);
-    
     document.getElementById('info-eleicao').textContent = `Eleição: ${eleicaoAtual.name}`;
-    
-    if (eleicaoAtual.tipo === 'presencial') {
-      document.getElementById('icone-tipo').textContent = '🏛️';
-      document.getElementById('titulo-tipo').textContent = 'AUTORIZAR VOTO PRESENCIAL';
-      document.getElementById('descricao-tipo').textContent = 'Dupla autorização requerida para voto presencial';
-    } else {
-      document.getElementById('icone-tipo').textContent = '🌐';
-      document.getElementById('titulo-tipo').textContent = 'AUTORIZAR VOTO ONLINE';
-      document.getElementById('descricao-tipo').textContent = 'Identifique o eleitor para gerar autorização de voto';
-    }
-    
   } catch (error) {
-    document.getElementById('info-eleicao').textContent = 'Erro ao carregar eleição';
+    document.getElementById('info-eleicao').textContent = 'Eleição Online';
   }
 }
 
@@ -1385,63 +1248,29 @@ function validarReconhecimentoFacial() {
 }
 
 function prosseguirParaProximaEtapa() {
-  if (eleicaoAtual && eleicaoAtual.tipo === 'presencial') {
-    document.getElementById('segunda-autorizacao').style.display = 'block';
-  } else {
-    document.getElementById('botao-autorizar').style.display = 'block';
-  }
-}
-
-function validarSegundaAutorizacao() {
-  const confirmacao = document.getElementById('confirmacao-mesario').value;
-  
-  if (!confirmacao) {
-    alert('Selecione uma confirmação do mesário');
-    return;
-  }
-  
-  segundaAutorizacaoAprovada = true;
   document.getElementById('botao-autorizar').style.display = 'block';
-  document.getElementById('segunda-autorizacao').style.background = 'rgba(86, 171, 47, 0.1)';
-  document.getElementById('segunda-autorizacao').style.borderColor = '#56ab2f';
 }
 
-// ⭐⭐ MODIFICADA: Autorizar voto vinculando ao usuário
+// ⭐⭐ MODIFICADA: Autorizar voto SEM vínculo de usuário
 async function autorizarVoto() {
   if (!dadosEleitorAtual) return;
-  
-  if (eleicaoAtual && eleicaoAtual.tipo === 'presencial' && !segundaAutorizacaoAprovada) {
-    alert('Confirme a segunda autorização para voto presencial');
-    return;
-  }
   
   const token = 'auth_' + Math.random().toString(36).substr(2, 16);
   const codigo = `AUTH-${token.substr(5, 8).toUpperCase()}`;
   
-  // ✅ CORREÇÃO: Salvar com vínculo ao usuário
+  // ✅ SALVAR sem vínculo de usuário (acesso livre)
   await dbAutorizacoes.put({
     _id: token,
     electionId: electionId,
-    // ✅ NOVO: Vincular ao usuário
-    ownerId: usuarioLogado.email,
-    ownerEmail: usuarioLogado.email,
-    tipoEleicao: eleicaoAtual ? eleicaoAtual.tipo : 'online',
+    tipoEleicao: 'online',
     metodoIdentificacao: dadosEleitorAtual.metodo,
     dadosEleitor: dadosEleitorAtual,
-    segundaAutorizacao: segundaAutorizacaoAprovada,
     codigo: codigo,
     usado: false,
     dataCriacao: new Date().toISOString()
   });
   
   document.getElementById('codigo-autorizacao').textContent = codigo;
-  
-  if (eleicaoAtual && eleicaoAtual.tipo === 'presencial') {
-    document.getElementById('mensagem-autorizacao').textContent = 'Dupla autorização confirmada!';
-  } else {
-    document.getElementById('mensagem-autorizacao').textContent = 'Autorização online confirmada!';
-  }
-  
   document.getElementById('resultado-autorizacao').style.display = 'block';
   document.getElementById('botao-autorizar').style.display = 'none';
 }
