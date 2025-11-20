@@ -6,7 +6,7 @@
     <title>Terra Dourada - Eleições</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Reset e Variáveis - Mesmo estilo da página principal */
+        /* Reset e Variáveis */
         * {
             margin: 0;
             padding: 0;
@@ -36,6 +36,7 @@
             color: var(--light-text);
             line-height: 1.7;
             overflow-x: hidden;
+            min-height: 100vh;
         }
         
         .container {
@@ -89,8 +90,28 @@
             font-size: 1.8rem;
             color: var(--primary-gold);
         }
+
+        /* Botão Compartilhar no Header */
+        .btn-compartilhar {
+            background: linear-gradient(135deg, var(--primary-gold), var(--dark-gold));
+            color: var(--dark-bg);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         
-        /* Hero Section Removida - Substituída por título simples */
+        .btn-compartilhar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+        
+        /* Header da Página */
         .page-header {
             background-color: var(--dark-bg);
             padding: 140px 0 40px;
@@ -220,7 +241,7 @@
             background: linear-gradient(90deg, transparent, var(--primary-gold), transparent);
         }
         
-        /* Eleições Section - Agora é a primeira seção */
+        /* Eleições Section */
         .eleicoes {
             background-color: var(--dark-bg);
             padding: 40px 0 80px;
@@ -318,182 +339,46 @@
             display: flex;
             gap: 15px;
         }
-        
-        /* Como Funciona Section */
-        .como-funciona {
-            background-color: var(--card-bg);
-        }
-        
-        .passos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-        }
-        
-        .passo-card {
+
+        /* Card de Eleição Específica */
+        .eleicao-especifica {
+            background: linear-gradient(145deg, rgba(212, 175, 55, 0.1), rgba(26, 31, 26, 0.9));
+            border: 2px solid var(--primary-gold);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px auto;
+            max-width: 800px;
             text-align: center;
-            padding: 30px 20px;
+            position: relative;
+            overflow: hidden;
         }
         
-        .passo-numero {
-            width: 60px;
-            height: 60px;
-            background: rgba(212, 175, 55, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 25px;
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            font-size: 1.5rem;
-            color: var(--primary-gold);
-            font-weight: 600;
+        .eleicao-especifica::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
         }
         
-        .passo-card h3 {
-            color: var(--light-text);
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-            font-weight: 400;
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
         }
         
-        .passo-card p {
-            color: rgba(245, 245, 245, 0.8);
-            font-size: 1rem;
-            line-height: 1.7;
-        }
-        
-        /* Resultados Section */
-        .resultados {
-            background-color: var(--dark-bg);
-        }
-        
-        .resultados-content {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .resultado-item {
-            background: linear-gradient(145deg, rgba(26, 31, 26, 0.8), rgba(40, 45, 40, 0.8));
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
+        .info-item {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 10px;
             border: 1px solid rgba(212, 175, 55, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
-        .candidato-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .candidato-foto {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(212, 175, 55, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            font-size: 1.5rem;
-            color: var(--primary-gold);
-        }
-        
-        .candidato-detalhes h4 {
-            color: var(--light-text);
-            margin-bottom: 5px;
-            font-size: 1.2rem;
-        }
-        
-        .candidato-detalhes p {
-            color: rgba(245, 245, 245, 0.7);
-            font-size: 0.9rem;
-        }
-        
-        .votos-info {
-            text-align: right;
-        }
-        
-        .votos-count {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-gold);
-            margin-bottom: 5px;
-        }
-        
-        .votos-percent {
-            color: rgba(245, 245, 245, 0.7);
-            font-size: 0.9rem;
-        }
-        
-        /* Rodapé */
-        footer {
-            background-color: var(--card-bg);
-            color: var(--light-text);
-            padding: 80px 0 40px;
-            border-top: 1px solid rgba(212, 175, 55, 0.1);
-        }
-        
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 50px;
-            margin-bottom: 50px;
-        }
-        
-        .footer-column h3 {
-            color: var(--primary-gold);
-            margin-bottom: 25px;
-            font-size: 1.3rem;
-            font-weight: 400;
-            letter-spacing: 1px;
-        }
-        
-        .footer-column p, .footer-column a {
-            color: rgba(245, 245, 245, 0.7);
-            text-decoration: none;
-            margin-bottom: 12px;
-            display: block;
-            transition: color 0.3s ease;
-        }
-        
-        .footer-column a:hover {
-            color: var(--primary-gold);
-        }
-        
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-        
-        .social-links a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background-color: rgba(212, 175, 55, 0.1);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-        
-        .social-links a:hover {
-            background-color: var(--primary-gold);
-            transform: translateY(-3px);
-        }
-        
-        .copyright {
-            text-align: center;
-            padding-top: 40px;
-            border-top: 1px solid rgba(212, 175, 55, 0.1);
-            font-size: 0.9rem;
-            color: rgba(245, 245, 245, 0.5);
+        .hidden {
+            display: none;
         }
         
         /* Responsividade */
@@ -501,6 +386,7 @@
             .header-content {
                 flex-direction: column;
                 text-align: center;
+                gap: 15px;
             }
             
             .page-header {
@@ -523,14 +409,8 @@
                 flex-direction: column;
             }
             
-            .resultado-item {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
-            }
-            
-            .votos-info {
-                text-align: center;
+            .info-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -544,6 +424,9 @@
                     <span class="logo-icon">🌍</span>
                     <h1>TERRA DOURADA</h1>
                 </div>
+                <button class="btn-compartilhar" onclick="compartilharEleicao()">
+                    <i class="fas fa-share-alt"></i> COMPARTILHAR
+                </button>
             </div>
         </div>
     </header>
@@ -553,213 +436,99 @@
         <div class="container">
             <div class="page-title">
                 <h2>DEMOCRACIA <span>LÍQUIDA</span></h2>
-                <p>Participe das eleições através do nosso sistema de votação baseado em blockchain.</p>
+                <p id="subtitulo-dinamico">Participe das eleições através do nosso sistema de votação baseado em blockchain.</p>
             </div>
         </div>
     </section>
 
-    <!-- Eleições Section - Agora é a primeira seção de conteúdo -->
+    <!-- Eleição Específica (quando compartilhada) -->
     <section class="eleicoes" id="eleicoes">
         <div class="container">
-            <div class="eleicoes-grid">
-                <div class="eleicao-card">
-                    <span class="eleicao-status status-ativa">ATIVA</span>
-                    <h3>Conselho de Governança 2024</h3>
-                    <p class="eleicao-desc">Eleição para os 7 membros do Conselho de Governança que irão liderar as decisões estratégicas da Terra Dourada no próximo ano.</p>
-                    <div class="eleicao-info">
-                        <div><i class="far fa-calendar"></i> Encerra em: 15/12/2023</div>
-                        <div><i class="fas fa-users"></i> 12.543 votantes</div>
+            <div id="eleicao-especifica" class="eleicao-especifica hidden">
+                <!-- Conteúdo dinâmico será inserido aqui via JavaScript -->
+            </div>
+
+            <!-- Grid de Todas as Eleições -->
+            <div id="todas-eleicoes">
+                <div class="eleicoes-grid">
+                    <div class="eleicao-card">
+                        <span class="eleicao-status status-ativa">ATIVA</span>
+                        <h3>Conselho de Governança 2024</h3>
+                        <p class="eleicao-desc">Eleição para os 7 membros do Conselho de Governança que irão liderar as decisões estratégicas da Terra Dourada no próximo ano.</p>
+                        <div class="eleicao-info">
+                            <div><i class="far fa-calendar"></i> Encerra em: 15/12/2023</div>
+                            <div><i class="fas fa-users"></i> 12.543 votantes</div>
+                        </div>
+                        <div class="eleicao-actions">
+                            <a href="autorizar.html?eleicao=governanca-2024" class="btn btn-primary">Votar Agora</a>
+                            <button class="btn" onclick="compartilharEleicaoEspecifica('governanca-2024', 'Conselho de Governança 2024', 'Eleição para os 7 membros do Conselho de Governança')">Compartilhar</button>
+                        </div>
                     </div>
-                    <div class="eleicao-actions">
-                        <a href="votacao.html" class="btn btn-primary">Votar Agora</a>
-                        <a href="detalhes-eleicao.html" class="btn">Ver Detalhes</a>
+                    
+                    <div class="eleicao-card">
+                        <span class="eleicao-status status-ativa">ATIVA</span>
+                        <h3>Proposta de Orçamento 2024</h3>
+                        <p class="eleicao-desc">Referendo sobre a alocação de recursos para os diferentes setores da Terra Dourada no próximo ano fiscal.</p>
+                        <div class="eleicao-info">
+                            <div><i class="far fa-calendar"></i> Encerra em: 10/12/2023</div>
+                            <div><i class="fas fa-users"></i> 8.921 votantes</div>
+                        </div>
+                        <div class="eleicao-actions">
+                            <a href="autorizar.html?eleicao=orcamento-2024" class="btn btn-primary">Votar Agora</a>
+                            <button class="btn" onclick="compartilharEleicaoEspecifica('orcamento-2024', 'Proposta de Orçamento 2024', 'Referendo sobre alocação de recursos')">Compartilhar</button>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="eleicao-card">
-                    <span class="eleicao-status status-ativa">ATIVA</span>
-                    <h3>Proposta de Orçamento 2024</h3>
-                    <p class="eleicao-desc">Referendo sobre a alocação de recursos para os diferentes setores da Terra Dourada no próximo ano fiscal.</p>
-                    <div class="eleicao-info">
-                        <div><i class="far fa-calendar"></i> Encerra em: 10/12/2023</div>
-                        <div><i class="fas fa-users"></i> 8.921 votantes</div>
-                    </div>
-                    <div class="eleicao-actions">
-                        <a href="votacao.html" class="btn btn-primary">Votar Agora</a>
-                        <a href="detalhes-eleicao.html" class="btn">Ver Detalhes</a>
-                    </div>
-                </div>
-                
-                <div class="eleicao-card">
-                    <span class="eleicao-status status-em-breve">EM BREVE</span>
-                    <h3>Comitê de Sustentabilidade</h3>
-                    <p class="eleicao-desc">Eleição para o comitê responsável por supervisionar as iniciativas de sustentabilidade e economia circular.</p>
-                    <div class="eleicao-info">
-                        <div><i class="far fa-calendar"></i> Inicia em: 05/01/2024</div>
-                        <div><i class="fas fa-users"></i> Aberto a todos</div>
-                    </div>
-                    <div class="eleicao-actions">
-                        <button class="btn" disabled>Em Breve</button>
-                        <a href="detalhes-eleicao.html" class="btn">Ver Detalhes</a>
-                    </div>
-                </div>
-                
-                <div class="eleicao-card">
-                    <span class="eleicao-status status-encerrada">ENCERRADA</span>
-                    <h3>Alteração no Protocolo AUR</h3>
-                    <p class="eleicao-desc">Votação sobre a proposta de atualização do protocolo da moeda Aureus para melhorar eficiência energética.</p>
-                    <div class="eleicao-info">
-                        <div><i class="far fa-calendar"></i> Encerrada em: 15/11/2023</div>
-                        <div><i class="fas fa-users"></i> 15.234 votantes</div>
-                    </div>
-                    <div class="eleicao-actions">
-                        <a href="resultados.html" class="btn btn-primary">Ver Resultados</a>
-                        <a href="detalhes-eleicao.html" class="btn">Ver Detalhes</a>
+                    
+                    <div class="eleicao-card">
+                        <span class="eleicao-status status-em-breve">EM BREVE</span>
+                        <h3>Comitê de Sustentabilidade</h3>
+                        <p class="eleicao-desc">Eleição para o comitê responsável por supervisionar as iniciativas de sustentabilidade e economia circular.</p>
+                        <div class="eleicao-info">
+                            <div><i class="far fa-calendar"></i> Inicia em: 05/01/2024</div>
+                            <div><i class="fas fa-users"></i> Aberto a todos</div>
+                        </div>
+                        <div class="eleicao-actions">
+                            <button class="btn" disabled>Em Breve</button>
+                            <button class="btn" onclick="compartilharEleicaoEspecifica('sustentabilidade', 'Comitê de Sustentabilidade', 'Eleição para comitê de sustentabilidade')">Compartilhar</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Como Funciona Section -->
-    <section class="como-funciona">
-        <div class="container">
-            <div class="section-title">
-                <h2>COMO FUNCIONA</h2>
-            </div>
-            <div class="passos-grid">
-                <div class="passo-card">
-                    <div class="passo-numero">1</div>
-                    <h3>Autenticação</h3>
-                    <p>Faça login com sua identidade digital verificada na blockchain da Terra Dourada.</p>
-                </div>
-                
-                <div class="passo-card">
-                    <div class="passo-numero">2</div>
-                    <h3>Seleção</h3>
-                    <p>Escolha entre as eleições ativas e revise as propostas ou candidatos.</p>
-                </div>
-                
-                <div class="passo-card">
-                    <div class="passo-numero">3</div>
-                    <h3>Votação</h3>
-                    <p>Emita seu voto de forma segura e anônima através do sistema blockchain.</p>
-                </div>
-                
-                <div class="passo-card">
-                    <div class="passo-numero">4</div>
-                    <h3>Verificação</h3>
-                    <p>Acompanhe a apuração em tempo real com total transparência e auditabilidade.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Resultados Section -->
-    <section class="resultados">
-        <div class="container">
-            <div class="section-title">
-                <h2>RESULTADOS RECENTES</h2>
-            </div>
-            <div class="resultados-content">
-                <div class="resultado-item">
-                    <div class="candidato-info">
-                        <div class="candidato-foto">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="candidato-detalhes">
-                            <h4>Proposta Aprovada</h4>
-                            <p>Implantação de Sistema de Energia Solar</p>
-                        </div>
-                    </div>
-                    <div class="votos-info">
-                        <div class="votos-count">12.543 votos</div>
-                        <div class="votos-percent">78.5% de aprovação</div>
-                    </div>
-                </div>
-                
-                <div class="resultado-item">
-                    <div class="candidato-info">
-                        <div class="candidato-foto">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="candidato-detalhes">
-                            <h4>Proposta Rejeitada</h4>
-                            <p>Alteração na Taxa de Transação AUR</p>
-                        </div>
-                    </div>
-                    <div class="votos-info">
-                        <div class="votos-count">8.921 votos</div>
-                        <div class="votos-percent">41.2% de aprovação</div>
-                    </div>
-                </div>
-                
-                <div class="resultado-item">
-                    <div class="candidato-info">
-                        <div class="candidato-foto">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="candidato-detalhes">
-                            <h4>Maria Silva</h4>
-                            <p>Eleita para Conselho de Inovação</p>
-                        </div>
-                    </div>
-                    <div class="votos-info">
-                        <div class="votos-count">9.876 votos</div>
-                        <div class="votos-percent">62.1% dos votos</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Rodapé -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>TERRA DOURADA</h3>
-                    <p>Uma proposta de convívio baseada em transparência radical, verificação perpétua e economia circular.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fab fa-github"></i></a>
-                        <a href="#"><i class="fab fa-telegram"></i></a>
-                    </div>
-                </div>
-                <div class="footer-column">
-                    <h3>LINKS RÁPIDOS</h3>
-                    <a href="index.html">Início</a>
-                    <a href="index.html#manifesto">Manifesto</a>
-                    <a href="index.html#produtos">Produtos</a>
-                    <a href="eleicoes.html">Eleições</a>
-                    <a href="index.html#contato">Contato</a>
-                </div>
-                <div class="footer-column">
-                    <h3>ECOSSISTEMA</h3>
-                    <a href="#">Carteira Digital</a>
-                    <a href="eleicoes.html">Plataforma de Votação</a>
-                    <a href="#">Mercado de Ativos</a>
-                    <a href="#">Documentação</a>
-                </div>
-                <div class="footer-column">
-                    <h3>NEWSLETTER</h3>
-                    <p>Inscreva-se para receber atualizações sobre eleições e novidades.</p>
-                    <form id="newsletterForm">
-                        <div class="form-group">
-                            <input type="email" class="form-control" placeholder="Seu email" required>
-                        </div>
-                        <button type="submit" class="btn">Inscrever-se</button>
-                    </form>
-                </div>
-            </div>
-            <div class="copyright">
-                <p>&copy; 2023 Terra Dourada. Todos os direitos reservados.</p>
-            </div>
-        </div>
-    </footer>
 
     <script>
+        // Dados das eleições
+        const eleicoes = {
+            'governanca-2024': {
+                id: 'governanca-2024',
+                titulo: 'Conselho de Governança 2024',
+                descricao: 'Eleição para os 7 membros do Conselho de Governança que irão liderar as decisões estratégicas da Terra Dourada no próximo ano.',
+                status: 'ativa',
+                dataFim: '15/12/2023',
+                votantes: '12.543',
+                tipo: 'online'
+            },
+            'orcamento-2024': {
+                id: 'orcamento-2024',
+                titulo: 'Proposta de Orçamento 2024',
+                descricao: 'Referendo sobre a alocação de recursos para os diferentes setores da Terra Dourada no próximo ano fiscal.',
+                status: 'ativa',
+                dataFim: '10/12/2023',
+                votantes: '8.921',
+                tipo: 'online'
+            },
+            'sustentabilidade': {
+                id: 'sustentabilidade',
+                titulo: 'Comitê de Sustentabilidade',
+                descricao: 'Eleição para o comitê responsável por supervisionar as iniciativas de sustentabilidade e economia circular.',
+                status: 'em-breve',
+                dataInicio: '05/01/2024',
+                votantes: 'Aberto a todos',
+                tipo: 'presencial'
+            }
+        };
+
         // Header scroll effect
         window.addEventListener('scroll', () => {
             const header = document.getElementById('header');
@@ -769,13 +538,139 @@
                 header.classList.remove('scrolled');
             }
         });
-        
-        // Newsletter form submission
-        document.getElementById('newsletterForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Inscrição realizada com sucesso!');
-            this.reset();
+
+        // Verificar se há eleição específica na URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eleicaoId = urlParams.get('eleicao');
+            
+            if (eleicaoId && eleicoes[eleicaoId]) {
+                mostrarEleicaoEspecifica(eleicaoId);
+            }
         });
+
+        function mostrarEleicaoEspecifica(eleicaoId) {
+            const eleicao = eleicoes[eleicaoId];
+            const container = document.getElementById('eleicao-especifica');
+            const todasEleicoes = document.getElementById('todas-eleicoes');
+            
+            // Esconder todas as eleições e mostrar apenas a específica
+            todasEleicoes.classList.add('hidden');
+            container.classList.remove('hidden');
+            
+            // Atualizar subtítulo
+            document.getElementById('subtitulo-dinamico').textContent = 
+                `Participe da eleição: ${eleicao.titulo}`;
+            
+            // Montar conteúdo da eleição específica
+            container.innerHTML = `
+                <span class="eleicao-status ${eleicao.status === 'ativa' ? 'status-ativa' : eleicao.status === 'em-breve' ? 'status-em-breve' : 'status-encerrada'}">
+                    ${eleicao.status === 'ativa' ? 'ATIVA' : eleicao.status === 'em-breve' ? 'EM BREVE' : 'ENCERRADA'}
+                </span>
+                <h1 style="font-size: 2.5rem; margin-bottom: 20px; color: var(--primary-gold);">${eleicao.titulo}</h1>
+                <p style="font-size: 1.3rem; line-height: 1.8; margin-bottom: 30px;">${eleicao.descricao}</p>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <i class="fas fa-users"></i>
+                        <h4>Participantes</h4>
+                        <p>${eleicao.votantes} votantes</p>
+                    </div>
+                    <div class="info-item">
+                        <i class="far fa-calendar"></i>
+                        <h4>Período</h4>
+                        <p>${eleicao.status === 'ativa' ? `Encerra em: ${eleicao.dataFim}` : `Inicia em: ${eleicao.dataInicio}`}</p>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>Segurança</h4>
+                        <p>Blockchain</p>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-vote-yea"></i>
+                        <h4>Tipo</h4>
+                        <p>${eleicao.tipo === 'presencial' ? '🏛️ Presencial' : '🌐 Online'}</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    ${eleicao.status === 'ativa' ? 
+                        `<a href="autorizar.html?eleicao=${eleicaoId}" class="btn btn-primary" style="font-size: 1.2rem; padding: 18px 45px;">
+                            <i class="fas fa-vote-yea"></i> PARTICIPAR DA VOTAÇÃO
+                        </a>` : 
+                        `<button class="btn" disabled style="font-size: 1.2rem; padding: 18px 45px;">
+                            <i class="far fa-clock"></i> ELEIÇÃO EM BREVE
+                        </button>`
+                    }
+                    <button class="btn" onclick="compartilharEleicaoEspecifica('${eleicaoId}', '${eleicao.titulo}', '${eleicao.descricao}')" style="margin-left: 15px; font-size: 1.1rem;">
+                        <i class="fas fa-share-alt"></i> COMPARTILHAR
+                    </button>
+                </div>
+            `;
+        }
+
+        function compartilharEleicao() {
+            // Compartilhar página geral de eleições
+            const texto = `🗳️ ELEIÇÕES - TERRA DOURADA
+
+Participe das eleições através do nosso sistema de votação baseado em blockchain.
+
+🔗 ${window.location.href}
+
+Sistema Terra Dourada - Democracia Líquida e Transparente`;
+
+            compartilharConteudo(texto, window.location.href);
+        }
+
+        function compartilharEleicaoEspecifica(eleicaoId, titulo, descricao) {
+            const eleicao = eleicoes[eleicaoId];
+            const url = `${window.location.origin}${window.location.pathname}?eleicao=${eleicaoId}`;
+            
+            const texto = `🗳️ ELEIÇÃO - TERRA DOURADA
+
+${titulo}
+${descricao}
+
+${eleicao.status === 'ativa' ? '✅ VOTAÇÃO ATIVA' : '⏳ ELEIÇÃO EM BREVE'}
+${eleicao.tipo === 'presencial' ? '🏛️ Voto Presencial' : '🌐 Voto Online'}
+
+Participe através do nosso sistema seguro de votação baseado em blockchain.
+
+🔗 ${url}
+
+Sistema Terra Dourada - Democracia Líquida e Transparente`;
+
+            compartilharConteudo(texto, url);
+        }
+
+        function compartilharConteudo(texto, url) {
+            if (navigator.share) {
+                navigator.share({
+                    title: '🗳️ Terra Dourada - Eleições',
+                    text: texto,
+                    url: url
+                }).catch(() => {
+                    copiarParaAreaTransferencia(texto + '\n\n' + url);
+                });
+            } else {
+                copiarParaAreaTransferencia(texto + '\n\n' + url);
+            }
+        }
+
+        function copiarParaAreaTransferencia(texto) {
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('✅ Link da eleição copiado para a área de transferência!');
+            }).catch(() => {
+                // Fallback para método antigo
+                const textArea = document.createElement('textarea');
+                textArea.value = texto;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✅ Link da eleição copiado para a área de transferência!');
+            });
+        }
     </script>
 </body>
 </html>
