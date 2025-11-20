@@ -540,13 +540,56 @@
             }
         }
         
-        // Função para redirecionar para votação
-        function irParaVotacao(eleicaoId) {
-            // Salvar eleição selecionada para a página de votação
-            localStorage.setItem('eleicaoSelecionada', eleicaoId);
-            
-            // Redirecionar para eleitor_point.html
-            window.location.href = 'eleitor_point.html';
+        // 🔄 FUNÇÃO CORRIGIDA: Redirecionar para votação com dados completos
+        async function irParaVotacao(eleicaoId) {
+            try {
+                console.log('🗳️ Iniciando votação para eleição:', eleicaoId);
+                
+                // Buscar dados completos da eleição
+                const eleicao = await dbEleicoes.get(eleicaoId);
+                console.log('📋 Dados da eleição:', eleicao);
+                
+                if (!eleicao) {
+                    alert('Eleição não encontrada!');
+                    return;
+                }
+                
+                // Criar token de autorização
+                const tokenVotacao = 'token_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+                
+                // Preparar dados para a urna
+                const dadosVotacao = {
+                    eleicaoId: eleicaoId,
+                    eleicaoNome: eleicao.name,
+                    eleicaoDescricao: eleicao.description,
+                    eleicaoTipo: eleicao.tipo,
+                    eleicaoCargos: eleicao.position,
+                    token: tokenVotacao,
+                    timestamp: Date.now(),
+                    candidatos: eleicao.candidatos || [], // Candidatos cadastrados
+                    fotoEleicao: eleicao.photo || null
+                };
+                
+                // Salvar no localStorage para a urna acessar
+                localStorage.setItem('dadosVotacaoAtual', JSON.stringify(dadosVotacao));
+                console.log('💾 Dados salvos no localStorage:', dadosVotacao);
+                
+                // 🔄 REDIRECIONAR DIRETO PARA A URNA COM OS CANDIDATOS
+                // Verificar se tem página de urna específica
+                if (eleicao.tipo === 'presencial') {
+                    window.location.href = `urna_presencial.html?eleicao=${eleicaoId}&token=${tokenVotacao}`;
+                } else {
+                    window.location.href = `urna_online.html?eleicao=${eleicaoId}&token=${tokenVotacao}`;
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao preparar votação:', error);
+                alert('Erro ao carregar eleição. Tente novamente.');
+                
+                // Fallback: redirecionar para eleitor_point tradicional
+                localStorage.setItem('eleicaoSelecionada', eleicaoId);
+                window.location.href = 'eleitor_point.html';
+            }
         }
         
         // Função para carregar e exibir TODAS as eleições do PouchDB
