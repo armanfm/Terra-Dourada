@@ -375,6 +375,33 @@
             border-radius: 10px;
             border: 1px solid rgba(212, 175, 55, 0.1);
         }
+
+        /* Info do Criador */
+        .criador-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .criador-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-gold), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .criador-nome {
+            font-size: 0.9rem;
+            color: rgba(245, 245, 245, 0.7);
+        }
         
         /* Feedback de Publicação */
         .publicacao-sucesso {
@@ -478,16 +505,17 @@
                 
                 <div id="nenhuma-eleicao" style="text-align: center; padding: 60px 0;">
                     <i class="fas fa-inbox" style="font-size: 4rem; color: var(--primary-gold); margin-bottom: 20px;"></i>
-                    <h3 style="color: var(--primary-gold); margin-bottom: 15px;">Nenhuma eleição publicada</h3>
-                    <p style="color: rgba(245,245,245,0.7);">Quando você publicar uma eleição, ela aparecerá aqui automaticamente.</p>
+                    <h3 style="color: var(--primary-gold); margin-bottom: 15px;">Nenhuma eleição disponível</h3>
+                    <p style="color: rgba(245,245,245,0.7);">Quando os usuários criarem eleições, elas aparecerão aqui.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <script>
-        // SISTEMA DE ELEIÇÕES
-        const ELECOES_KEY = 'terraDourada_eleicoes';
+        // CHAVES DO LOCALSTORAGE - AGORA BUSCA DE TODOS OS USUÁRIOS
+        const TODAS_ELECOES_KEY = 'terraDourada_todasEleicoes';
+        const ELEICAO_SELECIONADA_KEY = 'eleicaoSelecionada';
         
         // Header scroll effect
         window.addEventListener('scroll', () => {
@@ -499,71 +527,36 @@
             }
         });
 
-        // Função para obter eleições salvas
-        function getEleicoesSalvas() {
-            const eleicoesSalvas = localStorage.getItem(ELECOES_KEY);
-            return eleicoesSalvas ? JSON.parse(eleicoesSalvas) : [];
+        // Função para obter TODAS as eleições de TODOS os usuários
+        function getTodasEleicoes() {
+            const todasEleicoes = localStorage.getItem(TODAS_ELECOES_KEY);
+            return todasEleicoes ? JSON.parse(todasEleicoes) : [];
         }
         
-        // Função para salvar eleições
-        function salvarEleicoes(eleicoes) {
-            localStorage.setItem(ELECOES_KEY, JSON.stringify(eleicoes));
-        }
-        
-        // Função para adicionar nova eleição (para usar na outra página)
-        function publicarEleicao(novaEleicao) {
-            const eleicoes = getEleicoesSalvas();
+        // Função para redirecionar para votação
+        function irParaVotacao(eleicaoId) {
+            const todasEleicoes = getTodasEleicoes();
+            const eleicao = todasEleicoes.find(e => e.id === eleicaoId);
             
-            // Gerar ID único
-            novaEleicao.id = 'eleicao-' + Date.now();
-            novaEleicao.dataPublicacao = new Date().toISOString();
-            novaEleicao.status = 'ativa';
-            
-            // Adicionar à lista
-            eleicoes.unshift(novaEleicao);
-            
-            // Salvar
-            salvarEleicoes(eleicoes);
-            
-            return novaEleicao.id;
-        }
-        
-        // Função para mostrar feedback de publicação
-        function mostrarFeedbackPublicacao(eleicaoId) {
-            const eleicoes = getEleicoesSalvas();
-            const eleicaoPublicada = eleicoes.find(e => e.id === eleicaoId);
-            
-            if (eleicaoPublicada) {
-                const feedbackDiv = document.getElementById('feedback-publicacao');
-                feedbackDiv.innerHTML = `
-                    <div class="publicacao-sucesso">
-                        <i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 15px;"></i>
-                        <h3 style="margin-bottom: 10px;">ELEIÇÃO PUBLICADA COM SUCESSO!</h3>
-                        <p style="margin-bottom: 20px;">Sua eleição "${eleicaoPublicada.titulo}" está agora disponível para votação.</p>
-                        <button class="btn btn-primary" onclick="mostrarEleicaoEspecifica('${eleicaoId}')">
-                            <i class="fas fa-eye"></i> VER ELEIÇÃO
-                        </button>
-                        <button class="btn" onclick="compartilharEleicaoEspecifica('${eleicaoId}', '${eleicaoPublicada.titulo}', '${eleicaoPublicada.descricao}')">
-                            <i class="fas fa-share-alt"></i> COMPARTILHAR
-                        </button>
-                    </div>
-                `;
-                feedbackDiv.classList.remove('hidden');
+            if (eleicao) {
+                // Salvar eleição selecionada para a página de votação
+                localStorage.setItem(ELEICAO_SELECIONADA_KEY, JSON.stringify(eleicao));
                 
-                // Rolagem suave para o feedback
-                setTimeout(() => {
-                    feedbackDiv.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
+                // Redirecionar para eleitor_point.html
+                window.location.href = 'eleitor_point.html';
             }
         }
         
-        // Função para carregar e exibir eleições
-        function carregarEleicoes() {
-            const eleicoes = getEleicoesSalvas();
+        // Função para carregar e exibir TODAS as eleições
+        function carregarTodasEleicoes() {
+            const todasEleicoes = getTodasEleicoes();
             const container = document.getElementById('eleicoes-container');
             const nenhumaEleicaoDiv = document.getElementById('nenhuma-eleicao');
             
-            if (eleicoes.length === 0) {
+            // Filtrar apenas eleições ativas
+            const eleicoesAtivas = todasEleicoes.filter(e => e.status === 'ativa');
+            
+            if (eleicoesAtivas.length === 0) {
                 container.innerHTML = '';
                 nenhumaEleicaoDiv.style.display = 'block';
                 return;
@@ -571,10 +564,10 @@
             
             nenhumaEleicaoDiv.style.display = 'none';
             
-            container.innerHTML = eleicoes.map(eleicao => `
+            container.innerHTML = eleicoesAtivas.map(eleicao => `
                 <div class="eleicao-card">
-                    <span class="eleicao-status ${eleicao.status === 'ativa' ? 'status-ativa' : 'status-em-breve'}">
-                        ${eleicao.status === 'ativa' ? 'ATIVA' : 'EM BREVE'}
+                    <span class="eleicao-status status-ativa">
+                        ATIVA
                     </span>
                     <h3>${eleicao.titulo}</h3>
                     <p class="eleicao-desc">${eleicao.descricao}</p>
@@ -582,12 +575,23 @@
                         <div><i class="far fa-calendar"></i> Publicada em: ${new Date(eleicao.dataPublicacao).toLocaleDateString('pt-BR')}</div>
                         <div><i class="fas fa-vote-yea"></i> ${eleicao.tipo || 'Online'}</div>
                     </div>
+                    
+                    <!-- Informações do Criador -->
+                    <div class="criador-info">
+                        <div class="criador-avatar">
+                            ${eleicao.criador ? eleicao.criador.nome.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div class="criador-nome">
+                            Criado por: ${eleicao.criador ? eleicao.criador.nome : 'Usuário'}
+                        </div>
+                    </div>
+                    
                     <div class="eleicao-actions">
-                        <button class="btn btn-primary" onclick="mostrarEleicaoEspecifica('${eleicao.id}')">
-                            Ver Detalhes
+                        <button class="btn btn-primary" onclick="irParaVotacao('${eleicao.id}')">
+                            <i class="fas fa-vote-yea"></i> VOTAR AGORA
                         </button>
                         <button class="btn" onclick="compartilharEleicaoEspecifica('${eleicao.id}', '${eleicao.titulo}', '${eleicao.descricao}')">
-                            Compartilhar
+                            <i class="fas fa-share-alt"></i> Compartilhar
                         </button>
                     </div>
                 </div>
@@ -596,19 +600,19 @@
         
         // Função para mostrar eleição específica
         function mostrarEleicaoEspecifica(eleicaoId) {
-            const eleicoes = getEleicoesSalvas();
-            const eleicao = eleicoes.find(e => e.id === eleicaoId);
+            const todasEleicoes = getTodasEleicoes();
+            const eleicao = todasEleicoes.find(e => e.id === eleicaoId);
             
             if (eleicao) {
                 const container = document.getElementById('eleicao-especifica');
-                const todasEleicoes = document.getElementById('todas-eleicoes');
+                const todasEleicoesDiv = document.getElementById('todas-eleicoes');
                 
-                todasEleicoes.classList.add('hidden');
+                todasEleicoesDiv.classList.add('hidden');
                 container.classList.remove('hidden');
                 
                 container.innerHTML = `
-                    <span class="eleicao-status ${eleicao.status === 'ativa' ? 'status-ativa' : 'status-em-breve'}">
-                        ${eleicao.status === 'ativa' ? 'ATIVA' : 'EM BREVE'}
+                    <span class="eleicao-status status-ativa">
+                        ATIVA
                     </span>
                     <h1 style="font-size: 2.5rem; margin-bottom: 20px; color: var(--primary-gold);">${eleicao.titulo}</h1>
                     <p style="font-size: 1.3rem; line-height: 1.8; margin-bottom: 30px;">${eleicao.descricao}</p>
@@ -630,14 +634,14 @@
                             <p>Blockchain</p>
                         </div>
                         <div class="info-item">
-                            <i class="fas fa-users"></i>
-                            <h4>Participantes</h4>
-                            <p>Aberto a todos</p>
+                            <i class="fas fa-user"></i>
+                            <h4>Criador</h4>
+                            <p>${eleicao.criador ? eleicao.criador.nome : 'Usuário'}</p>
                         </div>
                     </div>
                     
                     <div style="margin-top: 30px;">
-                        <button class="btn btn-primary" style="font-size: 1.2rem; padding: 18px 45px;">
+                        <button class="btn btn-primary" style="font-size: 1.2rem; padding: 18px 45px;" onclick="irParaVotacao('${eleicao.id}')">
                             <i class="fas fa-vote-yea"></i> PARTICIPAR DA VOTAÇÃO
                         </button>
                         <button class="btn" onclick="voltarParaTodas()" style="margin-left: 15px; font-size: 1.1rem;">
@@ -653,21 +657,12 @@
             document.getElementById('todas-eleicoes').classList.remove('hidden');
         }
         
-        // VERIFICAR SE HÁ ELEIÇÃO RECÉM-PUBLICADA
+        // CARREGAR TODAS AS ELEIÇÕES AO INICIAR
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const eleicaoPublicada = urlParams.get('publicada');
             
-            // Carregar eleições
-            carregarEleicoes();
-            
-            // Se veio de uma publicação, mostrar feedback
-            if (eleicaoPublicada === 'true') {
-                const eleicaoId = urlParams.get('eleicaoId');
-                if (eleicaoId) {
-                    mostrarFeedbackPublicacao(eleicaoId);
-                }
-            }
+            // Carregar TODAS as eleições de TODOS os usuários
+            carregarTodasEleicoes();
             
             // Se tem eleição específica na URL
             const eleicaoId = urlParams.get('eleicao');
@@ -703,9 +698,6 @@
                 });
             }
         }
-
-        // Expor função globalmente para outras páginas
-        window.publicarEleicao = publicarEleicao;
     </script>
 </body>
 </html>
