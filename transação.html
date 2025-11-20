@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terra Dourada - Transações</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset e Variáveis */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        :root {
+            --primary-gold: #d4af37;
+            --dark-gold: #b8941f;
+            --earth-brown: #8B4513;
+            --deep-green: #2d5016;
+            --dark-bg: #0a0f0a;
+            --card-bg: #1a1f1a;
+            --light-text: #f5f5f5;
+            --accent-blue: #2a9fd6;
+            --accent-green: #4CAF50;
+            --accent-red: #e74c3c;
+            --transparency: rgba(255,255,255,0.1);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            line-height: 1.7;
+            overflow-x: hidden;
+            background: linear-gradient(rgba(10, 15, 10, 0.95), rgba(10, 15, 10, 0.95)), 
+                        url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Cabeçalho */
+        header {
+            background-color: rgba(10, 15, 10, 0.95);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            color: var(--primary-gold);
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-left: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+            color: var(--primary-gold);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--light-text);
+            transition: all 0.3s ease;
+        }
+        
+        .notification-bell:hover {
+            color: var(--primary-gold);
+            transform: scale(1.1);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-gold);
+            object-fit: cover;
+        }
+        
+        /* Conteúdo Principal */
+        .transactions-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            padding: 40px 0;
+            min-height: 80vh;
+        }
+        
+        /* Área de Convidados */
+        .guests-sidebar {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.9), rgba(40, 45, 40, 0.9));
+            border-radius: 15px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .guests-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--primary-gold));
+        }
+        
+        .guests-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            background: rgba(10, 15, 10, 0.3);
+        }
+        
+        .guests-title {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .guests-title i {
+            color: var(--primary-gold);
+        }
+        
+        .add-guest-btn {
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        
+        .add-guest-btn:hover {
+            background: rgba(212, 175, 55, 0.3);
+        }
+        
+        .guest-list {
+            padding: 10px 0;
+        }
+        
+        .guest-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .guest-item:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+        
+        .guest-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-gold);
+        }
+        
+        .guest-info {
+            flex: 1;
+        }
+        
+        .guest-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+        
+        .guest-role {
+            font-size: 0.75rem;
+            color: rgba(245, 245, 245, 0.7);
+        }
+        
+        .guest-status {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+        
+        .guest-status.offline {
+            background: rgba(149, 165, 166, 0.2);
+            color: #95a5a6;
+            border: 1px solid rgba(149, 165, 166, 0.3);
+        }
+        
+        /* Área Principal - MergeRoom */
+        .mergeroom-container {
+            background: linear-gradient(145deg, rgba(26, 31, 26, 0.9), rgba(40, 45, 40, 0.9));
+            border-radius: 15px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+        }
+        
+        .mergeroom-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--primary-gold));
+        }
+        
+        .mergeroom-header {
+            padding: 25px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 15, 10, 0.3);
+        }
+        
+        .mergeroom-title-section {
+            flex: 1;
+        }
+        
+        .mergeroom-title {
+            font-size: 1.5rem;
+            color: var(--light-text);
+            margin-bottom: 5px;
+        }
+        
+        .mergeroom-subtitle {
+            font-size: 1rem;
+            color: rgba(245, 245, 245, 0.7);
+        }
+        
+        .mergeroom-participants {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .participant {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(10, 15, 10, 0.5);
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .participant:hover {
+            border-color: var(--primary-gold);
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .participant-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-gold);
+        }
+        
+        .participant-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .participant-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .participant-role {
+            font-size: 0.8rem;
+            color: rgba(245, 245, 245, 0.7);
+        }
+        
+        /* Botão para adicionar transportador */
+        .add-transporter {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(10, 15, 10, 0.5);
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 2px dashed rgba(212, 175, 55, 0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 150px;
+            height: 70px;
+        }
+        
+        .add-transporter:hover {
+            border-color: var(--primary-gold);
+            background: rgba(212, 175, 55, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .add-transporter i {
+            font-size: 1.2rem;
+            color: var(--primary-gold);
+        }
+        
+        .add-transporter span {
+            font-size: 0.8rem;
+            color: var(--primary-gold);
+            text-align: center;
+        }
+        
+        /* Progresso dos Merges */
+        .merge-progress {
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            background: rgba(10, 15, 10, 0.2);
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(212, 175, 55, 0.2);
+            z-index: 1;
+        }
+        
+        .progress-bar {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            height: 3px;
+            background: var(--primary-gold);
+            z-index: 2;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+            flex: 1;
+        }
+        
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(10, 15, 10, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+        
+        .step-icon.active {
+            background: var(--primary-gold);
+            border-color: var(--primary-gold);
+            color: var(--dark-bg);
+            transform: scale(1.1);
+        }
+        
+        .step-icon.completed {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .step-description {
+            font-size: 0.8rem;
+            color: rgba(245, 245, 245, 0.7);
+            text-align: center;
+            margin-top: 5px;
+        }
+        
+        .merge-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .merge-btn {
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 1px solid var(--primary-gold);
+            background: transparent;
+            color: var(--primary-gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 180px;
+            justify-content: center;
+        }
+        
+        .merge-btn:hover:not(:disabled) {
+            background: rgba(212, 175, 55, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .merge-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .merge-btn.completed {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: white;
+        }
+        
+        .merge-btn.active {
+            background: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+        
+        /* Área de Chat */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .chat-message {
+            max-width: 75%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message-received {
+            align-self: flex-start;
+            background: rgba(10, 15, 10, 0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .message-sent {
+            align-self: flex-end;
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .message-system {
+            align-self: center;
+            background: rgba(41, 128, 185, 0.2);
+            border: 1px solid rgba(41, 128, 185, 0.3);
+            max-width: 90%;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .message-sender {
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .sender-role {
+            font-size: 0.75rem;
+            color: rgba(245, 245, 245, 0.6);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            color: rgba(245, 245, 245, 0.5);
+        }
+        
+        .message-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .message-hash {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            display: inline-block;
+            color: var(--primary-gold);
+        }
+        
+        .chat-input-area {
+            padding: 20px 25px;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            display: flex;
+            gap: 15px;
+            background: rgba(10, 15, 10, 0.3);
+        }
+        
+        .chat-input {
+            flex: 1;
+            background: rgba(10, 15, 10, 0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 25px;
+            padding: 15px 20px;
+            color: var(--light-text);
+            font-size: 1rem;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary-gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .file-attach {
+            background: transparent;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--light-text);
+        }
+        
+        .file-attach:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--primary-gold);
+        }
+        
+        .chat-send {
+            background: var(--primary-gold);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+        
+        .chat-send:hover {
+            background: var(--dark-gold);
+            transform: scale(1.05);
+        }
+        
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .transactions-container {
+                grid-template-columns: 250px 1fr 250px;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .transactions-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .guests-sidebar {
+                max-height: 200px;
+            }
+            
+            .mergeroom-container {
+                height: auto;
+                min-height: 600px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .mergeroom-participants {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .merge-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .merge-btn {
+                min-width: 200px;
+            }
+            
+            .progress-steps {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .progress-steps::before {
+                display: none;
+            }
+            
+            .progress-bar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🌍</span>
+                    <h1>TERRA DOURADA</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="user-menu">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Avatar do usuário" class="user-avatar">
+                        <span>João Silva</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <div class="container">
+        <div class="transactions-container">
+            <!-- Área de Convidados - Produtor -->
+            <div class="guests-sidebar">
+                <div class="guests-header">
+                    <h3 class="guests-title">
+                        <span><i class="fas fa-users"></i> Convidados do Produtor</span>
+                        <button class="add-guest-btn">+ Adicionar</button>
+                    </h3>
+                </div>
+                <div class="guest-list">
+                    <div class="guest-item">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Convidado" class="guest-avatar">
+                        <div class="guest-info">
+                            <div class="guest-name">Roberto Almeida</div>
+                            <div class="guest-role">Assessor Comercial</div>
+                        </div>
+                        <div class="guest-status">Online</div>
+                    </div>
+                    <div class="guest-item">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Convidado" class="guest-avatar">
+                        <div class="guest-info">
+                            <div class="guest-name">Fernanda Costa</div>
+                            <div class="guest-role">Especialista em Qualidade</div>
+                        </div>
+                        <div class="guest-status">Online</div>
+                    </div>
+                    <div class="guest-item">
+                        <img src="https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Convidado" class="guest-avatar">
+                        <div class="guest-info">
+                            <div class="guest-name">Carlos Mendes</div>
+                            <div class="guest-role">Consultor Financeiro</div>
+                        </div>
+                        <div class="guest-status offline">Offline</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área Principal - MergeRoom -->
+            <div class="mergeroom-container">
+                <div class="mergeroom-header">
+                    <div class="mergeroom-title-section">
+                        <h2 class="mergeroom-title">Milho Premium - 1000kg</h2>
+                        <div class="mergeroom-subtitle">Entrega para São Paulo - Centro • #TRX-7B3F9A2E4C8D1F6A</div>
+                    </div>
+                    <div class="mergeroom-participants">
+                        <div class="participant">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Produtor" class="participant-avatar">
+                            <div class="participant-info">
+                                <div class="participant-name">João Silva</div>
+                                <div class="participant-role">Produtor</div>
+                            </div>
+                        </div>
+                        <!-- Botão para adicionar transportador (CENTRAL) -->
+                        <div class="add-transporter" id="addTransporterBtn">
+                            <i class="fas fa-truck"></i>
+                            <span>Adicionar Transportador</span>
+                        </div>
+                        <div class="participant">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Comprador" class="participant-avatar">
+                            <div class="participant-info">
+                                <div class="participant-name">Maria Santos</div>
+                                <div class="participant-role">Comprador</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progresso dos Merges -->
+                <div class="merge-progress">
+                    <div class="progress-steps">
+                        <div class="progress-bar" id="progressBar" style="width: 33%;"></div>
+                        <div class="progress-step">
+                            <div class="step-icon completed">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="step-label">Produtor</div>
+                            <div class="step-description">Lote Confirmado</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="step-label">Transportador</div>
+                            <div class="step-description">Aguardando</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="step-label">Comprador</div>
+                            <div class="step-description">Aguardando</div>
+                        </div>
+                    </div>
+                    <div class="merge-actions">
+                        <button class="merge-btn completed" disabled>
+                            <i class="fas fa-check"></i> Merge 1: Produtor
+                        </button>
+                        <button class="merge-btn" id="merge2Btn" disabled>
+                            <i class="fas fa-truck"></i> Merge 2: Transportador
+                        </button>
+                        <button class="merge-btn" id="merge3Btn" disabled>
+                            <i class="fas fa-shopping-cart"></i> Merge 3: Comprador
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Área de Chat -->
+                <div class="chat-area">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message message-system">
+                            <div class="message-content">
+                                🚀 <strong>Transação Iniciada</strong> - Hash do lote gerado: 
+                                <span class="message-hash">0x7B3F9A2E4C8D1F6A9E2A5B7C1D8F3E7B</span>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-message message-received">
+                            <div class="message-header">
+                                <div class="message-sender">
+                                    Maria Santos
+                                    <span class="sender-role">Comprador</span>
+                                </div>
+                                <div class="message-time">10:15 AM</div>
+                            </div>
+                            <div class="message-content">
+                                Olá! Confirmo interesse na compra dos 1000kg de milho premium. Podemos combinar os detalhes da entrega?
+                            </div>
+                        </div>
+                        
+                        <div class="chat-message message-sent">
+                            <div class="message-header">
+                                <div class="message-sender">
+                                    João Silva
+                                    <span class="sender-role">Produtor</span>
+                                </div>
+                                <div class="message-time">10:20 AM</div>
+                            </div>
+                            <div class="message-content">
+                                Perfeito! Merge 1 confirmado - lote disponível para coleta a partir de amanhã.
+                                <div class="message-hash">Hash Produtor: 0xA3F8B2C1D9E4F7A6B5C9E2F1D8A3B6C4</div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-message message-system">
+                            <div class="message-content">
+                                📦 <strong>Status Atualizado</strong> - Produtor confirmou disponibilidade do lote
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-area">
+                        <textarea class="chat-input" placeholder="Digite sua mensagem... (Pressione Enter para enviar, Shift+Enter para nova linha)" id="chatInput"></textarea>
+                        <div class="chat-actions">
+                            <button class="file-attach" title="Anexar arquivo">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button class="chat-send" id="chatSend">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Convidados - Comprador -->
+            <div class="guests-sidebar">
+                <div class="guests-header">
+                    <h3 class="guests-title">
+                        <span><i class="fas fa-users"></i> Convidados do Comprador</span>
+                        <button class="add-guest-btn">+ Adicionar</button>
+                    </h3>
+                </div>
+                <div class="guest-list">
+                    <div class="guest-item">
+                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Convidado" class="guest-avatar">
+                        <div class="guest-info">
+                            <div class="guest-name">Patrícia Lima</div>
+                            <div class="guest-role">Gerente de Compras</div>
+                        </div>
+                        <div class="guest-status">Online</div>
+                    </div>
+                    <div class="guest-item">
+                        <img src="https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Convidado" class="guest-avatar">
+                        <div class="guest-info">
+                            <div class="guest-name">Ana Rodrigues</div>
+                            <div class="guest-role">Controladora de Qualidade</div>
+                        </div>
+                        <div class="guest-status">Online</div>
+                    </div>
+                    <div class="guest-item">
+                        <img src="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Convidado" class="guest-avatar">
+                        <div class="guest-info">
+                            <div class="guest-name">Ricardo Ferreira</div>
+                            <div class="guest-role">Analista Financeiro</div>
+                        </div>
+                        <div class="guest-status offline">Offline</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos do DOM
+        const addTransporterBtn = document.getElementById('addTransporterBtn');
+        const merge2Btn = document.getElementById('merge2Btn');
+        const merge3Btn = document.getElementById('merge3Btn');
+        const progressBar = document.getElementById('progressBar');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const chatSend = document.getElementById('chatSend');
+        const addGuestBtns = document.querySelectorAll('.add-guest-btn');
+        
+        // Adicionar transportador
+        addTransporterBtn.addEventListener('click', function() {
+            // Substituir o botão pelo participante transportador
+            const transporterHTML = `
+                <div class="participant">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Transportador" class="participant-avatar">
+                    <div class="participant-info">
+                        <div class="participant-name">Carlos Oliveira</div>
+                        <div class="participant-role">Transportador</div>
+                    </div>
+                </div>
+            `;
+            
+            this.outerHTML = transporterHTML;
+            
+            // Ativar o botão do transportador
+            merge2Btn.disabled = false;
+            merge2Btn.classList.add('active');
+            
+            // Atualizar a barra de progresso
+            document.querySelectorAll('.progress-step')[1].querySelector('.step-icon').className = 'step-icon active';
+            document.querySelectorAll('.progress-step')[1].querySelector('.step-description').textContent = 'Aguardando Confirmação';
+            
+            // Adicionar mensagem no chat
+            const systemMessage = document.createElement('div');
+            systemMessage.className = 'chat-message message-system';
+            systemMessage.innerHTML = `
+                <div class="message-content">
+                    🚚 <strong>Transportador Adicionado</strong> - Carlos Oliveira agora faz parte da transação
+                </div>
+            `;
+            chatMessages.appendChild(systemMessage);
+            
+            // Rolar para a última mensagem
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+        
+        // Confirmar Merge 2 (Transportador)
+        merge2Btn.addEventListener('click', function() {
+            // Simular confirmação do transportador
+            const systemMessage = document.createElement('div');
+            systemMessage.className = 'chat-message message-system';
+            systemMessage.innerHTML = `
+                <div class="message-content">
+                    🚚 <strong>Transportador Confirmou</strong> - Hash logístico gerado: 
+                    <span class="message-hash">0xB5E9C3D2F8A1E6B4C7D2E9F1A3B6C8D5</span>
+                </div>
+            `;
+            chatMessages.appendChild(systemMessage);
+            
+            // Atualizar interface
+            this.classList.remove('active');
+            this.classList.add('completed');
+            this.innerHTML = '<i class="fas fa-check"></i> Merge 2: Transportador';
+            this.disabled = true;
+            
+            // Ativar Merge 3
+            merge3Btn.disabled = false;
+            merge3Btn.classList.add('active');
+            
+            // Atualizar barra de progresso
+            progressBar.style.width = '66%';
+            
+            // Atualizar step icon
+            document.querySelectorAll('.progress-step')[1].querySelector('.step-icon').className = 'step-icon completed';
+            document.querySelectorAll('.progress-step')[1].querySelector('.step-description').textContent = 'Coleta Confirmada';
+            document.querySelectorAll('.progress-step')[2].querySelector('.step-icon').className = 'step-icon active';
+            
+            // Rolar para a última mensagem
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+        
+        // Confirmar Merge 3 (Comprador)
+        merge3Btn.addEventListener('click', function() {
+            // Simular confirmação do comprador
+            const systemMessage = document.createElement('div');
+            systemMessage.className = 'chat-message message-system';
+            systemMessage.innerHTML = `
+                <div class="message-content">
+                    ✅ <strong>Transação Concluída</strong> - Comprador confirmou recebimento. Hash final gerado: 
+                    <span class="message-hash">0xC7F2D4E1A9B8C5F3D6E9A2B4C7F1D8E3</span>
+                </div>
+            `;
+            chatMessages.appendChild(systemMessage);
+            
+            // Atualizar interface
+            this.classList.remove('active');
+            this.classList.add('completed');
+            this.innerHTML = '<i class="fas fa-check"></i> Merge 3: Comprador';
+            this.disabled = true;
+            
+            // Atualizar barra de progresso
+            progressBar.style.width = '100%';
+            
+            // Atualizar step icon
+            document.querySelectorAll('.progress-step')[2].querySelector('.step-icon').className = 'step-icon completed';
+            document.querySelectorAll('.progress-step')[2].querySelector('.step-description').textContent = 'Recebimento Confirmado';
+            
+            // Rolar para a última mensagem
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+        
+        // Enviar mensagem no chat
+        function sendMessage() {
+            if (chatInput.value.trim() !== '') {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message message-sent';
+                
+                const messageHeader = document.createElement('div');
+                messageHeader.className = 'message-header';
+                
+                const messageSender = document.createElement('div');
+                messageSender.className = 'message-sender';
+                messageSender.innerHTML = 'João Silva <span class="sender-role">Produtor</span>';
+                
+                const messageTime = document.createElement('div');
+                messageTime.className = 'message-time';
+                
+                const now = new Date();
+                messageTime.textContent = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                messageContent.textContent = chatInput.value;
+                
+                messageHeader.appendChild(messageSender);
+                messageHeader.appendChild(messageTime);
+                
+                messageDiv.appendChild(messageHeader);
+                messageDiv.appendChild(messageContent);
+                
+                chatMessages.appendChild(messageDiv);
+                chatInput.value = '';
+                
+                // Rolar para a última mensagem
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+        
+        // Event listeners para chat
+        chatSend.addEventListener('click', sendMessage);
+        
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Auto-expand textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        // Adicionar convidado (funcionalidade básica)
+        addGuestBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('Funcionalidade de adicionar convidado será implementada em breve!');
+            });
+        });
+    </script>
+</body>
+</html>
