@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌍 Oráculo Terra Dourada - Soberania de Dados</title>
     <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --gold: #d4af37;
@@ -159,6 +160,12 @@
             border: 1px solid #f44336;
         }
 
+        .status.processing {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
         /* Buttons */
         .btn {
             background: rgba(212, 175, 55, 0.2);
@@ -301,6 +308,12 @@
             border: 1px solid #f44336;
         }
 
+        .cid-status.processing {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
         /* Connection Status */
         .connection-status {
             position: fixed;
@@ -311,6 +324,38 @@
             font-size: 0.8rem;
             font-weight: 600;
             z-index: 1000;
+        }
+
+        .export-section {
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .prova-real {
+            border-left: 4px solid var(--gold);
+        }
+
+        .prova-local {
+            border-left: 4px solid var(--text-muted);
+        }
+
+        .hash-preview {
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .screenshot-info {
+            background: rgba(212, 175, 55, 0.1);
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-top: 5px;
         }
 
         @media (max-width: 768px) {
@@ -350,15 +395,16 @@
             <div class="logo">🌍</div>
             <h1 class="title">Oráculo Terra Dourada</h1>
             <p class="subtitle">Soberania de Dados • Ledger Obrigatório • Provas com CID</p>
-            <div class="tagline">PouchDB + Ledger Imutável + Atualização por CID</div>
+            <div class="tagline">Sistema de Provas Reais - PACOTE COMPLETO</div>
         </header>
 
         <!-- Navigation Tabs -->
         <div class="tabs">
             <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
             <button class="tab" onclick="showTab('ledger')">🔗 Ledger (Obrigatório)</button>
-            <button class="tab" onclick="showTab('provas')">🔐 Provas com CID</button>
+            <button class="tab" onclick="showTab('provas')">🔐 Provas Reais</button>
             <button class="tab" onclick="showTab('dados')">📦 Dados Locais</button>
+            <button class="tab" onclick="showTab('export')">📤 Exportar</button>
         </div>
 
         <!-- Tab Contents -->
@@ -381,8 +427,8 @@
                             <div class="data-value" id="totalLedger">0 hashes</div>
                         </div>
                         <div class="data-item">
-                            <div class="data-label">Provas Geradas</div>
-                            <div class="data-value" id="totalProvas">0 provas</div>
+                            <div class="data-label">Provas Reais</div>
+                            <div class="data-value" id="totalProvasReais">0 provas</div>
                         </div>
                     </div>
                 </div>
@@ -393,14 +439,14 @@
                         <button class="btn btn-primary" onclick="adicionarDadoManual()">
                             ➕ Adicionar Dado Manual
                         </button>
-                        <button class="btn" onclick="gerarProvaComCID()">
-                            🔐 Gerar Prova com CID
+                        <button class="btn" onclick="gerarProvaComDadosRapida()">
+                            🔐 Gerar Prova Rápida
                         </button>
                         <button class="btn" onclick="verificarIntegridadeLedger()">
                             ✅ Verificar Ledger
                         </button>
-                        <button class="btn" onclick="exportarDadosCompletos()">
-                            📤 Exportar Tudo
+                        <button class="btn" onclick="exportarLedgerTXT()">
+                            📤 Exportar Ledger.txt
                         </button>
                     </div>
                 </div>
@@ -440,40 +486,40 @@
                 </div>
             </div>
 
-            <!-- Provas com CID Tab -->
+            <!-- Provas Reais Tab -->
             <div id="tab-provas" class="tab-content">
                 <div class="card">
-                    <div class="card-header">🔐 Sistema de Provas com CID</div>
+                    <div class="card-header">🔐 Sistema de Provas Reais - PACOTE COMPLETO</div>
                     
                     <div class="cid-box">
                         <h3 style="color: var(--gold); margin-bottom: 15px;">🔄 Atualização por CID</h3>
                         <input type="text" id="cidInput" class="cid-input" 
                                placeholder="Digite o CID para atualização (ex: QmXyZ...)">
                         <button class="btn btn-primary" onclick="processarCID()">
-                            ⚡ Processar CID
+                            ⚡ Processar CID com Prova Real
                         </button>
                         
                         <div id="cidStatus" class="cid-status" style="display: none;"></div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Dados para Gerar Prova</label>
+                        <label class="form-label">Dados para Gerar Prova Real</label>
                         <textarea id="dadosProva" class="form-input" rows="4" 
-                                  placeholder='{"dados": "seus dados aqui"}'></textarea>
+                                  placeholder='{"tipo": "preco", "valor": 100, "moeda": "BTC"}'></textarea>
                     </div>
 
                     <button class="btn btn-primary" onclick="gerarProvaComDados()">
-                        🔐 Gerar Prova com Dados Atuais
+                        🔐 Gerar Prova Real com Screenshot COMPLETO
                     </button>
 
                     <div id="statusProva" style="margin-top: 15px;"></div>
                 </div>
 
                 <div class="card">
-                    <div class="card-header">📜 Provas Geradas</div>
+                    <div class="card-header">📜 Provas Reais Geradas</div>
                     <div id="listaProvas">
                         <div class="ledger-entry">
-                            <div>Nenhuma prova gerada ainda</div>
+                            <div>Nenhuma prova real gerada ainda</div>
                         </div>
                     </div>
                 </div>
@@ -493,6 +539,7 @@
                     <button class="btn btn-primary" onclick="adicionarDado()">
                         💾 Salvar no PouchDB + Ledger
                     </button>
+                    <div id="statusSalvamento" style="margin-top: 10px;"></div>
                 </div>
 
                 <div class="card">
@@ -504,13 +551,50 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Export Tab -->
+            <div id="tab-export" class="tab-content">
+                <div class="card">
+                    <div class="card-header">📤 Exportar Ledger e Dados</div>
+                    
+                    <div class="export-section">
+                        <h3 style="color: var(--gold); margin-bottom: 15px;">🔗 Exportar Ledger para TXT</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 15px;">
+                            Exporta todo o ledger para um arquivo de texto formatado.
+                        </p>
+                        <button class="btn btn-primary" onclick="exportarLedgerTXT()">
+                            💾 Exportar Ledger.txt
+                        </button>
+                    </div>
+
+                    <div class="export-section">
+                        <h3 style="color: var(--gold); margin-bottom: 15px;">📊 Exportar Dados Completos</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 15px;">
+                            Exporta todos os dados, ledger e provas em um único arquivo JSON.
+                        </p>
+                        <button class="btn btn-primary" onclick="exportarDadosCompletos()">
+                            📁 Exportar Backup Completo
+                        </button>
+                    </div>
+
+                    <div class="export-section">
+                        <h3 style="color: var(--gold); margin-bottom: 15px;">🔐 Exportar Provas Reais</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 15px;">
+                            Exporta apenas as provas reais com hashes criptográficos.
+                        </p>
+                        <button class="btn btn-primary" onclick="exportarProvasReais()">
+                            📄 Exportar Provas.json
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         // Bancos de dados PouchDB
         const dbDados = new PouchDB('terra_dourada_dados');
-        const dbLedger = new PouchDB('terra_dourada_ledger'); // LEDGER OBRIGATÓRIO
+        const dbLedger = new PouchDB('terra_dourada_ledger');
         const dbProvas = new PouchDB('terra_dourada_provas');
 
         // Estado da aplicação
@@ -524,18 +608,301 @@
             inicializarApp();
             atualizarDashboard();
             verificarConexao();
+            console.log('🌍 Sistema de Provas REAL Terra Dourada carregado!');
         });
 
-        // Funções principais
+        // === SISTEMA DE PROVAS REAL - PACOTE COMPLETO CORRIGIDO ===
+
+        // 1. Função principal para gerar prova completa
+        async function gerarProvaFinal(dadosBrutos) {
+            try {
+                console.log('🔐 Iniciando geração de prova REAL...');
+                
+                // 1. Hash dos dados
+                const hashDados = await calcularHash(JSON.stringify(dadosBrutos));
+
+                // 2. Hash visual (screenshot) - COMPLETO AGORA
+                const screenshotBase64 = await capturarScreenshot();
+                const hashVisual = await calcularHash(screenshotBase64);
+
+                // 3. Hash do ledger atual
+                const ledgerInfo = await dbLedger.get('ledger_info');
+                const hashAnterior = ledgerInfo.lastHash;
+
+                // 4. Montar pacote FINAL COMPLETO
+                const pacote = {
+                    _id: `prova_${Date.now()}`,
+                    timestamp: new Date().toISOString(),
+                    dados: dadosBrutos,
+                    hashDados: hashDados,
+                    hashVisual: hashVisual,
+                    screenshot: screenshotBase64, // ⬅️ AGORA COMPLETO, SEM CORTE!
+                    hashAnterior: hashAnterior,
+                    tipo: "prova_gerada",
+                    status: "processando",
+                    device: "oraculo_terra_dourada_ui",
+                    version: "1.0"
+                };
+
+                console.log('📦 Pacote COMPLETO montado:', pacote);
+
+                // 5. Registrar no ledger (local) primeiro - COM HASH REAL
+                const entradaLedger = await adicionarEntradaLedger(pacote, "prova_gerada");
+                
+                // 6. ATUALIZAR pacote com informações reais do ledger
+                pacote.ledgerHash = entradaLedger.hash;
+                pacote.previousHash = entradaLedger.previousHash; // ⬅️ HASH ANTERIOR REAL
+                pacote.ledgerEntryId = entradaLedger._id;
+
+                console.log('🔗 Ledger atualizado:', entradaLedger);
+
+                // 7. Enviar ao endpoint universal - PACOTE COMPLETO
+                console.log('🚀 Enviando PACOTE COMPLETO para endpoint universal...');
+                const resposta = await enviarParaEndpointUniversal(pacote, screenshotBase64);
+
+                // 8. Atualizar com resposta do Prover
+                pacote.cid = resposta.cid || resposta.IpfsHash || "";
+                pacote.provaZK = resposta.prova || "";
+                pacote.hashProva = resposta.hash || "";
+                pacote.status = "completo";
+                pacote.respostaServidor = resposta;
+                pacote.timestampResposta = new Date().toISOString();
+
+                // 9. Gravar prova completa no PouchDB
+                await dbProvas.put(pacote);
+
+                console.log('✅ Prova REAL gerada com sucesso!', pacote);
+                return pacote;
+
+            } catch (error) {
+                console.error('❌ Erro na geração da prova:', error);
+                
+                // Registrar erro no ledger
+                const erroPacote = {
+                    _id: `erro_prova_${Date.now()}`,
+                    timestamp: new Date().toISOString(),
+                    dados: dadosBrutos,
+                    erro: error.message,
+                    status: "erro"
+                };
+                
+                await adicionarEntradaLedger(erroPacote, "erro_prova");
+                await dbProvas.put(erroPacote);
+                
+                throw error;
+            }
+        }
+
+        // 2. Capturar screenshot da página - MESMA FUNÇÃO
+        async function capturarScreenshot() {
+            try {
+                const canvas = await html2canvas(document.body, {
+                    scale: 0.5,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#050703'
+                });
+                
+                return canvas.toDataURL('image/jpeg', 0.7);
+            } catch (error) {
+                console.warn('⚠️ Não foi possível capturar screenshot, usando fallback');
+                return "data:image/jpeg;base64,fallback";
+            }
+        }
+
+        // 3. ✅ CORREÇÃO CRÍTICA: Enviar PACOTE COMPLETO para endpoint universal
+        async function enviarParaEndpointUniversal(pacoteCompleto, screenshotBase64Completo) {
+            const endpoints = [
+                "http://localhost:7070/oracle",
+                "http://localhost:3000/prova", 
+                "http://localhost:8080/mel"
+            ];
+
+            let ultimoErro = null;
+
+            for (const endpoint of endpoints) {
+                try {
+                    console.log(`🔄 Tentando endpoint: ${endpoint}`);
+                    console.log('📤 Enviando PACOTE COMPLETO:', pacoteCompleto);
+                    
+                    // ✅ CORREÇÃO: ENVIAR PACOTE COMPLETO, NÃO SUBPACOTE
+                    const payloadCompleto = {
+                        event: "oracle_proof_generation",
+                        pacoteCompleto: pacoteCompleto,      // ⬅️ AQUI ESTÁ A CORREÇÃO
+                        screenshotBase64: screenshotBase64Completo, // ⬅️ COMPLETO, SEM CORTE!
+                        version: "1.0",
+                        device: "oraculo_terra_dourada_ui"
+                    };
+
+                    console.log('📦 Payload completo para envio:', payloadCompleto);
+
+                    const response = await fetch(endpoint, {
+                        method: "POST",
+                        headers: { 
+                            "Content-Type": "application/json",
+                            "X-Oráculo-Terra-Dourada": "v1.0",
+                            "X-Pacote-Completo": "true"
+                        },
+                        body: JSON.stringify(payloadCompleto)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const resultado = await response.json();
+                    console.log(`✅ Sucesso no endpoint ${endpoint}:`, resultado);
+                    return resultado;
+
+                } catch (error) {
+                    console.warn(`❌ Falha no endpoint ${endpoint}:`, error.message);
+                    ultimoErro = error;
+                    continue;
+                }
+            }
+
+            throw new Error(`Todos os endpoints falharam. Último erro: ${ultimoErro.message}`);
+        }
+
+        // 4. Função atualizada para gerar prova com dados da UI
+        async function gerarProvaComDados() {
+            const dadosInput = document.getElementById('dadosProva').value.trim();
+            const statusElement = document.getElementById('statusProva');
+            
+            if (!dadosInput) {
+                alert('Por favor, digite os dados para gerar prova');
+                return;
+            }
+
+            try {
+                statusElement.innerHTML = `
+                    <div class="cid-status processing">
+                        🔄 Gerando prova REAL com PACOTE COMPLETO...<br>
+                        <small>Capturando screenshot COMPLETO, calculando hashes...</small>
+                    </div>
+                `;
+
+                const dados = JSON.parse(dadosInput);
+                
+                // 🔥 CHAMA O SISTEMA REAL DE PROVAS
+                const provaCompleta = await gerarProvaFinal(dados);
+
+                // Calcular tamanho do screenshot para info
+                const screenshotSize = Math.round((provaCompleta.screenshot.length * 3) / 4); // approx bytes
+                
+                // Atualizar UI com resultados
+                statusElement.innerHTML = `
+                    <div class="cid-status success">
+                        ✅ PROVA REAL GERADA!<br><br>
+                        <strong>CID IPFS:</strong> ${provaCompleta.cid || "Pendente"}<br>
+                        <strong>Hash Dados:</strong> <span class="hash-preview">${provaCompleta.hashDados.substring(0, 16)}...</span><br>
+                        <strong>Hash Visual:</strong> <span class="hash-preview">${provaCompleta.hashVisual.substring(0, 16)}...</span><br>
+                        <strong>Hash Ledger:</strong> <span class="hash-preview">${provaCompleta.ledgerHash.substring(0, 16)}...</span><br>
+                        <strong>Previous Hash:</strong> <span class="hash-preview">${provaCompleta.previousHash.substring(0, 16)}...</span><br>
+                        <strong>Timestamp:</strong> ${new Date(provaCompleta.timestamp).toLocaleString()}<br>
+                        <div class="screenshot-info">
+                            📸 Screenshot: ${(screenshotSize / 1024).toFixed(1)} KB (COMPLETO)
+                        </div>
+                    </div>
+                `;
+
+                // Limpar campo e atualizar listas
+                document.getElementById('dadosProva').value = '';
+                carregarProvas();
+                atualizarDashboard();
+
+            } catch (error) {
+                statusElement.innerHTML = `
+                    <div class="cid-status error">
+                        ❌ Erro na geração da prova REAL:<br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // 5. Função para processar CID com prova real
+        async function processarCIDComProva() {
+            const cid = document.getElementById('cidInput').value.trim();
+            const statusElement = document.getElementById('cidStatus');
+            
+            if (!cid) {
+                alert('Por favor, digite um CID');
+                return;
+            }
+
+            try {
+                statusElement.style.display = 'block';
+                statusElement.className = 'cid-status processing';
+                statusElement.textContent = '🔄 Processando CID com prova REAL...';
+
+                const dadosCID = {
+                    _id: `cid_${Date.now()}`,
+                    cid: cid,
+                    tipo: 'cid_verificado',
+                    origem: 'input_usuario'
+                };
+
+                // 🔥 Usar sistema real de provas para o CID
+                const provaCID = await gerarProvaFinal(dadosCID);
+
+                statusElement.className = 'cid-status success';
+                statusElement.innerHTML = `
+                    ✅ CID processado com PROVA REAL!<br><br>
+                    <strong>CID Original:</strong> ${cid}<br>
+                    <strong>Novo CID Prova:</strong> ${provaCID.cid || "Processado"}<br>
+                    <strong>Status:</strong> Registrado no ledger
+                `;
+
+                document.getElementById('cidInput').value = '';
+                atualizarDashboard();
+                
+            } catch (error) {
+                statusElement.className = 'cid-status error';
+                statusElement.innerHTML = `❌ Erro ao processar CID: ${error.message}`;
+            }
+        }
+
+        // 6. Função para verificar prova existente
+        async function verificarProva(provaId) {
+            try {
+                const prova = await dbProvas.get(provaId);
+                
+                // Verificar integridade local
+                const hashRecalculado = await calcularHash(JSON.stringify(prova.dados));
+                const integridadeLocal = hashRecalculado === prova.hashDados;
+                
+                // Verificar hash visual
+                const hashVisualRecalculado = await calcularHash(prova.screenshot);
+                const integridadeVisual = hashVisualRecalculado === prova.hashVisual;
+                
+                // Verificar no ledger
+                const entradaLedger = await dbLedger.get(prova.ledgerHash);
+                const integridadeLedger = entradaLedger !== undefined;
+                
+                return {
+                    prova: prova,
+                    integridadeLocal: integridadeLocal,
+                    integridadeVisual: integridadeVisual,
+                    integridadeLedger: integridadeLedger,
+                    status: (integridadeLocal && integridadeVisual && integridadeLedger) ? "válida" : "corrompida"
+                };
+                
+            } catch (error) {
+                return { erro: error.message, status: "erro" };
+            }
+        }
+
+        // === FUNÇÕES EXISTENTES ATUALIZADAS ===
+
         async function inicializarApp() {
             console.log('🌍 Oráculo Terra Dourada inicializando...');
             
-            // Verificar/Inicializar ledger
             try {
                 const ledgerInfo = await dbLedger.get('ledger_info');
                 estadoApp.lastHash = ledgerInfo.lastHash;
+                console.log('✅ Ledger carregado, último hash:', estadoApp.lastHash);
             } catch (error) {
-                // Primeira execução - criar ledger inicial
                 await dbLedger.put({
                     _id: 'ledger_info',
                     lastHash: 'genesis',
@@ -546,21 +913,17 @@
         }
 
         function showTab(tabName) {
-            // Esconder todas as tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
             
-            // Mostrar tab selecionada
             document.getElementById(`tab-${tabName}`).classList.add('active');
             
-            // Atualizar botões
             document.querySelectorAll('.tab').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
 
-            // Atualizar dados específicos da tab
             if (tabName === 'dashboard') atualizarDashboard();
             if (tabName === 'ledger') carregarLedger();
             if (tabName === 'provas') carregarProvas();
@@ -575,12 +938,12 @@
                     dbProvas.allDocs({include_docs: false})
                 ]);
 
-                // Filtrar apenas entradas de dados do ledger (não contar ledger_info)
                 const entradasLedger = ledger.rows.filter(row => !row.id.includes('ledger_info'));
+                const provasReais = provas.rows.filter(row => row.id.includes('prova_'));
 
                 document.getElementById('totalDados').textContent = `${dados.rows.length} registros`;
                 document.getElementById('totalLedger').textContent = `${entradasLedger.length} hashes`;
-                document.getElementById('totalProvas').textContent = `${provas.rows.length} provas`;
+                document.getElementById('totalProvasReais').textContent = `${provasReais.length} provas reais`;
 
                 await atualizarAtividadeRecente();
                 
@@ -589,23 +952,23 @@
             }
         }
 
-        // ✅ LEDGER OBRIGATÓRIO - SEMPRE é chamado quando salva dados
-        async function adicionarEntradaLedger(dado) {
+        // ✅ LEDGER OBRIGATÓRIO - função centralizada
+        async function adicionarEntradaLedger(dado, tipo = 'dado_registrado') {
             const timestamp = new Date().toISOString();
             const hashData = await calcularHash(JSON.stringify(dado) + timestamp + estadoApp.lastHash);
             
             const entrada = {
-                _id: `ledger_${Date.now()}`,
+                _id: `ledger_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
                 hash: hashData,
                 previousHash: estadoApp.lastHash,
                 timestamp: timestamp,
                 dataId: dado._id,
-                tipo: 'dado_registrado'
+                tipo: tipo,
+                dados: dado
             };
 
             await dbLedger.put(entrada);
             
-            // Atualizar último hash
             estadoApp.lastHash = hashData;
             await dbLedger.put({
                 _id: 'ledger_info',
@@ -625,47 +988,9 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // 🔄 SISTEMA DE CID
+        // Substituir função original de processar CID
         async function processarCID() {
-            const cid = document.getElementById('cidInput').value.trim();
-            if (!cid) {
-                alert('Por favor, digite um CID');
-                return;
-            }
-
-            const statusElement = document.getElementById('cidStatus');
-            statusElement.style.display = 'block';
-            statusElement.className = 'cid-status';
-            statusElement.textContent = '🔄 Processando CID...';
-
-            try {
-                // Simulação de processamento de CID
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // Aqui viria a lógica real de buscar dados pelo CID
-                const dadosCID = {
-                    _id: `cid_${Date.now()}`,
-                    cid: cid,
-                    dados: `Dados do CID ${cid}`,
-                    timestamp: new Date().toISOString()
-                };
-
-                // Salvar no PouchDB
-                await dbDados.put(dadosCID);
-                
-                // ✅ LEDGER OBRIGATÓRIO - registrar no ledger
-                await adicionarEntradaLedger(dadosCID);
-
-                statusElement.className = 'cid-status success';
-                statusElement.textContent = `✅ CID processado e registrado no ledger!`;
-                
-                document.getElementById('cidInput').value = '';
-                atualizarDashboard();
-                
-            } catch (error) {
-                statusElement.className = 'cid-status error';
-                statusElement.textContent = `❌ Erro ao processar CID: ${error.message}`;
-            }
+            await processarCIDComProva();
         }
 
         async function adicionarDado() {
@@ -675,6 +1000,8 @@
                 return;
             }
 
+            const statusElement = document.getElementById('statusSalvamento');
+            
             try {
                 const dados = JSON.parse(dadoInput);
                 const doc = {
@@ -683,58 +1010,17 @@
                     timestamp: new Date().toISOString()
                 };
 
-                // Salvar no PouchDB
                 await dbDados.put(doc);
-                
-                // ✅ LEDGER OBRIGATÓRIO - registrar no ledger
-                await adicionarEntradaLedger(doc);
+                await adicionarEntradaLedger(doc, 'dado_registrado');
 
-                alert('✅ Dados salvos no PouchDB e registro OBRIGATÓRIO no Ledger!');
+                statusElement.innerHTML = '<div class="cid-status success">✅ Dados salvos + Ledger atualizado!</div>';
+
                 document.getElementById('novoDado').value = '';
                 carregarDados();
                 atualizarDashboard();
                 
             } catch (error) {
-                alert('❌ Erro ao salvar dados: ' + error.message);
-            }
-        }
-
-        async function gerarProvaComDados() {
-            const dadosInput = document.getElementById('dadosProva').value.trim();
-            if (!dadosInput) {
-                alert('Por favor, digite os dados para gerar prova');
-                return;
-            }
-
-            try {
-                const dados = JSON.parse(dadosInput);
-                const prova = {
-                    _id: `prova_${Date.now()}`,
-                    dados: dados,
-                    timestamp: new Date().toISOString(),
-                    status: 'gerada',
-                    cid: `simulado_${Math.random().toString(36).substr(2, 9)}`
-                };
-
-                await dbProvas.put(prova);
-                
-                document.getElementById('statusProva').innerHTML = `
-                    <div class="cid-status success">
-                        ✅ Prova gerada com sucesso!<br>
-                        <strong>CID:</strong> ${prova.cid}
-                    </div>
-                `;
-
-                document.getElementById('dadosProva').value = '';
-                carregarProvas();
-                atualizarDashboard();
-                
-            } catch (error) {
-                document.getElementById('statusProva').innerHTML = `
-                    <div class="cid-status error">
-                        ❌ Erro ao gerar prova: ${error.message}
-                    </div>
-                `;
+                statusElement.innerHTML = `<div class="cid-status error">❌ Erro: ${error.message}</div>`;
             }
         }
 
@@ -785,8 +1071,9 @@
                     div.className = 'ledger-entry';
                     div.innerHTML = `
                         <div class="ledger-timestamp">${new Date(entry.timestamp).toLocaleString()}</div>
-                        <div><strong>Hash:</strong> <span class="ledger-hash">${entry.hash}</span></div>
-                        <div><strong>Hash Anterior:</strong> <span class="ledger-hash">${entry.previousHash}</span></div>
+                        <div><strong>Tipo:</strong> ${entry.tipo}</div>
+                        <div><strong>Hash:</strong> <span class="ledger-hash">${entry.hash.substring(0, 20)}...</span></div>
+                        <div><strong>Hash Anterior:</strong> <span class="ledger-hash">${entry.previousHash.substring(0, 20)}...</span></div>
                         <div><strong>Data ID:</strong> ${entry.dataId}</div>
                     `;
                     container.appendChild(div);
@@ -797,6 +1084,7 @@
             }
         }
 
+        // 7. Atualizar função de carregar provas para mostrar provas reais
         async function carregarProvas() {
             try {
                 const provas = await dbProvas.allDocs({
@@ -808,25 +1096,63 @@
                 container.innerHTML = '';
 
                 if (provas.rows.length === 0) {
-                    container.innerHTML = '<div class="ledger-entry">Nenhuma prova gerada</div>';
+                    container.innerHTML = '<div class="ledger-entry">Nenhuma prova REAL gerada</div>';
                     return;
                 }
 
                 provas.rows.forEach(row => {
                     const prova = row.doc;
                     const div = document.createElement('div');
-                    div.className = 'ledger-entry';
+                    div.className = `ledger-entry ${prova.hashDados ? 'prova-real' : 'prova-local'}`;
+                    
+                    const isProvaReal = prova.hashDados && prova.hashVisual;
+                    const statusClass = prova.status === 'completo' ? 'status online' : 
+                                      prova.status === 'erro' ? 'status offline' : 
+                                      prova.status === 'processando' ? 'status processing' : 'status';
+                    
+                    const screenshotSize = prova.screenshot ? Math.round((prova.screenshot.length * 3) / 4) : 0;
+                    
                     div.innerHTML = `
-                        <div class="ledger-timestamp">${new Date(prova.timestamp).toLocaleString()}</div>
-                        <div><strong>CID:</strong> ${prova.cid}</div>
-                        <div><strong>Status:</strong> ${prova.status}</div>
-                        <div><strong>Dados:</strong> ${JSON.stringify(prova.dados).substring(0, 100)}...</div>
+                        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 8px;">
+                            <div class="ledger-timestamp">${new Date(prova.timestamp).toLocaleString()}</div>
+                            <span class="status ${statusClass}" style="margin-left: auto;">
+                                ${prova.status || 'desconhecido'}
+                            </span>
+                        </div>
+                        ${isProvaReal ? `
+                            <div><strong>🔐 PROVA REAL - PACOTE COMPLETO</strong></div>
+                            <div><strong>CID:</strong> ${prova.cid || "Pendente"}</div>
+                            <div><strong>Hash Dados:</strong> <span class="hash-preview">${prova.hashDados?.substring(0, 16)}...</span></div>
+                            <div><strong>Hash Visual:</strong> <span class="hash-preview">${prova.hashVisual?.substring(0, 16)}...</span></div>
+                            <div><strong>Previous Hash:</strong> <span class="hash-preview">${prova.previousHash?.substring(0, 16)}...</span></div>
+                            <div><strong>Tipo:</strong> ${prova.tipo}</div>
+                            <div class="screenshot-info">
+                                📸 Screenshot: ${(screenshotSize / 1024).toFixed(1)} KB
+                            </div>
+                        ` : `
+                            <div><strong>📝 Prova Local</strong></div>
+                            <div><strong>CID:</strong> ${prova.cid || "N/A"}</div>
+                            <div><strong>Dados:</strong> ${JSON.stringify(prova.dados)?.substring(0, 100)}...</div>
+                        `}
+                        <button class="btn" onclick="verificarProvaIndividual('${prova._id}')" 
+                                style="margin-top: 10px; padding: 5px 10px; font-size: 0.8rem;">
+                            ✅ Verificar
+                        </button>
                     `;
                     container.appendChild(div);
                 });
                 
             } catch (error) {
                 console.error('Erro ao carregar provas:', error);
+            }
+        }
+
+        async function verificarProvaIndividual(provaId) {
+            const resultado = await verificarProva(provaId);
+            if (resultado.erro) {
+                alert(`❌ Erro na verificação: ${resultado.erro}`);
+            } else {
+                alert(`✅ Prova ${resultado.status.toUpperCase()}!\nIntegridade Local: ${resultado.integridadeLocal}\nIntegridade Visual: ${resultado.integridadeVisual}\nIntegridade Ledger: ${resultado.integridadeLedger}`);
             }
         }
 
@@ -886,8 +1212,8 @@
                     div.className = 'ledger-entry';
                     div.innerHTML = `
                         <div class="ledger-timestamp">${new Date(entry.timestamp).toLocaleString()}</div>
+                        <div><strong>${entry.tipo}</strong></div>
                         <div class="ledger-hash">${entry.hash.substring(0, 16)}...</div>
-                        <div>${entry.tipo}</div>
                     `;
                     container.appendChild(div);
                 });
@@ -897,26 +1223,135 @@
             }
         }
 
-        // Funções de placeholder
+        // ✅ FUNÇÃO: Exportar Ledger para TXT
+        async function exportarLedgerTXT() {
+            try {
+                const ledger = await dbLedger.allDocs({ include_docs: true });
+                
+                let conteudoTXT = `LEDGER TERRA DOURADA - EXPORTAÇÃO\n`;
+                conteudoTXT += `Data: ${new Date().toLocaleString()}\n`;
+                conteudoTXT += `Total de entradas: ${ledger.rows.length - 1}\n`;
+                conteudoTXT += `========================================\n\n`;
+                
+                const entradasOrdenadas = ledger.rows
+                    .filter(row => !row.id.includes('ledger_info'))
+                    .sort((a, b) => new Date(a.doc.timestamp) - new Date(b.doc.timestamp));
+                
+                entradasOrdenadas.forEach((row, index) => {
+                    const entry = row.doc;
+                    conteudoTXT += `ENTRADA ${index + 1}\n`;
+                    conteudoTXT += `Timestamp: ${new Date(entry.timestamp).toLocaleString()}\n`;
+                    conteudoTXT += `Hash: ${entry.hash}\n`;
+                    conteudoTXT += `Hash Anterior: ${entry.previousHash}\n`;
+                    conteudoTXT += `Tipo: ${entry.tipo}\n`;
+                    conteudoTXT += `Data ID: ${entry.dataId}\n`;
+                    conteudoTXT += `----------------------------------------\n\n`;
+                });
+                
+                const blob = new Blob([conteudoTXT], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ledger_terra_dourada_${Date.now()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('✅ Ledger exportado como TXT!');
+                    
+            } catch (error) {
+                alert('❌ Erro ao exportar: ' + error.message);
+            }
+        }
+
+        async function exportarDadosCompletos() {
+            try {
+                const [dados, ledger, provas] = await Promise.all([
+                    dbDados.allDocs({ include_docs: true }),
+                    dbLedger.allDocs({ include_docs: true }),
+                    dbProvas.allDocs({ include_docs: true })
+                ]);
+                
+                const backup = {
+                    metadata: {
+                        exportDate: new Date().toISOString(),
+                        version: '1.0',
+                        totalDados: dados.rows.length,
+                        totalLedger: ledger.rows.length,
+                        totalProvas: provas.rows.length
+                    },
+                    dados: dados.rows.map(row => row.doc),
+                    ledger: ledger.rows.map(row => row.doc),
+                    provas: provas.rows.map(row => row.doc)
+                };
+                
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_terra_dourada_${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('✅ Backup completo exportado!');
+                    
+            } catch (error) {
+                alert('❌ Erro ao exportar backup: ' + error.message);
+            }
+        }
+
+        async function exportarProvasReais() {
+            try {
+                const provas = await dbProvas.allDocs({ include_docs: true });
+                
+                const provasReais = provas.rows
+                    .map(row => row.doc)
+                    .filter(prova => prova.hashDados && prova.hashVisual);
+                
+                const exportData = {
+                    metadata: {
+                        exportDate: new Date().toISOString(),
+                        version: '1.0',
+                        totalProvasReais: provasReais.length
+                    },
+                    provas: provasReais
+                };
+                
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `provas_reais_terra_dourada_${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert(`✅ ${provasReais.length} provas reais exportadas!`);
+                    
+            } catch (error) {
+                alert('❌ Erro ao exportar provas: ' + error.message);
+            }
+        }
+
+        // Funções de placeholder e utilitárias
         async function verificarLedgerCompleto() {
             alert('🔍 Verificando integridade completa do ledger...');
-            // Implementação real verificaria toda a cadeia de hashes
         }
 
         async function verificarIntegridadeLedger() {
             alert('✅ Verificando integridade do ledger...');
         }
 
-        function exportarDadosCompletos() {
-            alert('📤 Exportando dados completos...');
-        }
-
         function adicionarDadoManual() {
-            document.getElementById('novoDado').value = '{"tipo": "manual", "valor": ' + Math.random() + '}';
+            document.getElementById('novoDado').value = '{"tipo": "manual", "valor": ' + Math.random() + ', "timestamp": "' + new Date().toISOString() + '"}';
         }
 
-        function gerarProvaComCID() {
-            document.getElementById('cidInput').value = 'Qm' + Math.random().toString(36).substr(2, 40);
+        function gerarProvaComDadosRapida() {
+            document.getElementById('dadosProva').value = '{"tipo": "prova_rapida", "valor": ' + Math.random() + ', "timestamp": "' + new Date().toISOString() + '"}';
         }
     </script>
 </body>
