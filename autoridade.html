@@ -626,14 +626,16 @@ function irParaRedeSocial() {
 
 // NOVA FUNÇÃO: Ir para GPT Assistant
 function irParaOraculo() {
-  if (!usuarioLogado) {
+   if (!usuarioLogado) {
     alert('Erro: Usuário não identificado. Faça login novamente.');
     window.location.href = 'login.html';
     return;
   }
-   const userId = encodeURIComponent(usuarioLogado.email);
+  
+  // Passar o email do usuário como parâmetro para manter o login
+  const userId = encodeURIComponent(usuarioLogado.email);
   window.location.href = `oraculo.html?user_id=${userId}`;
-} 
+}
   // Passar o email do usuário como parâmetro para manter o login
   const userId = encodeURIComponent(usuarioLogado.email);
   window.location.href = `index_gpt.html?user_id=${userId}`;
