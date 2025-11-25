@@ -337,6 +337,99 @@
             font-size: 0.75rem;
         }
 
+        /* 🔥 NOVO CSS: Sistema de Confirmações */
+        .cid-link {
+            color: var(--gold);
+            text-decoration: none;
+            font-family: monospace;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-block;
+            margin: 2px;
+            font-size: 0.8rem;
+        }
+
+        .cid-link:hover {
+            background: rgba(212, 175, 55, 0.2);
+            transform: translateY(-1px);
+            text-decoration: underline;
+        }
+
+        .confirmacao-item {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .confirmacao-item:hover {
+            background: rgba(76, 175, 80, 0.15);
+            transform: translateX(5px);
+        }
+
+        .pendente-item {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .status-confirmado { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+        .status-pendente { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .status-falha { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: var(--darker-bg);
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            width: 500px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.6;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -384,6 +477,7 @@
         <!-- Navigation Tabs -->
         <div class="tabs">
             <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="showTab('confirmacoes')">✅ Confirmações</button>
             <button class="tab" onclick="showTab('protocolos')">🔌 Protocolos</button>
             <button class="tab" onclick="showTab('ledger')">🔗 Ledger</button>
             <button class="tab" onclick="showTab('provas')">🔐 Provas</button>
@@ -395,6 +489,15 @@
         <div class="content">
             <!-- Dashboard Tab -->
             <div id="tab-dashboard" class="tab-content active">
+                <div class="controls">
+                    <button onclick="atualizarDashboard()">📊 Atualizar Dashboard</button>
+                    <button id="btnVerPendentes" class="btn" onclick="mostrarPendentes()" style="display: none;">
+                        📋 Ver Pendentes (0)
+                    </button>
+                    <button onclick="processarFilaPendentes()">🔄 Sincronizar Agora</button>
+                    <button onclick="exportarDadosCompletos()">📤 Exportar Tudo</button>
+                </div>
+
                 <div class="card">
                     <div class="card-header">📊 Status do Sistema Multi-Protocolo</div>
                     <div class="data-grid">
@@ -417,6 +520,29 @@
                     </div>
                 </div>
 
+                <!-- 🔥 NOVA SEÇÃO: Status de Envios -->
+                <div class="card">
+                    <div class="card-header">📨 Status de Envios & Confirmações</div>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">Envios Confirmados</div>
+                            <div class="data-value" id="countConfirmados">0</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Pendentes de Envio</div>
+                            <div class="data-value" id="countPendentes">0</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Último CID</div>
+                            <div class="data-value" id="ultimoCID">Nenhum</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Status Conexão</div>
+                            <div class="data-value" id="statusConexao">Online</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-header">🚀 Conexões Ativas</div>
                     <div id="conexoesAtivas">
@@ -431,6 +557,42 @@
                     <div id="atividadeRecente">
                         <div class="ledger-entry">
                             <div>Nenhuma atividade recente</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔥 NOVA ABA: Confirmações -->
+            <div id="tab-confirmacoes" class="tab-content">
+                <div class="card">
+                    <div class="card-header">✅ Envios Confirmados com CID</div>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">
+                        Todos os envios confirmados com CID/IPFS Hash. Clique nos links para verificar.
+                    </p>
+                    
+                    <div class="controls">
+                        <button class="btn btn-primary" onclick="carregarConfirmacoes()">
+                            🔄 Atualizar Lista
+                        </button>
+                        <button class="btn" onclick="exportarConfirmacoes()">
+                            💾 Exportar Confirmações
+                        </button>
+                    </div>
+
+                    <div id="listaConfirmacoes" style="margin-top: 20px;">
+                        <div class="empty-state">
+                            <i>📭</i>
+                            Nenhuma confirmação carregada
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">📋 Pendentes de Envio</div>
+                    <div id="listaPendentes">
+                        <div class="empty-state">
+                            <i>📬</i>
+                            Nenhum item pendente
                         </div>
                     </div>
                 </div>
@@ -604,13 +766,14 @@
     </div>
 
     <script>
-        // Bancos de dados PouchDB
+        // ==================== BANCOS DE DADOS ====================
         const dbDados = new PouchDB('terra_dourada_dados');
         const dbLedger = new PouchDB('terra_dourada_ledger');
         const dbProvas = new PouchDB('terra_dourada_provas');
         const dbFilaOffline = new PouchDB('terra_dourada_fila');
+        const dbEnvios = new PouchDB('terra_dourada_envios_confirmados');
 
-        // Estado da aplicação
+        // ==================== ESTADO DA APLICAÇÃO ====================
         let estadoApp = {
             online: navigator.onLine,
             lastHash: 'genesis',
@@ -619,14 +782,515 @@
             conexoes: {}
         };
 
-        // Inicialização
+        let sistemaEnvio = {
+            enviando: false,
+            ultimoCID: null,
+            filaPendentes: 0,
+            IPFS_GATEWAY: "https://ipfs.io/ipfs/"
+        };
+
+        // ==================== INICIALIZAÇÃO ====================
         document.addEventListener('DOMContentLoaded', function() {
             inicializarApp();
             atualizarDashboard();
             verificarConexao();
             iniciarFilaOffline();
+            
+            // 🔥 NOVO: Inicializar sistema de confirmações
+            setTimeout(() => {
+                atualizarContadorPendentes();
+                atualizarStatusEnvios();
+            }, 1000);
+            
+            // Processar pendentes a cada 30 segundos (quando online)
+            setInterval(() => {
+                if (estadoApp.online && sistemaEnvio.filaPendentes > 0 && !sistemaEnvio.enviando) {
+                    processarFilaPendentes();
+                }
+            }, 30000);
+            
             console.log('🌍 Oráculo Terra Dourada Multi-Protocolo inicializado!');
         });
+
+        // ==================== SISTEMA DE CONFIRMAÇÃO COM CID ====================
+
+        // ✅ FUNÇÃO PRINCIPAL: Enviar dados com confirmação de CID
+        async function enviarDadosComConfirmacao(dados, tipo = 'dado_externo') {
+            try {
+                // Verificar se já foi enviado (prevenção de duplicação)
+                const jaEnviado = await verificarSeJaEnviado(dados);
+                if (jaEnviado) {
+                    console.log('📭 Dado já enviado anteriormente, ignorando...');
+                    return { sucesso: true, cid: jaEnviado.cid, status: 'ja_enviado' };
+                }
+
+                // Se offline, salvar na fila
+                if (!estadoApp.online) {
+                    return await salvarNaFilaOffline(dados, tipo);
+                }
+
+                // Tentar envio para o backend
+                const resultado = await enviarParaBackend(dados);
+                
+                if (resultado.sucesso && resultado.cid) {
+                    // ✅ SUCESSO: Salvar confirmação com CID
+                    await salvarConfirmacaoEnvio(dados, resultado.cid, tipo);
+                    sistemaEnvio.ultimoCID = resultado.cid;
+                    
+                    // Atualizar UI
+                    await atualizarStatusEnvios();
+                    await atualizarContadorPendentes();
+                    
+                    adicionarLogProtocolo('ENVIO', `✅ Enviado com sucesso! CID: ${resultado.cid.substring(0, 20)}...`);
+                    return resultado;
+                } else {
+                    // ❌ FALHA: Salvar na fila para retentar depois
+                    throw new Error('Backend não retornou CID válido');
+                }
+
+            } catch (error) {
+                console.error('❌ Erro no envio:', error);
+                
+                // Salvar na fila offline para retentar depois
+                const resultadoFila = await salvarNaFilaOffline(dados, tipo);
+                adicionarLogProtocolo('ENVIO', `💾 Salvo na fila offline: ${error.message}`);
+                
+                return resultadoFila;
+            }
+        }
+
+        // ✅ VERIFICAR se dado já foi enviado (prevenção de duplicação)
+        async function verificarSeJaEnviado(dados) {
+            try {
+                // Criar hash único dos dados para verificação
+                const hashDados = await calcularHash(JSON.stringify(dados));
+                
+                // Buscar no banco de envios confirmados
+                const resultado = await dbEnvios.allDocs({
+                    include_docs: true,
+                    startkey: 'envio_',
+                    endkey: 'envio_\uffff'
+                });
+
+                // Verificar se algum envio tem o mesmo hash de dados
+                const envioExistente = resultado.rows.find(row => 
+                    row.doc.hashDados === hashDados && row.doc.cid
+                );
+
+                return envioExistente ? envioExistente.doc : null;
+            } catch (error) {
+                console.error('Erro ao verificar envio:', error);
+                return null;
+            }
+        }
+
+        // ✅ SALVAR confirmação de envio com CID
+        async function salvarConfirmacaoEnvio(dados, cid, tipo) {
+            const hashDados = await calcularHash(JSON.stringify(dados));
+            
+            const confirmacao = {
+                _id: `envio_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+                timestamp: new Date().toISOString(),
+                cid: cid,
+                hashDados: hashDados,
+                tipo: tipo,
+                dados: dados,
+                status: 'confirmado',
+                protocolo: dados.protocolo || 'manual',
+                linkIPFS: `${sistemaEnvio.IPFS_GATEWAY}${cid}`
+            };
+
+            await dbEnvios.put(confirmacao);
+            return confirmacao;
+        }
+
+        // ✅ SALVAR na fila offline (quando não há conexão)
+        async function salvarNaFilaOffline(dados, tipo) {
+            const hashDados = await calcularHash(JSON.stringify(dados));
+            
+            const itemFila = {
+                _id: `fila_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+                timestamp: new Date().toISOString(),
+                hashDados: hashDados,
+                tipo: tipo,
+                dados: dados,
+                status: 'pendente',
+                tentativas: 0,
+                protocolo: dados.protocolo || 'manual'
+            };
+
+            await dbFilaOffline.put(itemFila);
+            await atualizarContadorPendentes();
+            
+            return { 
+                sucesso: false, 
+                status: 'salvo_na_fila',
+                mensagem: 'Dado salvo na fila offline para envio posterior'
+            };
+        }
+
+        // ✅ PROCESSAR fila de pendentes (quando conexão voltar)
+        async function processarFilaPendentes() {
+            if (sistemaEnvio.enviando) {
+                console.log('🔄 Já processando fila...');
+                return;
+            }
+
+            sistemaEnvio.enviando = true;
+            adicionarLogProtocolo('FILA', '🔄 Iniciando sincronização de pendentes...');
+            
+            try {
+                const pendentes = await dbFilaOffline.allDocs({ include_docs: true });
+                if (pendentes.rows.length === 0) {
+                    adicionarLogProtocolo('FILA', '📭 Nenhum item pendente na fila');
+                    return;
+                }
+
+                adicionarLogProtocolo('FILA', `📦 Processando ${pendentes.rows.length} itens pendentes...`);
+
+                let sucessos = 0;
+                let erros = 0;
+
+                for (const row of pendentes.rows) {
+                    try {
+                        // Verificar se já foi enviado (dupla verificação)
+                        const jaEnviado = await verificarSeJaEnviado(row.doc.dados);
+                        if (jaEnviado) {
+                            // Já foi enviado, remover da fila
+                            await dbFilaOffline.remove(row.doc);
+                            adicionarLogProtocolo('FILA', `✅ Já enviado: ${jaEnviado.cid.substring(0, 20)}...`);
+                            sucessos++;
+                            continue;
+                        }
+
+                        // Tentar enviar
+                        const resultado = await enviarParaBackend(row.doc.dados);
+                        
+                        if (resultado.sucesso && resultado.cid) {
+                            // ✅ SUCESSO: Salvar confirmação e remover da fila
+                            await salvarConfirmacaoEnvio(row.doc.dados, resultado.cid, row.doc.tipo);
+                            await dbFilaOffline.remove(row.doc);
+                            
+                            adicionarLogProtocolo('FILA', `✅ Enviado: CID ${resultado.cid.substring(0, 20)}...`);
+                            sucessos++;
+                        } else {
+                            // ❌ FALHA: Incrementar tentativas
+                            row.doc.tentativas = (row.doc.tentativas || 0) + 1;
+                            row.doc.ultimoErro = resultado.mensagem || 'Erro desconhecido';
+                            
+                            if (row.doc.tentativas >= 5) {
+                                // Muitas tentativas, marcar como falha permanente
+                                row.doc.status = 'falha_permanente';
+                                adicionarLogProtocolo('FILA', `❌ Falha permanente após 5 tentativas: ${row.doc.ultimoErro}`);
+                            }
+                            
+                            await dbFilaOffline.put(row.doc);
+                            erros++;
+                        }
+
+                    } catch (error) {
+                        console.error(`Erro processando item ${row.id}:`, error);
+                        erros++;
+                    }
+                }
+
+                adicionarLogProtocolo('FILA', `📊 Sincronização concluída: ${sucessos} sucessos, ${erros} erros`);
+                await atualizarContadorPendentes();
+                await atualizarStatusEnvios();
+
+            } catch (error) {
+                console.error('Erro geral ao processar fila:', error);
+                adicionarLogProtocolo('FILA', `❌ Erro no processamento: ${error.message}`);
+            } finally {
+                sistemaEnvio.enviando = false;
+            }
+        }
+
+        // ✅ ATUALIZAR contador de pendentes na UI
+        async function atualizarContadorPendentes() {
+            try {
+                const pendentes = await dbFilaOffline.allDocs({ include_docs: false });
+                sistemaEnvio.filaPendentes = pendentes.rows.length;
+                
+                // Atualizar na interface
+                const elementoPendentes = document.getElementById('countPendentes');
+                const botaoPendentes = document.getElementById('btnVerPendentes');
+                
+                if (elementoPendentes) {
+                    elementoPendentes.textContent = pendentes.rows.length;
+                }
+                
+                if (botaoPendentes) {
+                    if (pendentes.rows.length > 0) {
+                        botaoPendentes.innerHTML = `📋 Ver Pendentes (${pendentes.rows.length})`;
+                        botaoPendentes.style.display = 'inline-block';
+                    } else {
+                        botaoPendentes.style.display = 'none';
+                    }
+                }
+
+            } catch (error) {
+                console.error('Erro ao atualizar contador:', error);
+            }
+        }
+
+        // ✅ ATUALIZAR status geral de envios
+        async function atualizarStatusEnvios() {
+            try {
+                const [confirmados, pendentes] = await Promise.all([
+                    dbEnvios.allDocs({ include_docs: false }),
+                    dbFilaOffline.allDocs({ include_docs: false })
+                ]);
+
+                // Atualizar contadores
+                const countConfirmados = document.getElementById('countConfirmados');
+                const countPendentes = document.getElementById('countPendentes');
+                const statusConexao = document.getElementById('statusConexao');
+                const ultimoCID = document.getElementById('ultimoCID');
+                
+                if (countConfirmados) countConfirmados.textContent = confirmados.rows.length;
+                if (countPendentes) countPendentes.textContent = pendentes.rows.length;
+                if (statusConexao) statusConexao.textContent = estadoApp.online ? '🟢 Online' : '🔴 Offline';
+                if (ultimoCID) {
+                    ultimoCID.textContent = sistemaEnvio.ultimoCID 
+                        ? `${sistemaEnvio.ultimoCID.substring(0, 20)}...` 
+                        : 'Nenhum';
+                }
+
+            } catch (error) {
+                console.error('Erro ao atualizar status:', error);
+            }
+        }
+
+        // ✅ ENVIAR para backend (função simulada - adapte para seu backend real)
+        async function enviarParaBackend(dados) {
+            try {
+                // 🔄 ADAPTE ESTA PARTE PARA SEU BACKEND REAL
+                const payload = {
+                    dados: dados,
+                    timestamp: new Date().toISOString(),
+                    tipo: 'oraculo_multi_protocolo'
+                };
+
+                // Simulação de envio para backend que retorna CID
+                const response = await fetch('https://seu-backend.com/api/dados', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+
+                const resultado = await response.json();
+                
+                // ⚠️ SEU BACKEND DEVE RETORNAR UM CID/IPFS_HASH
+                return {
+                    sucesso: true,
+                    cid: resultado.cid || resultado.IpfsHash || resultado.hash,
+                    mensagem: 'Enviado com sucesso'
+                };
+
+            } catch (error) {
+                return {
+                    sucesso: false,
+                    mensagem: error.message,
+                    cid: null
+                };
+            }
+        }
+
+        // ==================== INTERFACE DO USUÁRIO ====================
+
+        // ✅ MODAL para mostrar pendentes
+        function mostrarPendentes() {
+            // Criar modal
+            const modal = document.createElement('div');
+            modal.className = 'modal-backdrop';
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 style="color: var(--gold); margin-bottom: 15px;">
+                        📋 Dados Pendentes de Envio (${sistemaEnvio.filaPendentes})
+                    </h3>
+                    <div id="listaPendentesModal" style="max-height: 400px; overflow-y: auto;"></div>
+                    <div style="margin-top: 15px; text-align: center;">
+                        <button class="btn btn-primary" onclick="processarFilaPendentes()">
+                            🔄 Tentar Enviar Tudo
+                        </button>
+                        <button class="btn" onclick="this.closest('.modal-backdrop').remove()">
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            carregarListaPendentesModal();
+        }
+
+        // ✅ CARREGAR lista de pendentes no modal
+        async function carregarListaPendentesModal() {
+            const container = document.getElementById('listaPendentesModal');
+            
+            try {
+                const pendentes = await dbFilaOffline.allDocs({ include_docs: true });
+                
+                if (pendentes.rows.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">🎉 Nenhum dado pendente!</p>';
+                    return;
+                }
+
+                container.innerHTML = pendentes.rows.map(row => `
+                    <div class="pendente-item">
+                        <div><strong>Protocolo:</strong> ${row.doc.protocolo || 'N/A'}</div>
+                        <div><strong>Tipo:</strong> ${row.doc.tipo}</div>
+                        <div><strong>Timestamp:</strong> ${new Date(row.doc.timestamp).toLocaleString()}</div>
+                        <div><strong>Tentativas:</strong> ${row.doc.tentativas || 0}</div>
+                        ${row.doc.ultimoErro ? `<div><strong>Último Erro:</strong> ${row.doc.ultimoErro}</div>` : ''}
+                        <div style="margin-top: 8px;">
+                            <button class="btn" onclick="reenviarItemUnico('${row.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                🔄 Reenviar Este Item
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                container.innerHTML = `<p style="color: red;">Erro ao carregar pendentes: ${error.message}</p>`;
+            }
+        }
+
+        // ✅ CARREGAR confirmações na aba dedicada
+        async function carregarConfirmacoes() {
+            const container = document.getElementById('listaConfirmacoes');
+            
+            try {
+                const confirmacoes = await dbEnvios.allDocs({ include_docs: true });
+                
+                if (confirmacoes.rows.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i>📭</i>
+                            Nenhuma confirmação encontrada
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Ordenar por timestamp (mais recente primeiro)
+                const confirmacoesOrdenadas = confirmacoes.rows
+                    .map(row => row.doc)
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                container.innerHTML = confirmacoesOrdenadas.map(doc => `
+                    <div class="confirmacao-item">
+                        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 8px;">
+                            <strong>${doc.protocolo.toUpperCase()} - ${doc.tipo}</strong>
+                            <span class="status-badge status-confirmado">CONFIRMADO</span>
+                        </div>
+                        <div><strong>CID:</strong> 
+                            <a href="${doc.linkIPFS}" target="_blank" class="cid-link" title="Abrir no IPFS">
+                                ${doc.cid.substring(0, 30)}...
+                            </a>
+                        </div>
+                        <div><strong>Timestamp:</strong> ${new Date(doc.timestamp).toLocaleString()}</div>
+                        <div><strong>Hash Dados:</strong> <span class="hash-preview">${doc.hashDados.substring(0, 20)}...</span></div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                container.innerHTML = `<div style="color: red; text-align: center;">Erro ao carregar confirmações: ${error.message}</div>`;
+            }
+        }
+
+        // ✅ CARREGAR pendentes na aba de confirmações
+        async function carregarPendentesConfirmacoes() {
+            const container = document.getElementById('listaPendentes');
+            
+            try {
+                const pendentes = await dbFilaOffline.allDocs({ include_docs: true });
+                
+                if (pendentes.rows.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i>📬</i>
+                            Nenhum item pendente
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = pendentes.rows.map(row => `
+                    <div class="pendente-item">
+                        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 8px;">
+                            <strong>${row.doc.protocolo.toUpperCase()} - ${row.doc.tipo}</strong>
+                            <span class="status-badge status-pendente">PENDENTE</span>
+                        </div>
+                        <div><strong>Timestamp:</strong> ${new Date(row.doc.timestamp).toLocaleString()}</div>
+                        <div><strong>Tentativas:</strong> ${row.doc.tentativas || 0}</div>
+                        ${row.doc.ultimoErro ? `<div><strong>Último Erro:</strong> ${row.doc.ultimoErro}</div>` : ''}
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                container.innerHTML = `<div style="color: red; text-align: center;">Erro ao carregar pendentes: ${error.message}</div>`;
+            }
+        }
+
+        // ✅ REENVIAR item individual
+        async function reenviarItemUnico(id) {
+            try {
+                const doc = await dbFilaOffline.get(id);
+                const resultado = await enviarParaBackend(doc.dados);
+                
+                if (resultado.sucesso && resultado.cid) {
+                    await salvarConfirmacaoEnvio(doc.dados, resultado.cid, doc.tipo);
+                    await dbFilaOffline.remove(doc);
+                    
+                    alert(`✅ Enviado com sucesso!\nCID: ${resultado.cid}\n\nClique no link para verificar:`);
+                    
+                    // Atualizar todas as UIs
+                    carregarListaPendentesModal();
+                    await atualizarContadorPendentes();
+                    await atualizarStatusEnvios();
+                    
+                    // Fechar modal se não há mais pendentes
+                    if (sistemaEnvio.filaPendentes === 0) {
+                        document.querySelector('.modal-backdrop')?.remove();
+                    }
+                } else {
+                    throw new Error(resultado.mensagem);
+                }
+            } catch (error) {
+                alert(`❌ Erro ao reenviar: ${error.message}`);
+            }
+        }
+
+        // ✅ EXPORTAR confirmações
+        async function exportarConfirmacoes() {
+            try {
+                const confirmacoes = await dbEnvios.allDocs({ include_docs: true });
+                const dadosExportar = confirmacoes.rows.map(row => row.doc);
+                
+                const blob = new Blob([JSON.stringify(dadosExportar, null, 2)], {
+                    type: 'application/json'
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `confirmacoes_envios_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                
+                adicionarLogProtocolo('EXPORT', `✅ ${dadosExportar.length} confirmações exportadas`);
+            } catch (error) {
+                alert(`❌ Erro ao exportar: ${error.message}`);
+            }
+        }
 
         // ==================== SISTEMA MULTI-PROTOCOLO ====================
 
@@ -809,29 +1473,7 @@
             }, 10000); // Verificar a cada 10 segundos
         }
 
-        async function processarFilaOffline() {
-            try {
-                const pendentes = await dbFilaOffline.allDocs({ include_docs: true });
-                if (pendentes.rows.length === 0) return;
-
-                adicionarLogProtocolo('OFFLINE', `Processando ${pendentes.rows.length} itens pendentes...`);
-                
-                for (const row of pendentes.rows) {
-                    try {
-                        // Tentar enviar dados pendentes
-                        await enviarParaBackend(row.doc.dados);
-                        await dbFilaOffline.remove(row.doc); // Remover da fila se sucesso
-                        adicionarLogProtocolo('OFFLINE', `✅ Item ${row.id} sincronizado`);
-                    } catch (error) {
-                        adicionarLogProtocolo('OFFLINE', `❌ Falha sync ${row.id}: ${error.message}`);
-                    }
-                }
-            } catch (error) {
-                console.error('Erro ao processar fila offline:', error);
-            }
-        }
-
-        // PROCESSADOR CENTRAL DE DADOS EXTERNOS
+        // PROCESSADOR CENTRAL DE DADOS EXTERNOS - ATUALIZADO
         async function processarDadosExternos(dadosBrutos, protocolo) {
             try {
                 const timestamp = new Date().toISOString();
@@ -849,22 +1491,21 @@
                 // 2. Registrar no Ledger OBRIGATÓRIO
                 await adicionarEntradaLedger(dadosFormatados, `dado_${protocolo}`);
                 
-                // 3. Atualizar contadores
+                // 3. ✅ NOVO: Enviar com sistema de confirmação
+                const resultadoEnvio = await enviarDadosComConfirmacao(dadosFormatados, 'dado_externo');
+                
+                // 4. Atualizar contadores
                 estadoApp.dadosRecebidos++;
-                atualizarDashboard();
+                await atualizarContadorPendentes();
+                await atualizarStatusEnvios();
                 
-                // 4. Log de sucesso
-                adicionarLogProtocolo(protocolo.toUpperCase(), `📥 Dados recebidos: ${JSON.stringify(dadosBrutos).substring(0, 50)}...`);
-                
-                // 5. Se offline, adicionar à fila
-                if (!estadoApp.online) {
-                    await dbFilaOffline.put({
-                        _id: `fila_${Date.now()}`,
-                        dados: dadosFormatados,
-                        timestamp: timestamp,
-                        protocolo: protocolo
-                    });
-                    adicionarLogProtocolo('OFFLINE', `💾 Dados salvos na fila offline`);
+                // 5. Log apropriado baseado no resultado
+                if (resultadoEnvio.status === 'ja_enviado') {
+                    adicionarLogProtocolo(protocolo.toUpperCase(), '📭 Dado já enviado anteriormente (ignorado)');
+                } else if (resultadoEnvio.sucesso) {
+                    adicionarLogProtocolo(protocolo.toUpperCase(), `✅ Enviado! CID: ${resultadoEnvio.cid.substring(0, 20)}...`);
+                } else {
+                    adicionarLogProtocolo(protocolo.toUpperCase(), `💾 Salvo na fila offline: ${resultadoEnvio.mensagem}`);
                 }
 
             } catch (error) {
@@ -929,7 +1570,14 @@
             document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
-            if (tabName === 'dashboard') atualizarDashboard();
+            if (tabName === 'dashboard') {
+                atualizarDashboard();
+                atualizarStatusEnvios();
+            }
+            if (tabName === 'confirmacoes') {
+                carregarConfirmacoes();
+                carregarPendentesConfirmacoes();
+            }
             if (tabName === 'ledger') carregarLedger();
             if (tabName === 'provas') carregarProvas();
             if (tabName === 'dados') carregarDados();
@@ -1010,6 +1658,7 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
+        // ✅ ATUALIZADA: verificação de conexão
         function verificarConexao() {
             const statusElement = document.getElementById('connectionStatus');
             const statusGlobal = document.getElementById('statusGlobal');
@@ -1022,13 +1671,19 @@
                     statusElement.textContent = '● ONLINE';
                     statusGlobal.textContent = 'Online';
                     adicionarLogProtocolo('SISTEMA', '🔗 Conexão restaurada - Processando fila offline...');
-                    processarFilaOffline();
+                    
+                    // ✅ NOVO: Processar pendentes quando voltar online
+                    setTimeout(() => processarFilaPendentes(), 2000);
+                    
                 } else {
                     statusElement.className = 'connection-status status offline';
                     statusElement.textContent = '● OFFLINE';
                     statusGlobal.textContent = 'Offline';
                     adicionarLogProtocolo('SISTEMA', '🔴 Conexão perdida - Modo offline ativo');
                 }
+                
+                atualizarContadorPendentes();
+                atualizarStatusEnvios();
             }
 
             window.addEventListener('online', atualizarStatus);
@@ -1037,7 +1692,7 @@
         }
 
         // ... (outras funções como carregarLedger, carregarProvas, carregarDados, exportar, etc.)
-        // [As funções restantes são similares às versões anteriores, mas adaptadas para multi-protocolo]
+        // [Mantenha as funções existentes que não foram modificadas]
 
     </script>
 </body>
