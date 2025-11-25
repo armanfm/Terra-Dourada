@@ -2,11 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-
-
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terra Dourada - Perfil</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terra Dourada - Perfil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Reset e Variáveis */
         * {
@@ -347,9 +345,10 @@
             display: flex;
             align-items: center;
             margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(10, 15, 10, 0.5);
-            border-radius: 8px;
+            padding: 15px;
+            background: rgba(10, 15, 10, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
             border-left: 3px solid var(--primary-gold);
             cursor: pointer;
             transition: all 0.3s ease;
@@ -357,6 +356,7 @@
         
         .info-item:hover {
             background: rgba(212, 175, 55, 0.1);
+            transform: translateY(-2px);
         }
         
         .info-icon {
@@ -380,8 +380,9 @@
             font-size: 1rem;
             color: var(--light-text);
         }
-        
-        .btn {
+
+        /* Botão Voltar para Feed */
+        .btn-voltar {
             display: inline-block;
             background: transparent;
             color: var(--primary-gold);
@@ -400,7 +401,7 @@
             margin-top: 10px;
         }
         
-        .btn::before {
+        .btn-voltar::before {
             content: '';
             position: absolute;
             top: 0;
@@ -411,13 +412,13 @@
             transition: all 0.6s ease;
         }
         
-        .btn:hover {
+        .btn-voltar:hover {
             background-color: rgba(212, 175, 55, 0.1);
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
         }
         
-        .btn:hover::before {
+        .btn-voltar:hover::before {
             left: 100%;
         }
         
@@ -466,21 +467,6 @@
         .card-title i {
             margin-right: 10px;
             color: var(--primary-gold);
-        }
-        
-        .edit-btn {
-            background: transparent;
-            border: 1px solid var(--primary-gold);
-            color: var(--primary-gold);
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-        
-        .edit-btn:hover {
-            background: rgba(212, 175, 55, 0.1);
         }
         
         /* Áreas de Atuação */
@@ -684,336 +670,6 @@
             font-style: italic;
         }
         
-        /* Notificações */
-        .notifications-panel {
-            position: absolute;
-            top: 60px;
-            right: 0;
-            width: 350px;
-            background: linear-gradient(145deg, rgba(26, 31, 26, 0.95), rgba(40, 45, 40, 0.95));
-            border-radius: 10px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            z-index: 1000;
-            display: none;
-        }
-        
-        .notifications-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-        }
-        
-        .notifications-title {
-            font-size: 1.2rem;
-            color: var(--light-text);
-        }
-        
-        .notification-item {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            background: rgba(10, 15, 10, 0.5);
-            border-left: 3px solid var(--primary-gold);
-        }
-        
-        .notification-item.unread {
-            background: rgba(212, 175, 55, 0.1);
-        }
-        
-        .notification-text {
-            font-size: 0.9rem;
-            color: var(--light-text);
-            margin-bottom: 5px;
-        }
-        
-        .notification-time {
-            font-size: 0.8rem;
-            color: rgba(245, 245, 245, 0.5);
-        }
-        
-        /* Modal de Upload de Foto */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: linear-gradient(145deg, rgba(26, 31, 26, 0.95), rgba(40, 45, 40, 0.95));
-            border-radius: 15px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            position: relative;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-        }
-        
-        .modal-title {
-            font-size: 1.5rem;
-            color: var(--light-text);
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            color: var(--light-text);
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-        
-        .close-modal:hover {
-            color: var(--primary-gold);
-        }
-        
-        .upload-area {
-            border: 2px dashed rgba(212, 175, 55, 0.3);
-            border-radius: 10px;
-            padding: 40px 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .upload-area:hover {
-            border-color: var(--primary-gold);
-            background: rgba(212, 175, 55, 0.05);
-        }
-        
-        .upload-icon {
-            font-size: 3rem;
-            color: rgba(212, 175, 55, 0.5);
-            margin-bottom: 15px;
-        }
-        
-        .upload-text {
-            color: rgba(245, 245, 245, 0.7);
-            margin-bottom: 10px;
-        }
-        
-        .upload-hint {
-            font-size: 0.9rem;
-            color: rgba(245, 245, 245, 0.5);
-        }
-        
-        /* Preview da imagem */
-        .image-preview {
-            width: 100%;
-            max-height: 250px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            display: none;
-        }
-        
-        .image-preview img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-        }
-        
-        /* Input de arquivo oculto */
-        .file-input {
-            display: none;
-        }
-        
-        /* Botões de ação no modal */
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .modal-actions .btn {
-            flex: 1;
-            margin-top: 0;
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            color: rgba(245, 245, 245, 0.7);
-            border: 1px solid rgba(245, 245, 245, 0.3);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(245, 245, 245, 0.1);
-            color: var(--light-text);
-        }
-        
-        /* Modal de edição de informações */
-        .edit-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .edit-modal-content {
-            background: linear-gradient(145deg, rgba(26, 31, 26, 0.95), rgba(40, 45, 40, 0.95));
-            border-radius: 15px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            position: relative;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--light-text);
-        }
-        
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            background: rgba(10, 15, 10, 0.7);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            color: var(--light-text);
-            font-size: 1rem;
-        }
-        
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary-gold);
-        }
-        
-        /* Modal de assinatura digital */
-        .signature-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .signature-modal-content {
-            background: linear-gradient(145deg, rgba(26, 31, 26, 0.95), rgba(40, 45, 40, 0.95));
-            border-radius: 15px;
-            padding: 30px;
-            width: 90%;
-            max-width: 600px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            position: relative;
-        }
-        
-        .signature-pad {
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 8px;
-            background: white;
-            margin-bottom: 20px;
-            cursor: crosshair;
-        }
-        
-        .signature-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .signature-actions .btn {
-            width: auto;
-            margin-top: 0;
-        }
-        
-        /* Modal de adicionar área */
-        .area-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .area-modal-content {
-            background: linear-gradient(145deg, rgba(26, 31, 26, 0.95), rgba(40, 45, 40, 0.95));
-            border-radius: 15px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            position: relative;
-        }
-        
-        .area-options {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .area-option {
-            background: rgba(10, 15, 10, 0.5);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .area-option:hover {
-            border-color: var(--primary-gold);
-            background: rgba(212, 175, 55, 0.1);
-        }
-        
-        .area-option.selected {
-            border-color: var(--primary-gold);
-            background: rgba(212, 175, 55, 0.2);
-        }
-        
-        .area-option-icon {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-        }
-        
-        .area-option-name {
-            font-size: 0.9rem;
-        }
-        
         /* Responsividade */
         @media (max-width: 968px) {
             .profile-container {
@@ -1035,10 +691,6 @@
             .certifications-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
-            
-            .area-options {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
         
         @media (max-width: 768px) {
@@ -1059,14 +711,6 @@
             .certifications-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
-            .modal-actions, .signature-actions {
-                flex-direction: column;
-            }
-            
-            .area-options {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
     </style>
 </head>
@@ -1074,7 +718,6 @@
     
     <!-- Cabeçalho -->
     <header>
-        
         <div class="container">
             <div class="header-content">
                 <div class="logo">
@@ -1087,40 +730,13 @@
                         <span class="notification-badge">3</span>
                     </div>
                     <div class="user-menu">
-                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Avatar do usuário" class="user-avatar">
-                        <span>⏳</span>
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Avatar do usuário" class="user-avatar" id="header-avatar">
+                        <span id="header-name">⏳</span>
                     </div>
                 </div>
             </div>
         </div>
     </header>
-    
-
-    
-
-    <!-- Painel de Notificações -->
-    <div class="notifications-panel" id="notificationsPanel">
-        <div class="notifications-header">
-            <h3 class="notifications-title">Notificações</h3>
-            <button class="edit-btn">Marcar todas como lidas</button>
-        </div>
-        <div class="notification-item unread">
-            <div class="notification-text">Novo produto adicionado ao seu catálogo</div>
-            <div class="notification-time">Há 2 horas</div>
-        </div>
-        <div class="notification-item unread">
-            <div class="notification-text">Pedido #1234 foi confirmado</div>
-            <div class="notification-time">Há 1 dia</div>
-        </div>
-        <div class="notification-item">
-            <div class="notification-text">Atualização nos termos de serviço</div>
-            <div class="notification-time">Há 3 dias</div>
-        </div>
-        <div class="notification-item">
-            <div class="notification-text">Bem-vindo à Terra Dourada!</div>
-            <div class="notification-time">Há 1 semana</div>
-        </div>
-    </div>
 
     <!-- Conteúdo Principal -->
     <div class="container">
@@ -1131,42 +747,41 @@
                 <div class="profile-card">
                     <div class="profile-header">
                         <div class="profile-avatar" id="profileAvatar">
-                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Foto de perfil">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Foto de perfil" id="profile-avatar-img">
                             <div class="avatar-edit">Alterar foto</div>
                         </div>
-                        <h2 class="profile-name">⏳</h2>
-                        <p class="profile-bio">Produtor rural • São Paulo, SP</p>
+                        <h2 class="profile-name" id="profile-name">⏳</h2>
+                        <p class="profile-bio" id="profile-bio">Produtor rural • São Paulo, SP</p>
                     </div>
-
-
-
-
 
                     <div class="profile-info">
                         <div class="info-item" data-field="email">
                             <div class="info-icon">📧</div>
                             <div class="info-content">
                                 <div class="info-label">E-mail</div>
-                                <div class="info-value">joao.silva@email.com</div>
+                                <div class="info-value" id="info-email">carregando...</div>
                             </div>
                         </div>
                         <div class="info-item" data-field="phone">
                             <div class="info-icon">📱</div>
                             <div class="info-content">
                                 <div class="info-label">Telefone</div>
-                                <div class="info-value">(11) 99999-9999</div>
+                                <div class="info-value" id="info-phone">carregando...</div>
                             </div>
                         </div>
                         <div class="info-item" data-field="address">
                             <div class="info-icon">📍</div>
                             <div class="info-content">
                                 <div class="info-label">Endereço</div>
-                                <div class="info-value">Rua das Flores, 123 - São Paulo, SP</div>
+                                <div class="info-value" id="info-address">carregando...</div>
                             </div>
                         </div>
                     </div>
                     
-                    <button class="btn" id="editProfileBtn">Editar Perfil</button>
+                    <!-- Botão Voltar para Feed Social -->
+                    <button class="btn-voltar" id="voltarFeedBtn">
+                        <i class="fas fa-arrow-left"></i> Voltar para Feed Social
+                    </button>
                 </div>
                 
                 <!-- Card de Prova ZKP -->
@@ -1182,121 +797,6 @@
                     </div>
                 </div>
             </div>
-         <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
-<script>
-const localDB = new PouchDB('terra_dourada_users');
-const remoteDB = new PouchDB('http://admin:senha123@127.0.0.1:5050/terra_dourada');
-localDB.sync(remoteDB, { live: true, retry: true });
-
-// 🧭 Pega o CID ativo
-function getCID() {
-  return new URLSearchParams(window.location.search).get("cid") ||
-         localStorage.getItem("user_cid") ||
-         localStorage.getItem("cid_ativo");
-}
-
-// ✨ Atualiza nome no topo (ampulheta)
-function atualizarHeaderNome(nome) {
-  const userSpan = document.querySelector('.user-menu span');
-  if (userSpan && (userSpan.textContent.trim() === '⏳' || userSpan.textContent.trim() === '')) {
-    userSpan.textContent = nome || 'Usuário';
-  }
-}
-
-// 🎨 Atualiza interface do perfil
-function atualizarUI(doc, origem) {
-  const nomeEl = document.querySelector(".profile-name");
-  const bioEl = document.querySelector(".profile-bio");
-  const hashBox = document.getElementById("zkpHash");
-
-  if (!doc) {
-    if (nomeEl) nomeEl.textContent = "Usuário desconhecido";
-    if (bioEl) bioEl.textContent = "Produto não informado";
-    if (hashBox) hashBox.innerHTML = `<div style="color:#999;">⚠️ Nenhum registro encontrado.</div>`;
-    atualizarHeaderNome("Usuário");
-    return;
-  }
-
-  const nome = doc.nome_produtor || "Usuário desconhecido";
-  const produto = doc.produto || "Produto não informado";
-  const hash = doc.hash_prova || null;
-
-  if (nomeEl) nomeEl.textContent = nome;
-  if (bioEl) bioEl.textContent = produto;
-  atualizarHeaderNome(nome);
-
-  if (hashBox) {
-    if (hash) {
-      hashBox.innerHTML = `
-        <div style="background:rgba(25,25,25,0.9);
-                    border:1px solid #d4af37;
-                    border-radius:8px;
-                    padding:10px;
-                    margin-top:6px;
-                    word-break:break-all;
-                    color:#ffd700;
-                    font-family:monospace;
-                    font-size:0.9rem;
-                    line-height:1.3;">
-          🔐 ${hash}
-        </div>
-        <p style="font-size:0.75rem;color:#aaa;margin-top:4px;">
-          Origem: ${origem || doc.origem || "local"}
-        </p>`;
-    } else {
-      hashBox.innerHTML = `<div style="color:#999;">⚠️ Nenhum hash de prova neste registro.</div>`;
-    }
-  }
-}
-
-// 🔍 Busca doc local pelo CID
-async function findLocalDocByCid(cid) {
-  const all = await localDB.allDocs({ include_docs: true });
-  const docs = all.rows.map(r => r.doc).filter(d => d && (d.cid === cid || (d._id && d._id.includes(cid))));
-  if (!docs.length) return null;
-  docs.sort((a,b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
-  return docs[0];
-}
-
-// 🔄 Escuta alterações em tempo real
-function startChangeListener(cid) {
-  localDB.changes({ live: true, since: 'now', include_docs: true })
-    .on('change', c => {
-      if (c.doc && (c.doc.cid === cid || c.doc._id.includes(cid))) {
-        console.log('🔄 Atualização detectada:', c.doc);
-        atualizarUI(c.doc, 'pouch-change');
-      }
-    });
-}
-
-// 🚀 Carrega perfil completo
-async function carregarPerfil() {
-  const cid = getCID();
-  if (!cid) {
-    atualizarUI(null);
-    return;
-  }
-
-  try {
-    const doc = await findLocalDocByCid(cid);
-    if (doc) {
-      console.log('✅ Documento local encontrado:', doc);
-      atualizarUI(doc, 'pouch-local');
-      startChangeListener(cid);
-    } else {
-      console.warn('⚠️ Nenhum doc local encontrado. Verifique se o login persistiu o CID.');
-      atualizarUI(null);
-    }
-  } catch (err) {
-    console.error('💥 Erro ao carregar perfil:', err);
-    atualizarUI(null);
-  }
-}
-
-// 🏁 Inicializa ao carregar
-window.addEventListener("DOMContentLoaded", carregarPerfil);
-</script>
 
             <!-- Conteúdo do Perfil -->
             <div class="profile-content">
@@ -1310,48 +810,6 @@ window.addEventListener("DOMContentLoaded", carregarPerfil);
                         <div class="area-card add-area" id="addAreaBtn">
                             <div class="area-icon">+</div>
                             <div class="area-name">Adicionar Área</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Certificações -->
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-certificate"></i> Certificações</h3>
-                    </div>
-                    <div class="certifications-grid">
-                        <a href="https://www.example.com/certificacao/fabricacao" class="certification-card" target="_blank">
-                            <div class="certification-icon">🏭</div>
-                            <div class="certification-name">Obrigatórios para Fabricação</div>
-                            <div class="certification-status status-active">Ativo</div>
-                        </a>
-                        <a href="https://www.example.com/certificacao/exportacao" class="certification-card" target="_blank">
-                            <div class="certification-icon">🚢</div>
-                            <div class="certification-name">Obrigatórios para Exportação</div>
-                            <div class="certification-status status-active">Ativo</div>
-                        </a>
-                        <a href="https://www.example.com/certificacao/europa" class="certification-card" target="_blank">
-                            <div class="certification-icon">
-                                <div class="eu-star">★</div>
-                            </div>
-                            <div class="certification-name">Padrão Europa / Internacional</div>
-                            <div class="certification-status status-active">Ativo</div>
-                        </a>
-                        <a href="https://www.example.com/certificacao/esg" class="certification-card" target="_blank">
-                            <div class="certification-icon">🌱</div>
-                            <div class="certification-name">Bônus de Qualidade / ESG</div>
-                            <div class="certification-status status-pending">Pendente</div>
-                        </a>
-                        <a href="https://www.example.com/certificacao/exigencias" class="certification-card" target="_blank">
-                            <div class="certification-icon">⚠️</div>
-                            <div class="certification-name">Exigências (Ativas ou Pendentes)</div>
-                            <div class="certification-status status-required">2 Pendentes</div>
-                        </a>
-                        <div class="certification-card add-certification" id="addCertificationBtn">
-                            <div class="certification-icon">
-                                <i class="fas fa-signature"></i>
-                            </div>
-                            <div class="certification-name">Assinatura Digital</div>
                         </div>
                     </div>
                 </div>
@@ -1371,503 +829,149 @@ window.addEventListener("DOMContentLoaded", carregarPerfil);
             </div>
         </div>
     </div>
-    
-    <!-- Modal de Upload de Foto -->
-    <div class="modal" id="avatarModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Alterar Foto de Perfil</h3>
-                <button class="close-modal" id="closeModal">&times;</button>
-            </div>
-            <div class="image-preview" id="imagePreview">
-                <img id="previewImage" src="" alt="Pré-visualização">
-            </div>
-            <div class="upload-area" id="uploadArea">
-                <input type="file" id="fileInput" class="file-input" accept="image/jpeg, image/png">
-                <div class="upload-icon">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                </div>
-                <div class="upload-text">Clique ou arraste uma imagem aqui</div>
-                <div class="upload-hint">Formatos: JPG, PNG (máx. 5MB)</div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" id="cancelUpload">Cancelar</button>
-                <button class="btn" id="confirmUpload" disabled>Confirmar</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal de Edição de Informações -->
-    <div class="edit-modal" id="editInfoModal">
-        <div class="edit-modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Editar Informações</h3>
-                <button class="close-modal" id="closeEditModal">&times;</button>
-            </div>
-            <div class="form-group">
-                <label for="editEmail">E-mail</label>
-                <input type="email" id="editEmail" value="joao.silva@email.com">
-            </div>
-            <div class="form-group">
-                <label for="editPhone">Telefone</label>
-                <input type="tel" id="editPhone" value="(11) 99999-9999">
-            </div>
-            <div class="form-group">
-                <label for="editAddress">Endereço</label>
-                <input type="text" id="editAddress" value="Rua das Flores, 123 - São Paulo, SP">
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" id="cancelEdit">Cancelar</button>
-                <button class="btn" id="saveEdit">Salvar Alterações</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Assinatura Digital -->
-    <div class="signature-modal" id="signatureModal">
-        <div class="signature-modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Assinatura Digital</h3>
-                <button class="close-modal" id="closeSignatureModal">&times;</button>
-            </div>
-            <p style="margin-bottom: 20px; text-align: center;">Desenhe sua assinatura no campo abaixo:</p>
-            <canvas id="signaturePad" class="signature-pad" width="540" height="200"></canvas>
-            <div class="signature-actions">
-                <button class="btn btn-secondary" id="clearSignature">Limpar</button>
-                <button class="btn" id="saveSignature">Salvar Assinatura</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Adicionar Área -->
-    <div class="area-modal" id="areaModal">
-        <div class="area-modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Adicionar Área de Atuação</h3>
-                <button class="close-modal" id="closeAreaModal">&times;</button>
-            </div>
-            <p style="margin-bottom: 20px; text-align: center;">Selecione uma área para adicionar:</p>
-            <div class="area-options">
-                <div class="area-option" data-area="agro" data-icon="🌾">
-                    <div class="area-option-icon">🌾</div>
-                    <div class="area-option-name">Agro</div>
-                </div>
-                <div class="area-option" data-area="agropecuaria" data-icon="🐑">
-                    <div class="area-option-icon">🐑</div>
-                    <div class="area-option-name">Agropecuária</div>
-                </div>
-                <div class="area-option" data-area="pescado" data-icon="🐟">
-                    <div class="area-option-icon">🐟</div>
-                    <div class="area-option-name">Pescado</div>
-                </div>
-                <div class="area-option" data-area="biocombustiveis" data-icon="🌿">
-                    <div class="area-option-icon">🌿</div>
-                    <div class="area-option-name">Biocombustíveis</div>
-                </div>
-                <div class="area-option" data-area="transporte" data-icon="🚚">
-                    <div class="area-option-icon">🚚</div>
-                    <div class="area-option-name">Transporte</div>
-                </div>
-                <div class="area-option" data-area="vida" data-icon="💠">
-                    <div class="area-option-icon">💠</div>
-                    <div class="area-option-name">Vida</div>
-                </div>
-                <div class="area-option" data-area="comprador" data-icon="💰">
-                    <div class="area-option-icon">💰</div>
-                    <div class="area-option-name">Comprador</div>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" id="cancelArea">Cancelar</button>
-                <button class="btn" id="addArea">Adicionar Área</button>
-            </div>
-        </div>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
     <script>
-        // Elementos do DOM
-        const notificationBell = document.getElementById('notificationBell');
-        const notificationsPanel = document.getElementById('notificationsPanel');
-        const profileAvatar = document.getElementById('profileAvatar');
-        const avatarModal = document.getElementById('avatarModal');
-        const closeModal = document.getElementById('closeModal');
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const imagePreview = document.getElementById('imagePreview');
-        const previewImage = document.getElementById('previewImage');
-        const cancelUpload = document.getElementById('cancelUpload');
-        const confirmUpload = document.getElementById('confirmUpload');
+        // ==============================================================
+        // 🗃️ SISTEMA POUCHDB PARA PERFIL
+        // ==============================================================
+
+        // Banco de dados de perfis
+        const dbPerfis = new PouchDB('terra_dourada_perfis');
         
-        // Elementos para edição de informações
-        const editProfileBtn = document.getElementById('editProfileBtn');
-        const editInfoModal = document.getElementById('editInfoModal');
-        const closeEditModal = document.getElementById('closeEditModal');
-        const cancelEdit = document.getElementById('cancelEdit');
-        const saveEdit = document.getElementById('saveEdit');
-        const editEmail = document.getElementById('editEmail');
-        const editPhone = document.getElementById('editPhone');
-        const editAddress = document.getElementById('editAddress');
-        
-        // Elementos para assinatura digital
-        const addCertificationBtn = document.getElementById('addCertificationBtn');
-        const signatureModal = document.getElementById('signatureModal');
-        const closeSignatureModal = document.getElementById('closeSignatureModal');
-        const clearSignature = document.getElementById('clearSignature');
-        const saveSignature = document.getElementById('saveSignature');
-        const signatureCanvas = document.getElementById('signaturePad');
-        
-        // Elementos para história
-        const saveHistoryBtn = document.getElementById('saveHistoryBtn');
-        const historyContent = document.getElementById('historyContent');
-        
-        // Elementos para áreas de atuação
-        const addAreaBtn = document.getElementById('addAreaBtn');
-        const areasGrid = document.getElementById('areasGrid');
-        const areaModal = document.getElementById('areaModal');
-        const closeAreaModal = document.getElementById('closeAreaModal');
-        const cancelArea = document.getElementById('cancelArea');
-        const addArea = document.getElementById('addArea');
-        const areaOptions = document.querySelectorAll('.area-option');
-        
-        // Elementos para ZKP
-        const zkpHash = document.getElementById('zkpHash');
-        
-        // Array para armazenar as áreas de atuação
-        let userAreas = [];
-        
-        // Alternar painel de notificações
-        notificationBell.addEventListener('click', function() {
-            notificationsPanel.style.display = notificationsPanel.style.display === 'block' ? 'none' : 'block';
-        });
-        
-        // Fechar painel de notificações ao clicar fora
-        document.addEventListener('click', function(event) {
-            if (!notificationBell.contains(event.target) && !notificationsPanel.contains(event.target)) {
-                notificationsPanel.style.display = 'none';
-            }
-        });
-        
-        // Abrir modal de upload de foto
-        profileAvatar.addEventListener('click', function() {
-            avatarModal.style.display = 'flex';
-            resetUploadModal();
-        });
-        
-        // Fechar modal
-        closeModal.addEventListener('click', function() {
-            avatarModal.style.display = 'none';
-        });
-        
-        cancelUpload.addEventListener('click', function() {
-            avatarModal.style.display = 'none';
-        });
-        
-        // Fechar modal ao clicar fora
-        avatarModal.addEventListener('click', function(event) {
-            if (event.target === avatarModal) {
-                avatarModal.style.display = 'none';
-            }
-        });
-        
-        // Abrir seletor de arquivos ao clicar na área de upload
-        uploadArea.addEventListener('click', function() {
-            fileInput.click();
-        });
-        
-        // Permitir arrastar e soltar arquivos
-        uploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            uploadArea.style.borderColor = 'var(--primary-gold)';
-            uploadArea.style.backgroundColor = 'rgba(212, 175, 55, 0.05)';
-        });
-        
-        uploadArea.addEventListener('dragleave', function() {
-            uploadArea.style.borderColor = 'rgba(212, 175, 55, 0.3)';
-            uploadArea.style.backgroundColor = 'transparent';
-        });
-        
-        uploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            uploadArea.style.borderColor = 'rgba(212, 175, 55, 0.3)';
-            uploadArea.style.backgroundColor = 'transparent';
+        // 🔧 FUNÇÃO: Identificar usuário
+        async function identificarUsuario() {
+            console.log('🔍 Iniciando identificação do usuário...');
             
-            if (e.dataTransfer.files.length) {
-                fileInput.files = e.dataTransfer.files;
-                handleFileSelect();
-            }
-        });
-        
-        // Processar seleção de arquivo
-        fileInput.addEventListener('change', handleFileSelect);
-        
-        function handleFileSelect() {
-            const file = fileInput.files[0];
+            // 1️⃣ PRIMEIRO: Verificar se veio do Painel via URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
             
-            if (file) {
-                // Verificar tipo de arquivo
-                if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
-                    alert('Por favor, selecione uma imagem nos formatos JPG ou PNG.');
-                    return;
-                }
-                
-                // Verificar tamanho do arquivo (máx. 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('A imagem deve ter no máximo 5MB.');
-                    return;
-                }
-                
-                // Criar preview da imagem
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                    confirmUpload.disabled = false;
+            if (userId) {
+                console.log('✅ Usuário da URL:', userId);
+                const usuario = {
+                    email: decodeURIComponent(userId),
+                    name: "Usuário do Painel",
+                    provider: "painel"
                 };
                 
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        // Confirmar upload
-        confirmUpload.addEventListener('click', function() {
-            if (fileInput.files.length) {
-                // Aqui você enviaria a imagem para o servidor
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    // Atualizar a foto de perfil
-                    const profileImg = profileAvatar.querySelector('img');
-                    profileImg.src = e.target.result;
-                    
-                    // Fechar modal
-                    avatarModal.style.display = 'none';
-                    
-                    // Mostrar mensagem de sucesso
-                    alert('Foto de perfil atualizada com sucesso!');
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        });
-        
-        // Resetar modal
-        function resetUploadModal() {
-            fileInput.value = '';
-            imagePreview.style.display = 'none';
-            confirmUpload.disabled = true;
-            uploadArea.style.borderColor = 'rgba(212, 175, 55, 0.3)';
-            uploadArea.style.backgroundColor = 'transparent';
-        }
-        
-        // Editar informações do perfil
-        editProfileBtn.addEventListener('click', function() {
-            editInfoModal.style.display = 'flex';
-        });
-        
-        closeEditModal.addEventListener('click', function() {
-            editInfoModal.style.display = 'none';
-        });
-        
-        cancelEdit.addEventListener('click', function() {
-            editInfoModal.style.display = 'none';
-        });
-        
-        saveEdit.addEventListener('click', function() {
-            // Atualizar informações na interface
-            document.querySelector('[data-field="email"] .info-value').textContent = editEmail.value;
-            document.querySelector('[data-field="phone"] .info-value').textContent = editPhone.value;
-            document.querySelector('[data-field="address"] .info-value').textContent = editAddress.value;
-            
-            // Fechar modal
-            editInfoModal.style.display = 'none';
-            
-            // Mostrar mensagem de sucesso
-            alert('Informações atualizadas com sucesso!');
-        });
-        
-        // Fechar modal de edição ao clicar fora
-        editInfoModal.addEventListener('click', function(event) {
-            if (event.target === editInfoModal) {
-                editInfoModal.style.display = 'none';
-            }
-        });
-        
-        // Salvar história
-        saveHistoryBtn.addEventListener('click', function() {
-            // Aqui você salvaria a história no servidor
-            alert('História salva com sucesso!');
-        });
-        
-        // Assinatura digital
-        addCertificationBtn.addEventListener('click', function() {
-            signatureModal.style.display = 'flex';
-            initSignaturePad();
-        });
-        
-        closeSignatureModal.addEventListener('click', function() {
-            signatureModal.style.display = 'none';
-        });
-        
-        // Fechar modal de assinatura ao clicar fora
-        signatureModal.addEventListener('click', function(event) {
-            if (event.target === signatureModal) {
-                signatureModal.style.display = 'none';
-            }
-        });
-        
-        clearSignature.addEventListener('click', function() {
-            const ctx = signatureCanvas.getContext('2d');
-            ctx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
-        });
-        
-        saveSignature.addEventListener('click', function() {
-            // Aqui você salvaria a assinatura
-            alert('Assinatura digital salva com sucesso!');
-            signatureModal.style.display = 'none';
-        });
-        
-        // Inicializar a área de assinatura
-        function initSignaturePad() {
-            const canvas = signatureCanvas;
-            const ctx = canvas.getContext('2d');
-            let isDrawing = false;
-            let lastX = 0;
-            let lastY = 0;
-            
-            // Ajustar o canvas para a tela
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            
-            // Configurar o contexto
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            
-            // Eventos do mouse
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-            
-            // Eventos de toque
-            canvas.addEventListener('touchstart', handleTouch);
-            canvas.addEventListener('touchmove', handleTouch);
-            canvas.addEventListener('touchend', stopDrawing);
-            
-            function handleTouch(e) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                const mouseEvent = new MouseEvent('mousedown', {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                canvas.dispatchEvent(mouseEvent);
+                // Salvar no localStorage para usar depois
+                localStorage.setItem("usuario_data", JSON.stringify(usuario));
+                return usuario;
             }
             
-            function startDrawing(e) {
-                isDrawing = true;
-                [lastX, lastY] = [e.offsetX, e.offsetY];
-            }
-            
-            function draw(e) {
-                if (!isDrawing) return;
-                
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(e.offsetX, e.offsetY);
-                ctx.stroke();
-                
-                [lastX, lastY] = [e.offsetX, e.offsetY];
-            }
-            
-            function stopDrawing() {
-                isDrawing = false;
-            }
-        }
-        
-        // Áreas de atuação - funcionalidades
-        let selectedArea = null;
-        
-        // Abrir modal para adicionar área
-        addAreaBtn.addEventListener('click', function() {
-            areaModal.style.display = 'flex';
-            selectedArea = null;
-            
-            // Remover seleção anterior
-            areaOptions.forEach(option => {
-                option.classList.remove('selected');
-            });
-        });
-        
-        closeAreaModal.addEventListener('click', function() {
-            areaModal.style.display = 'none';
-        });
-        
-        cancelArea.addEventListener('click', function() {
-            areaModal.style.display = 'none';
-        });
-        
-        // Fechar modal de área ao clicar fora
-        areaModal.addEventListener('click', function(event) {
-            if (event.target === areaModal) {
-                areaModal.style.display = 'none';
-            }
-        });
-        
-        // Selecionar área
-        areaOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                // Remover seleção anterior
-                areaOptions.forEach(opt => {
-                    opt.classList.remove('selected');
-                });
-                
-                // Selecionar nova área
-                this.classList.add('selected');
-                selectedArea = {
-                    id: this.getAttribute('data-area'),
-                    name: this.querySelector('.area-option-name').textContent,
-                    icon: this.getAttribute('data-icon')
-                };
-            });
-        });
-        
-        // Adicionar área selecionada
-        addArea.addEventListener('click', function() {
-            if (selectedArea) {
-                // Verificar se a área já existe
-                if (userAreas.some(area => area.id === selectedArea.id)) {
-                    alert('Esta área já foi adicionada!');
-                    return;
+            // 2️⃣ SEGUNDO: Tentar do localStorage
+            const usuarioSalvo = localStorage.getItem("usuario_data");
+            if (usuarioSalvo) {
+                try {
+                    const usuario = JSON.parse(usuarioSalvo);
+                    if (usuario.email) {
+                        console.log('✅ Usuário do localStorage:', usuario.email);
+                        return usuario;
+                    }
+                } catch (e) {
+                    console.log('❌ Erro ao ler localStorage:', e);
                 }
-                
-                // Adicionar à lista de áreas do usuário
-                userAreas.push(selectedArea);
-                
-                // Atualizar a interface
-                updateAreasGrid();
-                
-                // Fechar modal
-                areaModal.style.display = 'none';
-                
-                // Mostrar mensagem de sucesso
-                alert(`Área "${selectedArea.name}" adicionada com sucesso!`);
-            } else {
-                alert('Por favor, selecione uma área para adicionar.');
             }
-        });
-        
-        // Atualizar a grid de áreas
-        function updateAreasGrid() {
-            // Limpar a grid (exceto o botão de adicionar)
+            
+            // 3️⃣ TERCEIRO: Sistema antigo (fallback)
+            const currentCID = localStorage.getItem("user_cid");
+            if (currentCID && currentCID !== "anon") {
+                console.log('✅ Usuário do CID antigo:', currentCID);
+                return {
+                    email: currentCID,
+                    name: "Usuário CID",
+                    provider: "cid"
+                };
+            }
+            
+            // 4️⃣ SE NADA: Modo visitante
+            console.log('👤 Modo visitante ativado');
+            return {
+                email: "visitante_" + Date.now(),
+                name: "Visitante",
+                provider: "anon"
+            };
+        }
+
+        // 🔧 FUNÇÃO: Buscar dados do perfil no PouchDB
+        async function buscarDadosPerfil(emailUsuario) {
+            try {
+                const perfilId = `perfil_${emailUsuario}`;
+                const perfilData = await dbPerfis.get(perfilId);
+                console.log('✅ Dados do perfil encontrados:', perfilData);
+                return perfilData;
+            } catch (error) {
+                console.log('ℹ️ Perfil não encontrado no banco, criando perfil básico');
+                
+                // Criar perfil básico se não existir
+                const perfilBasico = {
+                    _id: `perfil_${emailUsuario}`,
+                    nome: "Usuário Terra Dourada",
+                    email: emailUsuario,
+                    areaAtuacao: "Produtor Rural",
+                    telefone: "(11) 99999-9999",
+                    endereco: "Endereço não informado",
+                    foto: null,
+                    areas: [],
+                    historia: "Minha jornada na agricultura começou há mais de 20 anos, quando herdei a fazenda do meu avô. Desde então, tenho me dedicado ao cultivo sustentável e à produção de alimentos de qualidade.",
+                    timestamp: new Date().toISOString()
+                };
+                
+                try {
+                    await dbPerfis.put(perfilBasico);
+                    console.log('✅ Perfil básico criado');
+                    return perfilBasico;
+                } catch (err) {
+                    console.error('❌ Erro ao criar perfil básico:', err);
+                    return perfilBasico;
+                }
+            }
+        }
+
+        // 🔧 FUNÇÃO: Preencher interface com dados do perfil
+        function preencherInterfacePerfil(perfilData) {
+            console.log('🎨 Preenchendo interface com:', perfilData);
+            
+            // Nome
+            const nome = perfilData.nome || "Usuário Terra Dourada";
+            document.getElementById('profile-name').textContent = nome;
+            document.getElementById('header-name').textContent = nome;
+            
+            // Bio/Área de atuação
+            const areaAtuacao = perfilData.areaAtuacao || "Produtor Rural";
+            document.getElementById('profile-bio').textContent = areaAtuacao;
+            
+            // Informações de contato
+            document.getElementById('info-email').textContent = perfilData.email || "Não informado";
+            document.getElementById('info-phone').textContent = perfilData.telefone || "Não informado";
+            document.getElementById('info-address').textContent = perfilData.endereco || "Não informado";
+            
+            // Foto (se existir)
+            if (perfilData.foto) {
+                document.getElementById('profile-avatar-img').src = perfilData.foto;
+                document.getElementById('header-avatar').src = perfilData.foto;
+            }
+            
+            // História
+            if (perfilData.historia) {
+                document.getElementById('historyContent').innerHTML = perfilData.historia;
+            }
+            
+            // Áreas de atuação
+            if (perfilData.areas && perfilData.areas.length > 0) {
+                atualizarAreasGrid(perfilData.areas);
+            }
+            
+            console.log('✅ Interface preenchida com sucesso');
+        }
+
+        // 🔧 FUNÇÃO: Atualizar grid de áreas
+        function atualizarAreasGrid(areas) {
+            const areasGrid = document.getElementById('areasGrid');
             areasGrid.innerHTML = '';
             
-            // Adicionar as áreas do usuário
-            userAreas.forEach(area => {
+            areas.forEach(area => {
                 const areaCard = document.createElement('div');
                 areaCard.className = 'area-card';
                 areaCard.setAttribute('data-area', area.id);
@@ -1878,36 +982,91 @@ window.addEventListener("DOMContentLoaded", carregarPerfil);
                     <div class="area-name">${area.name}</div>
                 `;
                 
-                // Adicionar evento de remoção
+                // Evento de remoção
                 const removeBtn = areaCard.querySelector('.remove-area');
                 removeBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    removeArea(area.id);
-                });
-                
-                // Adicionar evento de clique para abrir site
-                areaCard.addEventListener('click', function() {
-                    window.open(`https://www.example.com/${area.id}`, '_blank');
+                    removerArea(area.id);
                 });
                 
                 areasGrid.appendChild(areaCard);
             });
             
-            // Adicionar o botão de adicionar no final
-            areasGrid.appendChild(addAreaBtn);
+            // Adicionar botão de adicionar
+            areasGrid.appendChild(document.getElementById('addAreaBtn'));
         }
-        
-        // Remover área
-        function removeArea(areaId) {
-            if (confirm('Tem certeza que deseja remover esta área?')) {
-                userAreas = userAreas.filter(area => area.id !== areaId);
-                updateAreasGrid();
+
+        // 🔧 FUNÇÃO: Remover área
+        async function removerArea(areaId) {
+            if (!confirm('Tem certeza que deseja remover esta área?')) return;
+            
+            const usuario = await identificarUsuario();
+            try {
+                const perfilData = await dbPerfis.get(`perfil_${usuario.email}`);
+                perfilData.areas = perfilData.areas.filter(area => area.id !== areaId);
+                await dbPerfis.put(perfilData);
+                
+                atualizarAreasGrid(perfilData.areas);
                 alert('Área removida com sucesso!');
+            } catch (error) {
+                console.error('❌ Erro ao remover área:', error);
+                alert('Erro ao remover área');
             }
         }
-        
-        // Inicializar a grid de áreas
-        updateAreasGrid();
+
+        // 🔧 FUNÇÃO: Salvar história
+        async function salvarHistoria() {
+            const usuario = await identificarUsuario();
+            const historiaTexto = document.getElementById('historyContent').innerHTML;
+            
+            try {
+                const perfilData = await dbPerfis.get(`perfil_${usuario.email}`);
+                perfilData.historia = historiaTexto;
+                perfilData.timestamp = new Date().toISOString();
+                await dbPerfis.put(perfilData);
+                
+                alert('História salva com sucesso!');
+            } catch (error) {
+                console.error('❌ Erro ao salvar história:', error);
+                alert('Erro ao salvar história');
+            }
+        }
+
+        // 🚀 INICIALIZAÇÃO
+        window.addEventListener("DOMContentLoaded", async () => {
+            console.log('🚀 Iniciando Perfil...');
+            
+            // 1. Identificar usuário
+            const usuario = await identificarUsuario();
+            console.log('👤 Usuário identificado:', usuario);
+            
+            // 2. Buscar dados do perfil
+            const perfilData = await buscarDadosPerfil(usuario.email);
+            
+            // 3. Preencher interface
+            preencherInterfacePerfil(perfilData);
+            
+            // 4. Configurar eventos
+            configurarEventos();
+            
+            console.log('✅ Perfil iniciado com sucesso!');
+        });
+
+        // 🔧 FUNÇÃO: Configurar eventos da interface
+        function configurarEventos() {
+            // Salvar história
+            document.getElementById('saveHistoryBtn').addEventListener('click', salvarHistoria);
+            
+            // Voltar para Feed Social
+            document.getElementById('voltarFeedBtn').addEventListener('click', function() {
+                const usuario = JSON.parse(localStorage.getItem("usuario_data") || '{}');
+                if (usuario && usuario.email) {
+                    window.location.href = `rede_social.html?user_id=${encodeURIComponent(usuario.email)}`;
+                } else {
+                    window.location.href = 'rede_social.html';
+                }
+            });
+        }
     </script>
 </body>
 </html>
