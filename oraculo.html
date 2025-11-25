@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌍 Oráculo Terra Dourada - Soberania de Dados</title>
     <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- REMOVIDO: html2canvas -->
     <style>
         :root {
             --gold: #d4af37;
@@ -350,12 +350,13 @@
             font-size: 0.75rem;
         }
 
-        .screenshot-info {
-            background: rgba(212, 175, 55, 0.1);
-            padding: 8px;
-            border-radius: 4px;
+        .performance-badge {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            padding: 3px 8px;
+            border-radius: 10px;
             font-size: 0.7rem;
-            margin-top: 5px;
+            font-weight: 600;
         }
 
         @media (max-width: 768px) {
@@ -394,8 +395,8 @@
         <header class="header">
             <div class="logo">🌍</div>
             <h1 class="title">Oráculo Terra Dourada</h1>
-            <p class="subtitle">Soberania de Dados • Ledger Obrigatório • Provas com CID</p>
-            <div class="tagline">Sistema de Provas Reais - PACOTE COMPLETO</div>
+            <p class="subtitle">Soberania de Dados • Ledger Obrigatório • Provas Leves</p>
+            <div class="tagline">Sistema de Provas Reais - SEM SCREENSHOT PESADO</div>
         </header>
 
         <!-- Navigation Tabs -->
@@ -434,7 +435,7 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-header">🚀 Ações Rápidas</div>
+                    <div class="card-header">🚀 Ações Rápidas <span class="performance-badge">LEVE</span></div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
                         <button class="btn btn-primary" onclick="adicionarDadoManual()">
                             ➕ Adicionar Dado Manual
@@ -489,7 +490,7 @@
             <!-- Provas Reais Tab -->
             <div id="tab-provas" class="tab-content">
                 <div class="card">
-                    <div class="card-header">🔐 Sistema de Provas Reais - PACOTE COMPLETO</div>
+                    <div class="card-header">🔐 Sistema de Provas Reais <span class="performance-badge">SEM SCREENSHOT</span></div>
                     
                     <div class="cid-box">
                         <h3 style="color: var(--gold); margin-bottom: 15px;">🔄 Atualização por CID</h3>
@@ -509,7 +510,7 @@
                     </div>
 
                     <button class="btn btn-primary" onclick="gerarProvaComDados()">
-                        🔐 Gerar Prova Real com Screenshot COMPLETO
+                        🔐 Gerar Prova Real (Leve e Rápido)
                     </button>
 
                     <div id="statusProva" style="margin-top: 15px;"></div>
@@ -608,59 +609,53 @@
             inicializarApp();
             atualizarDashboard();
             verificarConexao();
-            console.log('🌍 Sistema de Provas REAL Terra Dourada carregado!');
+            console.log('🌍 Sistema de Provas REAL Terra Dourada - LEVE E RÁPIDO!');
         });
 
-        // === SISTEMA DE PROVAS REAL - PACOTE COMPLETO CORRIGIDO ===
+        // === SISTEMA DE PROVAS REAL - SEM SCREENSHOT PESADO ===
 
         // 1. Função principal para gerar prova completa
         async function gerarProvaFinal(dadosBrutos) {
             try {
-                console.log('🔐 Iniciando geração de prova REAL...');
+                console.log('🔐 Iniciando geração de prova REAL (leve)...');
                 
-                // 1. Hash dos dados
+                // 1. Hash dos dados - ÚNICA PROVA NECESSÁRIA
                 const hashDados = await calcularHash(JSON.stringify(dadosBrutos));
 
-                // 2. Hash visual (screenshot) - COMPLETO AGORA
-                const screenshotBase64 = await capturarScreenshot();
-                const hashVisual = await calcularHash(screenshotBase64);
-
-                // 3. Hash do ledger atual
+                // 2. Hash do ledger atual
                 const ledgerInfo = await dbLedger.get('ledger_info');
                 const hashAnterior = ledgerInfo.lastHash;
 
-                // 4. Montar pacote FINAL COMPLETO
+                // 3. Montar pacote FINAL LEVE
                 const pacote = {
                     _id: `prova_${Date.now()}`,
                     timestamp: new Date().toISOString(),
                     dados: dadosBrutos,
                     hashDados: hashDados,
-                    hashVisual: hashVisual,
-                    screenshot: screenshotBase64, // ⬅️ AGORA COMPLETO, SEM CORTE!
                     hashAnterior: hashAnterior,
                     tipo: "prova_gerada",
                     status: "processando",
                     device: "oraculo_terra_dourada_ui",
-                    version: "1.0"
+                    version: "1.0",
+                    semScreenshot: true // ⬅️ MARCADOR IMPORTANTE
                 };
 
-                console.log('📦 Pacote COMPLETO montado:', pacote);
+                console.log('📦 Pacote LEVE montado:', pacote);
 
-                // 5. Registrar no ledger (local) primeiro - COM HASH REAL
+                // 4. Registrar no ledger (local) primeiro
                 const entradaLedger = await adicionarEntradaLedger(pacote, "prova_gerada");
                 
-                // 6. ATUALIZAR pacote com informações reais do ledger
+                // 5. ATUALIZAR pacote com informações reais do ledger
                 pacote.ledgerHash = entradaLedger.hash;
-                pacote.previousHash = entradaLedger.previousHash; // ⬅️ HASH ANTERIOR REAL
-                pacote.ledgerEntryId = entradaLedger._id;
+                pacote.previousHash = entradaLedger.previousHash;
 
                 console.log('🔗 Ledger atualizado:', entradaLedger);
 
-                // 7. Enviar ao endpoint universal - PACOTE COMPLETO
-                console.log('🚀 Enviando PACOTE COMPLETO para endpoint universal...');
-                const resposta = await enviarParaEndpointUniversal(pacote, screenshotBase64);
+                // 6. Enviar ao endpoint universal - PACOTE LEVE
+                console.log('🚀 Enviando PACOTE LEVE para endpoint universal...');
+                const resposta = await enviarParaEndpointUniversal(pacote);
 
-                // 8. Atualizar com resposta do Prover
+                // 7. Atualizar com resposta do Prover
                 pacote.cid = resposta.cid || resposta.IpfsHash || "";
                 pacote.provaZK = resposta.prova || "";
                 pacote.hashProva = resposta.hash || "";
@@ -668,10 +663,10 @@
                 pacote.respostaServidor = resposta;
                 pacote.timestampResposta = new Date().toISOString();
 
-                // 9. Gravar prova completa no PouchDB
+                // 8. Gravar prova completa no PouchDB
                 await dbProvas.put(pacote);
 
-                console.log('✅ Prova REAL gerada com sucesso!', pacote);
+                console.log('✅ Prova REAL LEVE gerada com sucesso!', pacote);
                 return pacote;
 
             } catch (error) {
@@ -683,7 +678,8 @@
                     timestamp: new Date().toISOString(),
                     dados: dadosBrutos,
                     erro: error.message,
-                    status: "erro"
+                    status: "erro",
+                    semScreenshot: true
                 };
                 
                 await adicionarEntradaLedger(erroPacote, "erro_prova");
@@ -693,25 +689,8 @@
             }
         }
 
-        // 2. Capturar screenshot da página - MESMA FUNÇÃO
-        async function capturarScreenshot() {
-            try {
-                const canvas = await html2canvas(document.body, {
-                    scale: 0.5,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#050703'
-                });
-                
-                return canvas.toDataURL('image/jpeg', 0.7);
-            } catch (error) {
-                console.warn('⚠️ Não foi possível capturar screenshot, usando fallback');
-                return "data:image/jpeg;base64,fallback";
-            }
-        }
-
-        // 3. ✅ CORREÇÃO CRÍTICA: Enviar PACOTE COMPLETO para endpoint universal
-        async function enviarParaEndpointUniversal(pacoteCompleto, screenshotBase64Completo) {
+        // 2. ✅ CORREÇÃO CRÍTICA: Enviar PACOTE LEVE para endpoint universal
+        async function enviarParaEndpointUniversal(pacoteCompleto) {
             const endpoints = [
                 "http://localhost:7070/oracle",
                 "http://localhost:3000/prova", 
@@ -723,27 +702,29 @@
             for (const endpoint of endpoints) {
                 try {
                     console.log(`🔄 Tentando endpoint: ${endpoint}`);
-                    console.log('📤 Enviando PACOTE COMPLETO:', pacoteCompleto);
+                    console.log('📤 Enviando PACOTE LEVE:', pacoteCompleto);
                     
-                    // ✅ CORREÇÃO: ENVIAR PACOTE COMPLETO, NÃO SUBPACOTE
-                    const payloadCompleto = {
+                    // ✅ CORREÇÃO: ENVIAR PACOTE LEVE, SEM SCREENSHOT
+                    const payloadLeve = {
                         event: "oracle_proof_generation",
-                        pacoteCompleto: pacoteCompleto,      // ⬅️ AQUI ESTÁ A CORREÇÃO
-                        screenshotBase64: screenshotBase64Completo, // ⬅️ COMPLETO, SEM CORTE!
+                        pacoteCompleto: pacoteCompleto,
                         version: "1.0",
-                        device: "oraculo_terra_dourada_ui"
+                        device: "oraculo_terra_dourada_ui",
+                        semScreenshot: true,
+                        tamanhoPayload: JSON.stringify(pacoteCompleto).length // ⬅️ Para debug
                     };
 
-                    console.log('📦 Payload completo para envio:', payloadCompleto);
+                    console.log('📦 Payload LEVE para envio:', payloadLeve);
 
                     const response = await fetch(endpoint, {
                         method: "POST",
                         headers: { 
                             "Content-Type": "application/json",
                             "X-Oráculo-Terra-Dourada": "v1.0",
-                            "X-Pacote-Completo": "true"
+                            "X-Pacote-Leve": "true",
+                            "X-Sem-Screenshot": "true"
                         },
-                        body: JSON.stringify(payloadCompleto)
+                        body: JSON.stringify(payloadLeve)
                     });
 
                     if (!response.ok) {
@@ -764,7 +745,7 @@
             throw new Error(`Todos os endpoints falharam. Último erro: ${ultimoErro.message}`);
         }
 
-        // 4. Função atualizada para gerar prova com dados da UI
+        // 3. Função atualizada para gerar prova com dados da UI
         async function gerarProvaComDados() {
             const dadosInput = document.getElementById('dadosProva').value.trim();
             const statusElement = document.getElementById('statusProva');
@@ -777,31 +758,30 @@
             try {
                 statusElement.innerHTML = `
                     <div class="cid-status processing">
-                        🔄 Gerando prova REAL com PACOTE COMPLETO...<br>
-                        <small>Capturando screenshot COMPLETO, calculando hashes...</small>
+                        🔄 Gerando prova REAL LEVE...<br>
+                        <small>Sem screenshot - Apenas hashes criptográficos</small>
                     </div>
                 `;
 
                 const dados = JSON.parse(dadosInput);
                 
-                // 🔥 CHAMA O SISTEMA REAL DE PROVAS
+                // 🔥 CHAMA O SISTEMA REAL DE PROVAS LEVE
                 const provaCompleta = await gerarProvaFinal(dados);
 
-                // Calcular tamanho do screenshot para info
-                const screenshotSize = Math.round((provaCompleta.screenshot.length * 3) / 4); // approx bytes
+                // Calcular tamanho do payload para info
+                const payloadSize = JSON.stringify(provaCompleta).length;
                 
                 // Atualizar UI com resultados
                 statusElement.innerHTML = `
                     <div class="cid-status success">
-                        ✅ PROVA REAL GERADA!<br><br>
+                        ✅ PROVA REAL LEVE GERADA!<br><br>
                         <strong>CID IPFS:</strong> ${provaCompleta.cid || "Pendente"}<br>
                         <strong>Hash Dados:</strong> <span class="hash-preview">${provaCompleta.hashDados.substring(0, 16)}...</span><br>
-                        <strong>Hash Visual:</strong> <span class="hash-preview">${provaCompleta.hashVisual.substring(0, 16)}...</span><br>
                         <strong>Hash Ledger:</strong> <span class="hash-preview">${provaCompleta.ledgerHash.substring(0, 16)}...</span><br>
                         <strong>Previous Hash:</strong> <span class="hash-preview">${provaCompleta.previousHash.substring(0, 16)}...</span><br>
                         <strong>Timestamp:</strong> ${new Date(provaCompleta.timestamp).toLocaleString()}<br>
-                        <div class="screenshot-info">
-                            📸 Screenshot: ${(screenshotSize / 1024).toFixed(1)} KB (COMPLETO)
+                        <div class="performance-badge">
+                            ⚡ LEVE: ${payloadSize} bytes
                         </div>
                     </div>
                 `;
@@ -821,7 +801,7 @@
             }
         }
 
-        // 5. Função para processar CID com prova real
+        // 4. Função para processar CID com prova real
         async function processarCIDComProva() {
             const cid = document.getElementById('cidInput').value.trim();
             const statusElement = document.getElementById('cidStatus');
@@ -834,7 +814,7 @@
             try {
                 statusElement.style.display = 'block';
                 statusElement.className = 'cid-status processing';
-                statusElement.textContent = '🔄 Processando CID com prova REAL...';
+                statusElement.textContent = '🔄 Processando CID com prova REAL LEVE...';
 
                 const dadosCID = {
                     _id: `cid_${Date.now()}`,
@@ -843,12 +823,12 @@
                     origem: 'input_usuario'
                 };
 
-                // 🔥 Usar sistema real de provas para o CID
+                // 🔥 Usar sistema real de provas LEVE para o CID
                 const provaCID = await gerarProvaFinal(dadosCID);
 
                 statusElement.className = 'cid-status success';
                 statusElement.innerHTML = `
-                    ✅ CID processado com PROVA REAL!<br><br>
+                    ✅ CID processado com PROVA REAL LEVE!<br><br>
                     <strong>CID Original:</strong> ${cid}<br>
                     <strong>Novo CID Prova:</strong> ${provaCID.cid || "Processado"}<br>
                     <strong>Status:</strong> Registrado no ledger
@@ -863,7 +843,7 @@
             }
         }
 
-        // 6. Função para verificar prova existente
+        // 5. Função para verificar prova existente
         async function verificarProva(provaId) {
             try {
                 const prova = await dbProvas.get(provaId);
@@ -872,10 +852,6 @@
                 const hashRecalculado = await calcularHash(JSON.stringify(prova.dados));
                 const integridadeLocal = hashRecalculado === prova.hashDados;
                 
-                // Verificar hash visual
-                const hashVisualRecalculado = await calcularHash(prova.screenshot);
-                const integridadeVisual = hashVisualRecalculado === prova.hashVisual;
-                
                 // Verificar no ledger
                 const entradaLedger = await dbLedger.get(prova.ledgerHash);
                 const integridadeLedger = entradaLedger !== undefined;
@@ -883,9 +859,8 @@
                 return {
                     prova: prova,
                     integridadeLocal: integridadeLocal,
-                    integridadeVisual: integridadeVisual,
                     integridadeLedger: integridadeLedger,
-                    status: (integridadeLocal && integridadeVisual && integridadeLedger) ? "válida" : "corrompida"
+                    status: (integridadeLocal && integridadeLedger) ? "válida" : "corrompida"
                 };
                 
             } catch (error) {
@@ -1084,7 +1059,7 @@
             }
         }
 
-        // 7. Atualizar função de carregar provas para mostrar provas reais
+        // 6. Atualizar função de carregar provas para mostrar provas leves
         async function carregarProvas() {
             try {
                 const provas = await dbProvas.allDocs({
@@ -1105,12 +1080,12 @@
                     const div = document.createElement('div');
                     div.className = `ledger-entry ${prova.hashDados ? 'prova-real' : 'prova-local'}`;
                     
-                    const isProvaReal = prova.hashDados && prova.hashVisual;
+                    const isProvaReal = prova.hashDados;
                     const statusClass = prova.status === 'completo' ? 'status online' : 
                                       prova.status === 'erro' ? 'status offline' : 
                                       prova.status === 'processando' ? 'status processing' : 'status';
                     
-                    const screenshotSize = prova.screenshot ? Math.round((prova.screenshot.length * 3) / 4) : 0;
+                    const payloadSize = JSON.stringify(prova).length;
                     
                     div.innerHTML = `
                         <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 8px;">
@@ -1120,14 +1095,13 @@
                             </span>
                         </div>
                         ${isProvaReal ? `
-                            <div><strong>🔐 PROVA REAL - PACOTE COMPLETO</strong></div>
+                            <div><strong>🔐 PROVA REAL - LEVE</strong></div>
                             <div><strong>CID:</strong> ${prova.cid || "Pendente"}</div>
                             <div><strong>Hash Dados:</strong> <span class="hash-preview">${prova.hashDados?.substring(0, 16)}...</span></div>
-                            <div><strong>Hash Visual:</strong> <span class="hash-preview">${prova.hashVisual?.substring(0, 16)}...</span></div>
                             <div><strong>Previous Hash:</strong> <span class="hash-preview">${prova.previousHash?.substring(0, 16)}...</span></div>
                             <div><strong>Tipo:</strong> ${prova.tipo}</div>
-                            <div class="screenshot-info">
-                                📸 Screenshot: ${(screenshotSize / 1024).toFixed(1)} KB
+                            <div class="performance-badge">
+                                ⚡ ${payloadSize} bytes
                             </div>
                         ` : `
                             <div><strong>📝 Prova Local</strong></div>
@@ -1152,7 +1126,7 @@
             if (resultado.erro) {
                 alert(`❌ Erro na verificação: ${resultado.erro}`);
             } else {
-                alert(`✅ Prova ${resultado.status.toUpperCase()}!\nIntegridade Local: ${resultado.integridadeLocal}\nIntegridade Visual: ${resultado.integridadeVisual}\nIntegridade Ledger: ${resultado.integridadeLedger}`);
+                alert(`✅ Prova ${resultado.status.toUpperCase()}!\nIntegridade Local: ${resultado.integridadeLocal}\nIntegridade Ledger: ${resultado.integridadeLedger}`);
             }
         }
 
@@ -1309,7 +1283,7 @@
                 
                 const provasReais = provas.rows
                     .map(row => row.doc)
-                    .filter(prova => prova.hashDados && prova.hashVisual);
+                    .filter(prova => prova.hashDados);
                 
                 const exportData = {
                     metadata: {
