@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Canonical Semantic Training — Terra Dourada</title>
+  <style>
+    :root{
+      --bg:#000;
+      --panel:#0a0a0a;
+      --panel2:#111;
+      --gold:#DAA520;
+      --gold2:#FFD700;
+      --text:#f5f5f5;
+      --muted:rgba(218,165,32,0.85);
+      --border:rgba(218,165,32,0.55);
+      --shadow:rgba(218,165,32,0.18);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      padding:22px;
+      min-height:100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-image:
+        radial-gradient(circle at 20% 80%, rgba(218, 165, 32, 0.06) 0%, transparent 22%),
+        radial-gradient(circle at 80% 20%, rgba(218, 165, 32, 0.06) 0%, transparent 22%);
+      display:flex;
+      justify-content:center;
+    }
+
+    .wrap{
+      width: min(1040px, 100%);
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .hero{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(10,10,10,0.92), rgba(10,10,10,0.68));
+      border-radius:18px;
+      padding:18px 18px 16px;
+      box-shadow: 0 0 22px var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:-40px -40px auto auto;
+      width:220px;
+      height:220px;
+      background: radial-gradient(circle, rgba(255,215,0,0.18), transparent 60%);
+      filter: blur(1px);
+      transform: rotate(15deg);
+      pointer-events:none;
+    }
+
+    .toprow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 240px;
+    }
+
+    .logo{
+      font-size:42px;
+      line-height:1;
+      filter: drop-shadow(0 0 10px rgba(255,215,0,0.35));
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float{
+      0%,100%{ transform: translateY(0) rotate(0deg); }
+      50%{ transform: translateY(-8px) rotate(4deg); }
+    }
+
+    h1{
+      margin:0;
+      font-size:1.65rem;
+      letter-spacing:0.6px;
+      background: linear-gradient(45deg, var(--gold2), var(--gold), var(--gold2));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      text-shadow: 0 0 18px rgba(255,215,0,0.12);
+    }
+
+    .subtitle{
+      margin:10px 0 0;
+      color: var(--muted);
+      letter-spacing:0.6px;
+      line-height:1.45;
+      font-size: 0.98rem;
+      max-width: 880px;
+    }
+
+    .links{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+
+    @media (max-width: 820px){
+      .links{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: rgba(17,17,17,0.9);
+      border:1px solid rgba(218,165,32,0.45);
+      border-radius:16px;
+      padding:14px;
+      box-shadow: 0 0 18px rgba(218,165,32,0.10);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .card-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .card-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:800;
+      color: var(--gold2);
+      letter-spacing:0.4px;
+    }
+
+    .url{
+      color: var(--gold2);
+      text-decoration:none;
+      word-break: break-all;
+      border-bottom: 1px dashed rgba(255,215,0,0.45);
+      padding-bottom:2px;
+    }
+
+    .url:hover{
+      border-bottom-color: rgba(255,215,0,0.95);
+      text-shadow: 0 0 12px rgba(255,215,0,0.22);
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,215,0,0.55);
+      background: linear-gradient(135deg, rgba(218,165,32,0.95), rgba(184,134,11,0.95));
+      color:#000;
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:900;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition: all 0.22s ease;
+      user-select:none;
+      text-decoration:none;
+      justify-content:center;
+      min-width: 150px;
+    }
+
+    .btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(218,165,32,0.25);
+      background: linear-gradient(135deg, rgba(255,215,0,0.95), rgba(218,165,32,0.95));
+    }
+
+    .btn2{
+      border:1px solid rgba(218,165,32,0.5);
+      background: linear-gradient(135deg, rgba(26,26,26,0.95), rgba(42,42,42,0.95));
+      color: var(--gold2);
+      min-width: 120px;
+    }
+
+    .btn2:hover{
+      background: linear-gradient(135deg, rgba(42,42,42,0.95), rgba(58,58,58,0.95));
+      box-shadow: 0 8px 18px rgba(218,165,32,0.18);
+    }
+
+    .ok{
+      background: linear-gradient(135deg, #2a7a2a, #3a9a3a) !important;
+      color:#fff !important;
+      border: none !important;
+    }
+
+    .note{
+      color: rgba(218,165,32,0.88);
+      font-size:0.92rem;
+      line-height:1.4;
+      margin:0;
+    }
+
+    .content{
+      border:1px solid var(--border);
+      background: rgba(10,10,10,0.85);
+      border-radius:18px;
+      padding:18px;
+      box-shadow: 0 0 22px var(--shadow);
+    }
+
+    .section{
+      margin:0 0 18px 0;
+      padding:0 0 16px 0;
+      border-bottom: 1px solid rgba(218,165,32,0.18);
+    }
+
+    .section:last-child{
+      border-bottom:none;
+      padding-bottom:0;
+      margin-bottom:0;
+    }
+
+    h2{
+      margin:0 0 10px 0;
+      font-size:1.18rem;
+      color: var(--gold2);
+      letter-spacing:0.4px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    p{
+      margin:0 0 10px 0;
+      line-height:1.6;
+      color: rgba(245,245,245,0.92);
+    }
+
+    ul{
+      margin: 8px 0 0 18px;
+      padding:0;
+      color: rgba(245,245,245,0.92);
+      line-height:1.7;
+    }
+
+    li{ margin: 2px 0; }
+
+    .summary{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:12px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 820px){
+      .summary{ grid-template-columns: 1fr; }
+    }
+
+    .mini{
+      background: rgba(17,17,17,0.75);
+      border:1px solid rgba(218,165,32,0.28);
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .mini h3{
+      margin:0 0 8px 0;
+      font-size:1.02rem;
+      color: var(--gold2);
+      letter-spacing:0.3px;
+    }
+
+    .mini p{
+      margin:0;
+      color: rgba(245,245,245,0.90);
+      line-height:1.55;
+      font-size:0.98rem;
+    }
+
+    footer{
+      text-align:center;
+      color: rgba(218,165,32,0.75);
+      font-size:0.9rem;
+      padding: 6px 0 0;
+    }
+
+    code{
+      background: rgba(255,215,0,0.08);
+      border:1px solid rgba(255,215,0,0.18);
+      padding:2px 6px;
+      border-radius:8px;
+      color: var(--gold2);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="toprow">
+        <div class="brand">
+          <div class="logo">📚</div>
+          <div>
+            <h1>Canonical Semantic Training — Practical Observations</h1>
+          </div>
+        </div>
+      </div>
+
+      <p class="subtitle">
+        Terra Dourada uses deterministic semantic training, where each input text explicitly contributes to the construction of meaning inside the <code>mind.bin</code> memory.
+        There are no weights, embeddings, global statistics, or probabilistic learning.
+        Training is performed through explicit canonical declarations, not through mass exposure.
+      </p>
+
+      <div class="links">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">🧪 Training link</div>
+            <div class="actions">
+              <a class="btn" href="https://terra-dourada-gpt-green-butterfly-3484.fly.dev/" target="_blank" rel="noopener noreferrer">Open training</a>
+              <button class="btn btn2" id="copyTrain">📎 Copy</button>
+            </div>
+          </div>
+          <a class="url" id="trainUrl" href="https://terra-dourada-gpt-green-butterfly-3484.fly.dev/" target="_blank" rel="noopener noreferrer">
+            https://terra-dourada-gpt-green-butterfly-3484.fly.dev/
+          </a>
+          <p class="note">Use this to run canonical iterations and expand a topic with controlled semantic operators.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">🐙 GitHub link</div>
+            <div class="actions">
+              <a class="btn" href="https://github.com/search?q=terra-dourada-gpt&type=repositories" target="_blank" rel="noopener noreferrer">Open GitHub</a>
+              <button class="btn btn2" id="copyGit">📎 Copy</button>
+            </div>
+          </div>
+          <a class="url" id="gitUrl" href="https://github.com/search?q=terra-dourada-gpt&type=repositories" target="_blank" rel="noopener noreferrer">
+            https://github.com/search?q=terra-dourada-gpt&type=repositories
+          </a>
+          <p class="note">This opens the repository search for Terra Dourada GPT.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="section">
+        <h2>🎯 Core observation</h2>
+        <p>
+          Training a topic only once, using only the full original text, does not always produce maximum specialization.
+        </p>
+        <p>After the first training pass, the system tends to:</p>
+        <ul>
+          <li>recognize the subject</li>
+          <li>retrieve semantically related fragments</li>
+          <li>respond correctly, but in a more general manner</li>
+        </ul>
+        <p>This is not a flaw — it is the canonical initial state.</p>
+      </div>
+
+      <div class="section">
+        <h2>🧩 Canonical training expansion (key point)</h2>
+        <p>
+          The observed specialization does not come from literal repetition, but from controlled canonical variation of the same content.
+        </p>
+        <p>In practice, training includes:</p>
+        <ul>
+          <li>the full original text</li>
+          <li>canonical affirmative statements</li>
+          <li>canonical negations</li>
+          <li>declarations based on core keywords</li>
+          <li>structural reformulations (rule, condition, limitation, exclusivity, etc.)</li>
+        </ul>
+        <p>
+          In other words, the same concept is trained under multiple semantic operators, not duplicated.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>🔁 Effect of multiple canonical iterations</h2>
+        <p>When the same topic is trained again using:</p>
+        <ul>
+          <li>different wording</li>
+          <li>different logical structure</li>
+          <li>different canonical operators (affirmation ↔ negation, condition, obligation, limitation)</li>
+          <li>different textual styles (technical, normative, declarative)</li>
+        </ul>
+        <p>the system begins to:</p>
+        <ul>
+          <li>consolidate the semantic core</li>
+          <li>reduce ambiguity</li>
+          <li>respond in a more specific and consistent way</li>
+          <li>stabilize deterministic recall</li>
+        </ul>
+        <p>This effect was observed as early as the second iteration.</p>
+      </div>
+
+      <div class="section">
+        <h2>📈 Observed trend (non-prescriptive)</h2>
+        <p>Based on experiments conducted so far:</p>
+        <p><b>Initial canonical training → topic recognition</b><br/>
+           <b>Canonical expansion (2nd) → clear semantic specialization</b>
+        </p>
+        <p>Without:</p>
+        <ul>
+          <li>large datasets</li>
+          <li>literal repetition</li>
+          <li>frequency-based statistics</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>🧠 Technical interpretation</h2>
+        <p>What happens is not “learning” in the classical sense, but:</p>
+        <ul>
+          <li>explicit reinforcement of the semantic core</li>
+          <li>progressive closure of interpretative surfaces</li>
+          <li>increased precision through overlapping canonical rules</li>
+        </ul>
+        <p>All of this occurs in a:</p>
+        <ul>
+          <li>deterministic</li>
+          <li>auditable</li>
+          <li>reversible</li>
+          <li>non-creative manner</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>📌 Honest summary</h2>
+
+        <div class="summary">
+          <div class="mini">
+            <h3>✔ What training includes</h3>
+            <p>
+              ✔ Training includes the full text<br/>
+              ✔ Training includes canonical affirmations and negations<br/>
+              ✔ Training explores keyword-based connections<br/>
+              ✔ Specialization emerges quickly
+            </p>
+          </div>
+
+          <div class="mini">
+            <h3>❌ What it does NOT claim</h3>
+            <p>
+              ❌ There is no fixed number of iterations<br/>
+              ❌ There is no automatic “recipe”<br/><br/>
+              Results depend on how meaning is explicitly expressed, not on volume.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Terra Dourada — Canonical training note (deterministic, auditable, reversible).
+    </footer>
+  </div>
+
+  <script>
+    const TRAIN_URL = "https://terra-dourada-gpt-green-butterfly-3484.fly.dev/";
+    const GITHUB_URL = "https://github.com/search?q=terra-dourada-gpt&type=repositories";
+
+    function setOk(btn){
+      btn.classList.add("ok");
+      setTimeout(()=>btn.classList.remove("ok"), 850);
+    }
+
+    async function copyText(text, btn){
+      try{
+        await navigator.clipboard.writeText(text);
+        setOk(btn);
+      }catch(e){
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.top = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        try{
+          document.execCommand("copy");
+          setOk(btn);
+        }finally{
+          document.body.removeChild(ta);
+        }
+      }
+    }
+
+    document.getElementById("copyTrain").addEventListener("click", () => copyText(TRAIN_URL, document.getElementById("copyTrain")));
+    document.getElementById("copyGit").addEventListener("click", () => copyText(GITHUB_URL, document.getElementById("copyGit")));
+
+    // Keep DOM consistent
+    const t = document.getElementById("trainUrl");
+    t.href = TRAIN_URL; t.textContent = TRAIN_URL;
+
+    const g = document.getElementById("gitUrl");
+    g.href = GITHUB_URL; g.textContent = GITHUB_URL;
+  </script>
+</body>
+</html>
