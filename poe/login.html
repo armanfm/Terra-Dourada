@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proof of Event - Login</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 420px;
+        }
+        
+        .gradient-header {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            padding: 60px 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        
+        .tagline {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+        
+        .login-body {
+            padding: 50px 30px;
+            text-align: center;
+        }
+        
+        .logo-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .welcome-text {
+            font-size: 1.2rem;
+            color: #4b5563;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .btn-google {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            margin: 0 auto;
+            max-width: 300px;
+        }
+        
+        .btn-google:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-google img {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-message {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.9rem;
+            color: #0369a1;
+            display: none;
+        }
+        
+        .google-signin-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .google-signin-container h3 {
+            color: #374151;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        /* Google Sign In Button Custom */
+        #google-signin-btn {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 12px !important;
+            width: 100% !important;
+            height: 52px !important;
+            border-radius: 12px !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 500 !important;
+            font-size: 1.1rem !important;
+            transition: all 0.3s !important;
+        }
+        
+        #google-signin-btn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        /* Mobile */
+        @media (max-width: 480px) {
+            .login-card {
+                border-radius: 15px;
+            }
+            
+            .gradient-header {
+                padding: 40px 20px;
+            }
+            
+            .login-body {
+                padding: 40px 20px;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .logo-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card fade-in">
+            <!-- Header -->
+            <div class="gradient-header">
+                <div class="logo-icon">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <div class="logo">Proof of Event</div>
+                <div class="tagline">A blockchain não decide. Ela testemunha.</div>
+            </div>
+            
+            <!-- Login Body -->
+            <div class="login-body">
+                <div class="welcome-text">
+                    Para acessar a plataforma, faça login com sua conta do Google.
+                </div>
+                
+                <!-- Status Message -->
+                <div id="status-message" class="status-message">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <span id="status-text"></span>
+                </div>
+                
+                <!-- Loader -->
+                <div class="loader" id="login-loader"></div>
+                
+                <!-- Google Sign In Container -->
+                <div class="google-signin-container">
+                    <h3>Entre com sua conta Google</h3>
+                    
+                    <!-- Google Sign In Button -->
+                    <div id="g_id_onload"
+                         data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+                         data-context="signin"
+                         data-ux_mode="popup"
+                         data-callback="handleGoogleAuth"
+                         data-auto_prompt="true"
+                         data-auto_select="true">
+                    </div>
+
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-shape="rectangular"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-size="large"
+                         data-logo_alignment="left"
+                         data-width="300">
+                    </div>
+                    
+                    <!-- Fallback Google Button -->
+                    <button id="fallback-google-btn" class="btn-google" onclick="handleGoogleSignIn()" style="display: none;">
+                        <img src="https://www.google.com/favicon.ico" alt="Google">
+                        Continuar com Google
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Mostra status
+        function showStatus(text, type = 'info') {
+            const statusDiv = document.getElementById('status-message');
+            const statusText = document.getElementById('status-text');
+            const loader = document.getElementById('login-loader');
+            
+            statusText.textContent = text;
+            
+            if (type === 'loading') {
+                statusDiv.style.display = 'none';
+                loader.style.display = 'block';
+            } else if (type === 'error') {
+                statusDiv.style.background = '#fee2e2';
+                statusDiv.style.borderColor = '#fca5a5';
+                statusDiv.style.color = '#991b1b';
+                statusDiv.style.display = 'block';
+                loader.style.display = 'none';
+            } else {
+                statusDiv.style.background = '#f0f9ff';
+                statusDiv.style.borderColor = '#bae6fd';
+                statusDiv.style.color = '#0369a1';
+                statusDiv.style.display = 'block';
+                loader.style.display = 'none';
+            }
+        }
+        
+        // Login com Google (fallback para desenvolvimento)
+        function handleGoogleSignIn() {
+            showStatus('Conectando com Google...', 'loading');
+            
+            // Simulação de login do Google para desenvolvimento
+            setTimeout(() => {
+                const randomUser = {
+                    name: 'Usuário Google',
+                    email: 'usuario@gmail.com',
+                    picture: 'https://lh3.googleusercontent.com/a/default-user',
+                    role: 'user',
+                    credits: 10000
+                };
+                
+                loginSuccess(randomUser);
+            }, 1500);
+        }
+        
+        // Sucesso no login
+        function loginSuccess(user) {
+            showStatus(`Bem-vindo(a), ${user.name}! Redirecionando...`, 'info');
+            
+            // Salva dados do usuário (em produção usar token JWT)
+            sessionStorage.setItem('poe_user', JSON.stringify(user));
+            sessionStorage.setItem('poe_authenticated', 'true');
+            
+            // Redireciona para dashboard após 1.5 segundos
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        }
+        
+        // Configuração quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verifica se já está autenticado
+            if (sessionStorage.getItem('poe_authenticated') === 'true') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            // Configura fallback do Google Sign-In
+            const googleScript = document.querySelector('script[src*="accounts.google.com"]');
+            
+            if (googleScript) {
+                googleScript.onerror = function() {
+                    console.warn('Google Sign-In script falhou, usando fallback');
+                    document.querySelector('.g_id_signin').style.display = 'none';
+                    document.getElementById('fallback-google-btn').style.display = 'flex';
+                    showStatus('Usando modo de desenvolvimento. Clique no botão para simular login.', 'info');
+                };
+            }
+            
+            // Mostra fallback após 3 segundos se Google não carregar
+            setTimeout(() => {
+                if (!window.google) {
+                    document.querySelector('.g_id_signin').style.display = 'none';
+                    document.getElementById('fallback-google-btn').style.display = 'flex';
+                    showStatus('Usando modo de desenvolvimento. Clique no botão para simular login.', 'info');
+                }
+            }, 3000);
+        });
+        
+        // Callback do Google (para quando o login for bem-sucedido)
+        window.handleGoogleAuth = function(response) {
+            showStatus('Autenticando...', 'loading');
+            
+            console.log('Google Auth Response:', response);
+            
+            // Em produção: enviar o token para seu backend para verificação
+            // fetch('/api/auth/google', { 
+            //     method: 'POST', 
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({ token: response.credential }) 
+            // })
+            // .then(res => res.json())
+            // .then(data => {
+            //     loginSuccess(data.user);
+            // })
+            // .catch(err => {
+            //     showStatus('Erro na autenticação. Tente novamente.', 'error');
+            // });
+            
+            // Simulação para desenvolvimento
+            setTimeout(() => {
+                const user = {
+                    name: response.name || 'Usuário Google',
+                    email: response.email || 'usuario@gmail.com',
+                    picture: response.picture || 'https://lh3.googleusercontent.com/a/default-user',
+                    role: 'user',
+                    credits: 10000
+                };
+                
+                loginSuccess(user);
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

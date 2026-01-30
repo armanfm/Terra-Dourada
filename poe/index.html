@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proof of Event (PoE) - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+
+    .fade-in { animation: fadeIn 0.25s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; transition: all 0.15s ease; }
+    .card:hover { box-shadow: 0 10px 25px -8px rgba(0,0,0,0.12); transform: translateY(-1px); }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      color: white; padding: 10px 18px; border-radius: 10px;
+      font-weight: 700; border: none; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(59,130,246,0.25); }
+
+    .btn-secondary {
+      background: white; color: #111827; padding: 10px 18px; border-radius: 10px;
+      font-weight: 700; border: 1px solid #d1d5db; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-secondary:hover { background: #f9fafb; border-color: #9ca3af; }
+
+    .nav-tab { padding: 12px 14px; border-radius: 10px; cursor: pointer; transition: all 0.15s; font-weight: 600; }
+    .nav-tab.active { background-color: #eff6ff; color: #2563eb; }
+    .nav-tab:hover:not(.active) { background-color: #f9fafb; }
+
+    .input-field { border: 1px solid #d1d5db; border-radius: 10px; padding: 12px 14px; width: 100%; transition: all 0.15s; }
+    .input-field:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+
+    .logo {
+      font-weight: 800; font-size: 1.35rem;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .toast {
+      position: fixed; right: 16px; bottom: 16px;
+      max-width: 420px; z-index: 9999;
+    }
+    .toast-item { border-radius: 12px; padding: 12px 14px; margin-top: 10px; box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+    .toast-ok { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .toast-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .toast-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+  <div class="min-h-screen">
+
+    <header class="bg-white border-b shadow-sm">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <div class="logo">Proof of Event</div>
+            <span class="text-xs text-gray-500 font-semibold bg-gray-100 px-2 py-1 rounded-full">v0.1</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="text-right leading-tight">
+              <div class="font-semibold" id="company-name"></div>
+              <div class="text-sm text-gray-500" id="company-email"></div>
+            </div>
+            <div id="user-avatar" class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-extrabold">
+            </div>
+            <button class="btn-secondary" onclick="logout()" title="Sair">
+              <i class="fas fa-right-from-bracket mr-2"></i>Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <aside class="lg:col-span-1">
+          <div class="card bg-white p-6 mb-6">
+            <h3 class="font-extrabold text-lg mb-4">Navegação</h3>
+
+            <div class="space-y-2">
+              <div class="nav-tab active" data-tab="dashboard" onclick="showTab('dashboard')">
+                <i class="fas fa-chart-bar mr-3"></i>Dashboard
+              </div>
+              <div class="nav-tab" data-tab="register" onclick="showTab('register')">
+                <i class="fas fa-plus-circle mr-3"></i>Registrar Evento
+              </div>
+              <div class="nav-tab" data-tab="purchase" onclick="showTab('purchase')">
+                <i class="fas fa-shopping-cart mr-3"></i>Comprar Créditos
+              </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t">
+              <h3 class="font-extrabold text-lg mb-3">Status</h3>
+
+              <div class="space-y-3 text-sm">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600">Backend</span>
+                  <span id="backend-status" class="font-bold text-gray-500">verificando</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-600">Última atualização</span>
+                  <span id="last-sync" class="font-bold text-gray-500">—</span>
+                </div>
+                <button class="btn-secondary w-full" onclick="refreshAll()">
+                  <i class="fas fa-rotate mr-2"></i>Atualizar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card bg-white p-6">
+            <h3 class="font-extrabold text-lg mb-3">Wallet</h3>
+            <div class="text-sm text-gray-600 space-y-2">
+              <div class="flex items-center justify-between">
+                <span>Wallet ID</span>
+                <span id="wallet-id" class="font-mono text-xs text-gray-800 break-all text-right"></span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>Créditos</span>
+                <span id="wallet-balance" class="font-extrabold text-gray-900">0</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="lg:col-span-3">
+
+          <section id="dashboard-tab" class="tab-content fade-in">
+            <div class="mb-8">
+              <h1 class="text-3xl font-extrabold">Dashboard</h1>
+              <p class="text-gray-600">Uso e atividade recente</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div class="card bg-white p-6">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="text-gray-500 text-sm">Créditos disponíveis</p>
+                    <p class="text-3xl font-extrabold mt-2" id="credits-count">0</p>
+                  </div>
+                  <div class="bg-blue-100 p-3 rounded-full">
+                    <i class="fas fa-coins text-blue-600 text-xl"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-4">Consumo: 1 crédito por evento registrado</p>
+              </div>
+
+              <div class="card bg-white p-6">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="text-gray-500 text-sm">Eventos registrados</p>
+                    <p class="text-3xl font-extrabold mt-2" id="events-count">0</p>
+                  </div>
+                  <div class="bg-green-100 p-3 rounded-full">
+                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-4">Últimas operações do seu ledger</p>
+              </div>
+            </div>
+
+            <div class="card bg-white p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-extrabold">Atividade recente</h2>
+                <button class="btn-secondary" onclick="loadRecentActivity()">
+                  <i class="fas fa-rotate mr-2"></i>Recarregar
+                </button>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead>
+                    <tr class="border-b">
+                      <th class="text-left py-3 text-gray-600 text-sm">Data/Hora</th>
+                      <th class="text-left py-3 text-gray-600 text-sm">Tipo</th>
+                      <th class="text-left py-3 text-gray-600 text-sm">Referência</th>
+                      <th class="text-left py-3 text-gray-600 text-sm">Delta</th>
+                      <th class="text-left py-3 text-gray-600 text-sm">Saldo</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recent-activity">
+                    <tr id="no-recent-activity">
+                      <td colspan="5" class="py-8 text-center text-gray-500">
+                        <i class="fas fa-inbox text-3xl mb-2"></i>
+                        <p>Nenhuma atividade recente</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="register-tab" class="tab-content fade-in" style="display:none;">
+            <div class="mb-8">
+              <h1 class="text-3xl font-extrabold">Registrar Evento</h1>
+              <p class="text-gray-600">Submeta um hash e consuma 1 crédito em caso de sucesso</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div class="lg:col-span-2">
+                <div class="card bg-white p-6">
+                  <h2 class="text-xl font-extrabold mb-6">Submeter</h2>
+
+                  <div class="mb-6">
+                    <label class="block text-gray-800 font-semibold mb-2">Hash do evento (SHA-512 em hex)</label>
+                    <input type="text" id="event-hash" class="input-field font-mono" maxlength="128" />
+                    <p class="text-gray-500 text-sm mt-2">Formato esperado: 128 caracteres hexadecimais.</p>
+                  </div>
+
+                  <div class="mb-6">
+                    <label class="block text-gray-800 font-semibold mb-2">Metadados (JSON opcional)</label>
+                    <textarea id="event-metadata" class="input-field h-32 font-mono text-sm"></textarea>
+                    <p class="text-gray-500 text-sm mt-2">Se vazio, o evento é registrado apenas pelo hash.</p>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-600">
+                      <div><span class="font-extrabold">Custo:</span> 1 crédito</div>
+                      <div class="text-gray-500">O burn só ocorre se o backend aceitar o registro.</div>
+                    </div>
+
+                    <button class="btn-primary" onclick="registerEvent()">
+                      <i class="fas fa-certificate mr-2"></i>Registrar
+                    </button>
+                  </div>
+
+                  <div class="mt-6 pt-6 border-t hidden" id="receipt-box">
+                    <h3 class="font-extrabold mb-2">Recibo</h3>
+                    <pre id="receipt" class="bg-gray-50 border rounded-xl p-4 text-sm overflow-x-auto"></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="card bg-white p-6">
+                  <h3 class="font-extrabold text-lg mb-4">Regras</h3>
+                  <ul class="space-y-3 text-gray-700 text-sm">
+                    <li class="flex items-start">
+                      <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                      O hash identifica o evento; o ledger registra a ação.
+                    </li>
+                    <li class="flex items-start">
+                      <i class="fas fa-shield-halved text-blue-600 mt-1 mr-2"></i>
+                      O backend determina a wallet do usuário (não confie em wallet_id enviado pelo cliente).
+                    </li>
+                    <li class="flex items-start">
+                      <i class="fas fa-clock text-purple-600 mt-1 mr-2"></i>
+                      A data/hora do registro é sempre o timestamp canônico do servidor.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="purchase-tab" class="tab-content fade-in" style="display:none;">
+            <div class="mb-8">
+              <h1 class="text-3xl font-extrabold">Comprar Créditos</h1>
+              <p class="text-gray-600">Escolha um pacote. O crédito entra automaticamente após confirmação do pagamento.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div class="lg:col-span-2">
+                <div class="card bg-white p-6">
+                  <h2 class="text-xl font-extrabold mb-6">Pacotes</h2>
+
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <button class="card bg-white p-5 text-left hover:shadow-md" onclick="selectPackage(5, 10000)">
+                      <div class="text-sm text-gray-500 font-semibold">R$ 5</div>
+                      <div class="text-2xl font-extrabold mt-1">10.000</div>
+                      <div class="text-sm text-gray-500">créditos</div>
+                      <div class="mt-4 text-xs text-gray-500">Bom para teste e primeiros eventos.</div>
+                    </button>
+
+                    <button class="card bg-white p-5 text-left hover:shadow-md" onclick="selectPackage(50, 100000)">
+                      <div class="text-sm text-gray-500 font-semibold">R$ 50</div>
+                      <div class="text-2xl font-extrabold mt-1">100.000</div>
+                      <div class="text-sm text-gray-500">créditos</div>
+                      <div class="mt-4 text-xs text-gray-500">Uso contínuo em produção.</div>
+                    </button>
+
+                    <button class="card bg-white p-5 text-left hover:shadow-md" onclick="selectPackage(400, 1000000)">
+                      <div class="text-sm text-gray-500 font-semibold">R$ 400</div>
+                      <div class="text-2xl font-extrabold mt-1">1.000.000</div>
+                      <div class="text-sm text-gray-500">créditos</div>
+                      <div class="mt-4 text-xs text-gray-500">Alta demanda e volumes grandes.</div>
+                    </button>
+                  </div>
+
+                  <div class="mt-6 pt-6 border-t">
+                    <button class="btn-primary w-full py-4 text-lg" onclick="createCheckout()">
+                      <i class="fas fa-lock mr-2"></i>Gerar link de pagamento
+                    </button>
+
+                    <div class="mt-4 hidden" id="checkout-box">
+                      <div class="text-sm text-gray-600 mb-2 font-semibold">Link gerado</div>
+                      <div class="flex gap-2">
+                        <input id="checkout-url" class="input-field font-mono text-xs" readonly />
+                        <button class="btn-secondary" onclick="copyCheckoutUrl()"><i class="fas fa-copy mr-2"></i>Copiar</button>
+                        <button class="btn-secondary" onclick="openCheckoutUrl()"><i class="fas fa-arrow-up-right-from-square mr-2"></i>Abrir</button>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-2">Após pagamento confirmado, o crédito entra e aparece no Dashboard.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="card bg-white p-6">
+                  <h3 class="font-extrabold text-lg mb-4">Resumo</h3>
+
+                  <div id="purchase-summary" class="text-sm text-gray-600">
+                    <div class="text-gray-500">Selecione um pacote para continuar.</div>
+                  </div>
+
+                  <div class="mt-6 pt-6 border-t">
+                    <button class="btn-secondary w-full" onclick="refreshAll()">
+                      <i class="fas fa-rotate mr-2"></i>Atualizar créditos
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2">
+                      Se o pagamento acabou de ser feito, aguarde a confirmação e atualize.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="card bg-white p-6 mt-6">
+                  <h3 class="font-extrabold text-lg mb-3">Como o crédito entra</h3>
+                  <ul class="text-sm text-gray-700 space-y-2">
+                    <li class="flex items-start">
+                      <i class="fas fa-circle-check text-green-600 mt-1 mr-2"></i>
+                      O gateway confirma o pagamento.
+                    </li>
+                    <li class="flex items-start">
+                      <i class="fas fa-circle-check text-green-600 mt-1 mr-2"></i>
+                      O webhook credita a wallet no backend.
+                    </li>
+                    <li class="flex items-start">
+                      <i class="fas fa-circle-check text-green-600 mt-1 mr-2"></i>
+                      O ledger registra um MINT com referência do pagamento.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const state = {
+      user: { name: '', email: '', initials: '', client_id: '', wallet_id: '' },
+      selectedPackage: null,
+      backendOnline: false,
+      lastSync: null,
+      checkoutUrl: ''
+    };
+
+    function toast(type, message) {
+      const box = document.getElementById('toast');
+      const el = document.createElement('div');
+      el.className = `toast-item ${type === 'ok' ? 'toast-ok' : type === 'err' ? 'toast-err' : 'toast-info'}`;
+      el.innerHTML = `<div class="flex items-start gap-3">
+        <div class="mt-0.5">
+          ${type === 'ok' ? '<i class="fas fa-circle-check"></i>' : type === 'err' ? '<i class="fas fa-triangle-exclamation"></i>' : '<i class="fas fa-circle-info"></i>'}
+        </div>
+        <div class="text-sm font-semibold leading-snug">${escapeHtml(message)}</div>
+      </div>`;
+      box.appendChild(el);
+      setTimeout(() => el.remove(), 4200);
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
+
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+      document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+
+      document.getElementById(`${tabName}-tab`).style.display = 'block';
+      document.querySelector(`.nav-tab[data-tab="${tabName}"]`)?.classList.add('active');
+
+      if (tabName === 'dashboard') {
+        refreshAll();
+      }
+    }
+
+    function logout() {
+      sessionStorage.removeItem('poe_user');
+      sessionStorage.removeItem('poe_authenticated');
+      sessionStorage.removeItem('poe_session_token');
+      const target = document.referrer && document.referrer.length > 0 ? document.referrer : 'login.html';
+      window.location.href = target;
+    }
+
+    function getAuthHeaders() {
+      const token = sessionStorage.getItem('poe_session_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      return headers;
+    }
+
+    function resolveWalletId() {
+      return state.user.wallet_id || state.user.client_id || state.user.email || '';
+    }
+
+    function setUserUI() {
+      document.getElementById('company-name').textContent = state.user.name || 'Usuário';
+      document.getElementById('company-email').textContent = state.user.email || '';
+      document.getElementById('user-avatar').textContent = state.user.initials || 'U';
+
+      const wid = resolveWalletId();
+      document.getElementById('wallet-id').textContent = wid ? wid : '—';
+    }
+
+    function computeInitials(name) {
+      const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return '';
+      const a = parts[0][0] || '';
+      const b = parts.length > 1 ? (parts[parts.length - 1][0] || '') : '';
+      return (a + b).toUpperCase();
+    }
+
+    async function pingBackend() {
+      try {
+        const res = await fetch('/health', { method: 'GET' });
+        if (!res.ok) throw new Error('health not ok');
+        state.backendOnline = true;
+      } catch {
+        state.backendOnline = false;
+      }
+
+      const el = document.getElementById('backend-status');
+      if (state.backendOnline) {
+        el.textContent = 'online';
+        el.className = 'font-extrabold text-green-700';
+      } else {
+        el.textContent = 'offline';
+        el.className = 'font-extrabold text-gray-500';
+      }
+    }
+
+    async function loadBalance() {
+      const wid = resolveWalletId();
+      if (!wid) return;
+
+      try {
+        const res = await fetch('/wallet/balance', { headers: getAuthHeaders() });
+        if (res.ok) {
+          const data = await res.json();
+          const bal = Number(data.balance ?? data.available_tokens ?? 0);
+          setBalance(bal);
+          return;
+        }
+      } catch {}
+
+      try {
+        const res = await fetch(`/wallet/balance?wallet_id=${encodeURIComponent(wid)}`, { headers: getAuthHeaders() });
+        if (res.ok) {
+          const data = await res.json();
+          const bal = Number(data.balance ?? data.available_tokens ?? 0);
+          setBalance(bal);
+          return;
+        }
+      } catch {}
+
+      const userRaw = sessionStorage.getItem('poe_user');
+      if (userRaw) {
+        try {
+          const u = JSON.parse(userRaw);
+          const bal = Number(u.credits ?? 0);
+          setBalance(bal);
+        } catch {}
+      }
+    }
+
+    function setBalance(bal) {
+      document.getElementById('wallet-balance').textContent = String(bal);
+      document.getElementById('credits-count').textContent = String(bal);
+    }
+
+    async function loadEventsCount() {
+      try {
+        const res = await fetch('/events/count', { headers: getAuthHeaders() });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('events-count').textContent = String(Number(data.count ?? 0));
+          return;
+        }
+      } catch {}
+    }
+
+    function parseLedgerLine(line) {
+      const parts = String(line).split('|').map(s => s.trim());
+      const ts = parts[0] || '';
+      const wallet = parts[1] || '';
+      const type = parts[2] || '';
+      const ref = parts[3] || '';
+      const delta = parts[4] || '';
+      const balance = parts[5] || '';
+      return { ts, wallet, type, ref, delta, balance };
+    }
+
+    async function loadRecentActivity() {
+      const tbody = document.getElementById('recent-activity');
+      tbody.innerHTML = '';
+      const noRow = document.getElementById('no-recent-activity');
+
+      try {
+        const res = await fetch('/ledger/recent?limit=8', { headers: getAuthHeaders() });
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data.items) ? data.items : Array.isArray(data) ? data : [];
+          if (items.length === 0) {
+            tbody.appendChild(noRow);
+            return;
+          }
+          items.forEach(it => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b';
+            tr.innerHTML = `
+              <td class="py-3 text-sm text-gray-700">${escapeHtml(it.timestamp ?? it.ts ?? '')}</td>
+              <td class="py-3 text-sm font-semibold">${escapeHtml(it.type ?? '')}</td>
+              <td class="py-3 text-sm font-mono text-gray-700 break-all">${escapeHtml(it.ref ?? it.reference ?? '')}</td>
+              <td class="py-3 text-sm font-mono">${escapeHtml(String(it.delta ?? it.amount ?? ''))}</td>
+              <td class="py-3 text-sm font-mono">${escapeHtml(String(it.balance ?? it.balance_after ?? ''))}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+          return;
+        }
+      } catch {}
+
+      try {
+        const res = await fetch('/ledger/raw?limit=8', { headers: getAuthHeaders() });
+        if (res.ok) {
+          const txt = await res.text();
+          const lines = txt.split('\n').map(l => l.trim()).filter(Boolean);
+          if (lines.length === 0) {
+            tbody.appendChild(noRow);
+            return;
+          }
+          lines.forEach(line => {
+            const it = parseLedgerLine(line);
+            const tr = document.createElement('tr');
+            tr.className = 'border-b';
+            tr.innerHTML = `
+              <td class="py-3 text-sm text-gray-700">${escapeHtml(it.ts)}</td>
+              <td class="py-3 text-sm font-semibold">${escapeHtml(it.type)}</td>
+              <td class="py-3 text-sm font-mono text-gray-700 break-all">${escapeHtml(it.ref)}</td>
+              <td class="py-3 text-sm font-mono">${escapeHtml(it.delta)}</td>
+              <td class="py-3 text-sm font-mono">${escapeHtml(it.balance)}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+          return;
+        }
+      } catch {}
+
+      tbody.appendChild(noRow);
+    }
+
+    function validateSha512Hex(hex) {
+      const v = String(hex || '').trim();
+      if (v.length !== 128) return false;
+      return /^[0-9a-fA-F]{128}$/.test(v);
+    }
+
+    async function registerEvent() {
+      const hash = document.getElementById('event-hash').value.trim();
+      const metaRaw = document.getElementById('event-metadata').value.trim();
+
+      if (!validateSha512Hex(hash)) {
+        toast('err', 'Hash inválido: use 128 caracteres hexadecimais (SHA-512).');
+        return;
+      }
+
+      if (metaRaw.length > 0) {
+        try { JSON.parse(metaRaw); } catch {
+          toast('err', 'Metadados inválidos: JSON malformado.');
+          return;
+        }
+      }
+
+      try {
+        const res = await fetch('/submit_event', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ event_id: hash })
+        });
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          toast('err', text && text.length < 180 ? text : 'Falha ao registrar evento.');
+          return;
+        }
+
+        const receipt = {
+          at: new Date().toISOString(),
+          event_id: hash,
+          metadata: metaRaw.length ? JSON.parse(metaRaw) : null,
+          burn: 1
+        };
+
+        document.getElementById('receipt').textContent = JSON.stringify(receipt, null, 2);
+        document.getElementById('receipt-box').classList.remove('hidden');
+
+        toast('ok', 'Evento registrado. 1 crédito consumido.');
+        await refreshAll();
+        showTab('dashboard');
+      } catch {
+        toast('err', 'Não foi possível acessar o backend para registrar o evento.');
+      }
+    }
+
+    function selectPackage(valueBRL, credits) {
+      state.selectedPackage = { value: valueBRL, credits };
+      const sum = document.getElementById('purchase-summary');
+      sum.innerHTML = `
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600 font-semibold">Valor</span>
+            <span class="font-extrabold">R$ ${valueBRL}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600 font-semibold">Créditos</span>
+            <span class="font-extrabold">${credits.toLocaleString('pt-BR')}</span>
+          </div>
+          <div class="text-xs text-gray-500 pt-2 border-t">
+            Crédito entra após confirmação do pagamento.
+          </div>
+        </div>
+      `;
+      toast('info', `Pacote selecionado: R$ ${valueBRL} → ${credits.toLocaleString('pt-BR')} créditos.`);
+    }
+
+    async function createCheckout() {
+      if (!state.selectedPackage) {
+        toast('err', 'Selecione um pacote antes de gerar o link.');
+        return;
+      }
+
+      const wid = resolveWalletId();
+      if (!wid) {
+        toast('err', 'Wallet ID indisponível. Faça login novamente.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/payments/create', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            wallet_id: wid,
+            value: state.selectedPackage.value
+          })
+        });
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          toast('err', text && text.length < 180 ? text : 'Falha ao gerar link de pagamento.');
+          return;
+        }
+
+        const data = await res.json();
+        const url = String(data.checkout_url || data.url || '');
+
+        if (!url) {
+          toast('err', 'Backend não retornou o link de pagamento.');
+          return;
+        }
+
+        state.checkoutUrl = url;
+        document.getElementById('checkout-url').value = url;
+        document.getElementById('checkout-box').classList.remove('hidden');
+        toast('ok', 'Link de pagamento gerado.');
+      } catch {
+        toast('err', 'Não foi possível acessar o backend para gerar o link.');
+      }
+    }
+
+    function copyCheckoutUrl() {
+      if (!state.checkoutUrl) return;
+      navigator.clipboard.writeText(state.checkoutUrl).then(
+        () => toast('ok', 'Link copiado.'),
+        () => toast('err', 'Falha ao copiar o link.')
+      );
+    }
+
+    function openCheckoutUrl() {
+      if (!state.checkoutUrl) return;
+      window.open(state.checkoutUrl, '_blank', 'noopener,noreferrer');
+    }
+
+    async function refreshAll() {
+      await pingBackend();
+      await loadBalance();
+      await loadEventsCount();
+      await loadRecentActivity();
+
+      state.lastSync = new Date();
+      document.getElementById('last-sync').textContent = state.lastSync.toLocaleString('pt-BR');
+    }
+
+    function bootstrapUser() {
+      const isAuth = sessionStorage.getItem('poe_authenticated') === 'true';
+      if (!isAuth) {
+        document.body.innerHTML = `
+          <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+            <div class="card bg-white p-8 max-w-md w-full">
+              <div class="text-2xl font-extrabold mb-2">Login necessário</div>
+              <div class="text-gray-600 mb-6">Faça login para acessar o dashboard.</div>
+              <button class="btn-primary w-full" onclick="goToLogin()">
+                <i class="fas fa-arrow-left mr-2"></i>Ir para login
+              </button>
+            </div>
+          </div>
+        `;
+        return false;
+      }
+
+      let user = {};
+      try {
+        user = JSON.parse(sessionStorage.getItem('poe_user') || '{}');
+      } catch {
+        user = {};
+      }
+
+      state.user.name = String(user.name || '');
+      state.user.email = String(user.email || '');
+      state.user.client_id = String(user.client_id || '');
+      state.user.wallet_id = String(user.wallet_id || '');
+      state.user.initials = computeInitials(state.user.name || state.user.email);
+
+      setUserUI();
+      return true;
+    }
+
+    function goToLogin() {
+      const target = document.referrer && document.referrer.length > 0 ? document.referrer : 'login.html';
+      window.location.href = target;
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!bootstrapUser()) return;
+      await refreshAll();
+    });
+  </script>
+</body>
+</html>
